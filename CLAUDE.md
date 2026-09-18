@@ -1,7 +1,5 @@
 # Ashen Contracts — project context
 
-> Rule: keep this file SHORT. Details (game design, roadmap, architecture decisions) live in /docs — Claude Code reads them on demand. Don't duplicate content here, just point to it.
-
 ## What this project is
 A browser-based idle/RPG game set in a dark-fantasy world. The player manages a stronghold, takes on monster-hunting contracts, collects resources that regenerate over time, and progresses through building/research actions that take real time to complete. Full design: `docs/GAME_DESIGN.md`.
 
