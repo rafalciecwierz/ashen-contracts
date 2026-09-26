@@ -7,6 +7,7 @@ import * as bcrypt from 'bcrypt';
 import { PrismaService } from '../prisma/prisma.service';
 import { LoginDto, RegisterDto } from './dto';
 import { JwtService } from '@nestjs/jwt';
+import { JwtPayload, LoginResponse, RegisterResponse } from '@ashen-contracts/shared';
 
 @Injectable()
 export class AuthService {
@@ -15,7 +16,7 @@ export class AuthService {
     private jwt: JwtService,
   ) {}
 
-  async register(dto: RegisterDto) {
+  async register(dto: RegisterDto): Promise<RegisterResponse> {
     const existing = await this.prisma.player.findUnique({
       where: { email: dto.email },
     });
@@ -32,11 +33,10 @@ export class AuthService {
       },
     });
 
-    // never return the hash to the client
     return { id: player.id, email: player.email };
   }
 
-  async login(dto: LoginDto) {
+  async login(dto: LoginDto): Promise<LoginResponse> {
     const player = await this.prisma.player.findUnique({
       where: { email: dto.email },
     });
