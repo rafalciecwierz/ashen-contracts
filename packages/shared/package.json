@@ -2,5 +2,11 @@
   "name": "@ashen-contracts/shared",
   "version": "0.0.0",
   "private": true,
-  "types": "./src/index.ts"
+  "types": "./src/index.ts",
+  "exports": {
+    ".": {
+      "types": "./src/index.ts",
+      "default": "./src/index.ts"
+    }
+  }
 }
