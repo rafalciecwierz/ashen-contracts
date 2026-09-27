@@ -28,3 +28,5 @@ apps/api/prisma/*.db
 
 # Testing
 coverage/
+*storybook.log
+storybook-static

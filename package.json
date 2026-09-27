@@ -14,5 +14,8 @@
     "lint": "pnpm --recursive --filter=\"./apps/*\" lint",
     "dev:api": "pnpm --filter api dev",
     "dev:web": "pnpm --filter web dev"
+  },
+  "devDependencies": {
+    "typescript": "5.1.3"
   }
 }
