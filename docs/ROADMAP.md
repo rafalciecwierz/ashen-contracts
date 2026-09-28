@@ -14,7 +14,9 @@ Status legend: 🔲 planned · 🔶 in progress · ✅ shipped
 
 ## v0.1 — Foundation & the character 🔶
 The skeleton: something real, deployed, and playable, even if rough.
-- [ ] Auth (NestJS + JWT)
+- [X] Auth (NestJS + JWT)
+- [X] Auth (Shared types setup)
+- [X] Auth (Storybook setup and wiring up with web app)
 - [ ] Short character creation flow (race/origin choice, starting traits)
 - [ ] Single starting location (the clearing)
 - [ ] Energy resource, server-authoritative time-based regeneration
