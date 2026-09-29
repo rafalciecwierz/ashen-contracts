@@ -1,0 +1,32 @@
+@import "tailwindcss";
+
+/*
+ * Ashen Contracts — design tokens
+ * Dark, "sci-fi/dark-fantasy dashboard" palette (see docs/GAME_DESIGN.md for tone reference).
+ * Each --color-* variable below becomes a Tailwind utility automatically:
+ * --color-brand-600 → bg-brand-600, text-brand-600, border-brand-600, etc.
+ */
+@theme {
+  /* Brand accent (purple, from the first Button) */
+  --color-brand-400: oklch(74% 0.16 293);
+  --color-brand-500: oklch(64% 0.19 293);
+  --color-brand-600: oklch(55% 0.21 293);
+  --color-brand-700: oklch(46% 0.19 293);
+
+  /* Background / surface (dark theme base) */
+  --color-bg: oklch(15% 0.01 280);
+  --color-surface: oklch(20% 0.015 280);
+  --color-surface-raised: oklch(25% 0.015 280);
+
+  /* Text */
+  --color-ink: oklch(95% 0.005 280);
+  --color-ink-muted: oklch(70% 0.01 280);
+
+  /* Feedback (needed soon for the login/register screen error states) */
+  --color-success: oklch(65% 0.15 150);
+  --color-error: oklch(60% 0.2 25);
+
+  /* Typography */
+  --font-heading: "Cinzel", serif;
+  --font-body: "Inter", system-ui, sans-serif;
+}

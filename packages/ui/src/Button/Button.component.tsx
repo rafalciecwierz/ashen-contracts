@@ -4,21 +4,17 @@ export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: 'primary' | 'secondary';
 }
 
-export function Button({ variant = 'primary', style, children, ...rest }: ButtonProps) {
-  const baseStyle: React.CSSProperties = {
-    padding: '0.5rem 1.25rem',
-    borderRadius: '4px',
-    border: 'none',
-    fontFamily: 'inherit',
-    fontWeight: 600,
-    cursor: 'pointer',
-    backgroundColor: variant === 'primary' ? '#7c3aed' : 'transparent',
-    color: variant === 'primary' ? '#fff' : '#7c3aed',
-    boxShadow: variant === 'primary' ? 'none' : 'inset 0 0 0 1px #7c3aed',
-  };
+const variantStyles = {
+  primary: 'bg-brand-600 hover:bg-brand-700 text-ink border-transparent',
+  secondary: 'bg-transparent hover:bg-surface-raised text-brand-400 border-brand-500',
+};
 
+export function Button({ variant = 'primary', className = '', children, ...rest }: ButtonProps) {
   return (
-    <button style={{ ...baseStyle, ...style }} {...rest}>
+    <button
+      className={`px-5 py-2 rounded font-semibold font-body border cursor-pointer transition-colors ${variantStyles[variant]} ${className}`}
+      {...rest}
+    >
       {children}
     </button>
   );
