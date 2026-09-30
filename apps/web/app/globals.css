@@ -1,5 +1,6 @@
 @import "tailwindcss";
 @import "@ashen-contracts/ui/theme.css";
+@source "../../../packages/ui/src/**/*.{ts,tsx}";
 
 :root {
   --background: #ffffff;
