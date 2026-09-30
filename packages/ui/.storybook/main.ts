@@ -1,9 +1,6 @@
 import type { StorybookConfig } from '@storybook/react-vite';
 import tailwindcss from '@tailwindcss/vite';
 
-// w konfiguracji configu, dodaj:
-
-
 const config: StorybookConfig = {
   "stories": [
     "../stories/**/*.mdx",
@@ -18,7 +15,12 @@ const config: StorybookConfig = {
     "@storybook/addon-docs",
     "@storybook/addon-onboarding"
   ],
-  "framework": "@storybook/react-vite"
+  "framework": "@storybook/react-vite",
+  async viteFinal(config) {
+    config.plugins = config.plugins || [];
+    config.plugins.push(tailwindcss());
+    return config;
+  },
 };
 
 export default config;
