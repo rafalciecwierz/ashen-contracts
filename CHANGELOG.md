@@ -9,6 +9,7 @@ Each entry should be short — a git-log summary, not a design doc. Detailed rea
 ## [Unreleased]
 ### Added
 - Added packages/ui with Storybook, first Button component wired into apps/web"
+- Added shared Tailwind v4 theme (packages/ui/src/styles/theme.css), migrated Button to use design tokens
 
 ### Changed
 -
