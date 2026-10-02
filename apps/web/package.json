@@ -9,6 +9,7 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@ashen-contracts/shared": "workspace:*",
     "@ashen-contracts/ui": "workspace:*",
     "next": "16.3.5",
     "react": "19.2.8",
