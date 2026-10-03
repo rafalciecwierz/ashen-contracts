@@ -1,10 +1,22 @@
 'use client';
 
-import { useState, type FormEvent } from 'react';
+import { SubmitEvent, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { z } from 'zod';
 import { Input, Button } from '@ashen-contracts/ui';
 import type { RegisterResponse } from '@ashen-contracts/shared';
 import { ApiError, apiPost } from '@/src/http/api';
+
+const registerSchema = z
+  .object({
+    email: z.email({ error: 'Enter a valid email address.' }),
+    password: z.string().min(8, { error: 'Password must be at least 8 characters.' }),
+    confirmPassword: z.string(),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    error: 'Passwords do not match.',
+    path: ['confirmPassword'],
+  });
 
 interface FieldErrors {
   email?: string;
@@ -23,27 +35,22 @@ export default function RegisterPage() {
   const [loading, setLoading] = useState(false);
 
   function validate(): boolean {
+    const result = registerSchema.safeParse({ email, password, confirmPassword });
+    if (result.success) {
+      setFieldErrors({});
+      return true;
+    }
+
     const errors: FieldErrors = {};
-
-    // mirrors RegisterDto's @IsEmail() — deliberately simple, the backend is
-    // the source of truth and will reject anything this check misses
-    if (!/^\S+@\S+\.\S+$/.test(email)) {
-      errors.email = 'Enter a valid email address.';
+    for (const issue of result.error.issues) {
+      const field = issue.path[0] as keyof FieldErrors;
+      if (!errors[field]) errors[field] = issue.message;
     }
-    // mirrors RegisterDto's @MinLength(8)
-    if (password.length < 8) {
-      errors.password = 'Password must be at least 8 characters.';
-    }
-    // frontend-only rule, backend has no concept of "confirm password"
-    if (confirmPassword !== password) {
-      errors.confirmPassword = 'Passwords do not match.';
-    }
-
     setFieldErrors(errors);
-    return Object.keys(errors).length === 0;
+    return false;
   }
 
-  async function handleSubmit(event: FormEvent) {
+  async function handleSubmit(event: SubmitEvent<HTMLFormElement>) {
     event.preventDefault();
     setServerError(null);
 
