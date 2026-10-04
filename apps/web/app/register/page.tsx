@@ -2,27 +2,13 @@
 
 import { SubmitEvent, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { z } from 'zod';
 import { Input, Button } from '@ashen-contracts/ui';
 import type { RegisterResponse } from '@ashen-contracts/shared';
 import { ApiError, apiPost } from '@/src/http/api';
-
-const registerSchema = z
-  .object({
-    email: z.email({ error: 'Enter a valid email address.' }),
-    password: z.string().min(8, { error: 'Password must be at least 8 characters.' }),
-    confirmPassword: z.string(),
-  })
-  .refine((data) => data.password === data.confirmPassword, {
-    error: 'Passwords do not match.',
-    path: ['confirmPassword'],
-  });
-
-interface FieldErrors {
-  email?: string;
-  password?: string;
-  confirmPassword?: string;
-}
+import { RegisterFieldErrors } from './register.types';
+import { registerSchema } from './register.schema';
+import { ApiEndpoints } from '@/src/routes/enpoints';
+import { AppPaths, buildPath } from '@/src/routes/routes';
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -30,7 +16,7 @@ export default function RegisterPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});
+  const [fieldErrors, setFieldErrors] = useState<RegisterFieldErrors>({});
   const [serverError, setServerError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
@@ -41,9 +27,9 @@ export default function RegisterPage() {
       return true;
     }
 
-    const errors: FieldErrors = {};
+    const errors: RegisterFieldErrors = {};
     for (const issue of result.error.issues) {
-      const field = issue.path[0] as keyof FieldErrors;
+      const field = issue.path[0] as keyof RegisterFieldErrors;
       if (!errors[field]) errors[field] = issue.message;
     }
     setFieldErrors(errors);
@@ -58,8 +44,8 @@ export default function RegisterPage() {
 
     setLoading(true);
     try {
-      await apiPost<RegisterResponse>('/auth/register', { email, password });
-      router.push('/login?registered=true');
+      await apiPost<RegisterResponse>(ApiEndpoints.auth.register, { email, password });
+      router.push(buildPath(AppPaths.login, { registered: 'true' }));
     } catch (err) {
       setServerError(
         err instanceof ApiError ? err.message : 'Something went wrong. Please try again.',
