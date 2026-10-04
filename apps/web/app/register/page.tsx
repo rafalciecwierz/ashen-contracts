@@ -7,12 +7,15 @@ import type { RegisterResponse } from '@ashen-contracts/shared';
 import { ApiError, apiPost } from '@/src/http/api';
 import { RegisterFieldErrors } from './register.types';
 import { registerSchema } from './register.schema';
-import { ApiEndpoints } from '@/src/routes/enpoints';
+import { ApiEndpoints } from '@/src/http/endpoints';
 import { AppPaths, buildPath } from '@/src/routes/routes';
+import { useTranslations } from 'next-intl';
 
 export default function RegisterPage() {
   const router = useRouter();
-
+  const t = useTranslations('auth.register');
+  const tErrors = useTranslations('errors');
+  const tValidation = useTranslations('validation');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -47,9 +50,7 @@ export default function RegisterPage() {
       await apiPost<RegisterResponse>(ApiEndpoints.auth.register, { email, password });
       router.push(buildPath(AppPaths.login, { registered: 'true' }));
     } catch (err) {
-      setServerError(
-        err instanceof ApiError ? err.message : 'Something went wrong. Please try again.',
-      );
+      setServerError(err instanceof ApiError ? tErrors(err.code ?? 'GENERIC') : tErrors('GENERIC'));
     } finally {
       setLoading(false);
     }
@@ -61,37 +62,39 @@ export default function RegisterPage() {
         onSubmit={handleSubmit}
         className="w-full max-w-sm bg-surface border border-surface-raised rounded-lg p-6 flex flex-col gap-4"
       >
-        <h1 className="text-xl font-heading text-ink">Create your account</h1>
+        <h1 className="text-xl font-heading text-ink">
+          {t('title')}
+        </h1>
 
         <Input
-          label="Email"
+          label={t('emailLabel')}
           type="email"
           autoComplete="email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          error={fieldErrors.email}
+          error={fieldErrors.email ? tValidation(fieldErrors.email) : undefined}
         />
         <Input
-          label="Password"
+          label={t('passwordLabel')}
           type="password"
           autoComplete="new-password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
-          error={fieldErrors.password}
+          error={fieldErrors.password ? tValidation(fieldErrors.password) : undefined}
         />
         <Input
-          label="Confirm password"
+          label={t('confirmPasswordLabel')}
           type="password"
           autoComplete="new-password"
           value={confirmPassword}
           onChange={(e) => setConfirmPassword(e.target.value)}
-          error={fieldErrors.confirmPassword}
+          error={fieldErrors.confirmPassword ? tValidation(fieldErrors.confirmPassword) : undefined}
         />
 
         {serverError && <p className="text-sm text-error">{serverError}</p>}
 
         <Button type="submit" disabled={loading}>
-          {loading ? 'Creating account…' : 'Create account'}
+          {loading ? t('submitting') : t('submit')}
         </Button>
       </form>
     </main>

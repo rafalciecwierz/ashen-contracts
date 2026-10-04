@@ -7,7 +7,11 @@ import * as bcrypt from 'bcrypt';
 import { PrismaService } from '../prisma/prisma.service';
 import { LoginDto, RegisterDto } from './dto';
 import { JwtService } from '@nestjs/jwt';
-import { JwtPayload, LoginResponse, RegisterResponse } from '@ashen-contracts/shared';
+import {
+  AuthErrorCode,
+  LoginResponse,
+  RegisterResponse,
+} from '@ashen-contracts/shared';
 
 @Injectable()
 export class AuthService {
@@ -21,7 +25,11 @@ export class AuthService {
       where: { email: dto.email },
     });
     if (existing) {
-      throw new ConflictException('Email already registered');
+      const code: AuthErrorCode = 'EMAIL_ALREADY_REGISTERED';
+      throw new ConflictException({
+        code,
+        message: 'Email already registered',
+      });
     }
 
     const passwordHash = await bcrypt.hash(dto.password, 10);
@@ -42,7 +50,8 @@ export class AuthService {
     });
 
     if (!player) {
-      throw new UnauthorizedException('Invalid credentials');
+      const code: AuthErrorCode = 'INVALID_CREDENTIALS';
+      throw new UnauthorizedException({ code, message: 'Invalid credentials' });
     }
 
     const passwordMatches = await bcrypt.compare(
@@ -51,7 +60,8 @@ export class AuthService {
     );
 
     if (!passwordMatches) {
-      throw new UnauthorizedException('Invalid credentials');
+      const code: AuthErrorCode = 'INVALID_CREDENTIALS';
+      throw new UnauthorizedException({ code, message: 'Invalid credentials' });
     }
 
     const token = await this.jwt.signAsync({

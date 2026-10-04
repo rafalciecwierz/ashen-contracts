@@ -1,0 +1,36 @@
+{
+  "nav": {
+    "login": "Log in",
+    "register": "Create account"
+  },
+  "auth": {
+    "register": {
+      "title": "Create your account",
+      "emailLabel": "Email",
+      "passwordLabel": "Password",
+      "confirmPasswordLabel": "Confirm password",
+      "submit": "Create account",
+      "submitting": "Creating account…"
+    },
+    "login": {
+      "unauthorizedTitle": "The gates remain sealed",
+      "unauthorizedBody": "No contract bears your name here — not yet. Prove who you are, or turn back to the ale and the fire.",
+      "registeredTitle": "Your name is inked in the ledger",
+      "registeredBody": "The road ahead is yours to walk. Step through, and let us see what you're made of.",
+      "emailLabel": "Email",
+      "passwordLabel": "Password",
+      "submit": "Log in",
+      "submitting": "Logging in…"
+    }
+  },
+  "validation": {
+    "invalidEmail": "Enter a valid email address.",
+    "passwordTooShort": "Password must be at least 8 characters.",
+    "passwordsDoNotMatch": "Passwords do not match."
+  },
+  "errors": {
+    "EMAIL_ALREADY_REGISTERED": "This email is already registered.",
+    "INVALID_CREDENTIALS": "Incorrect email or password.",
+    "GENERIC": "Something went wrong. Please try again."
+  }
+}
