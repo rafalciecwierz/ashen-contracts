@@ -17,6 +17,11 @@ The skeleton: something real, deployed, and playable, even if rough.
 - [X] Auth (NestJS + JWT)
 - [X] Auth (Shared types setup)
 - [X] Auth (Storybook setup and wiring up with web app)
+- [x] `packages/ui`: Storybook, Button/Input/Modal components, shared Tailwind v4 design tokens
+- [x] `/register` screen (Zod validation, i18n, typed API client)
+- [ ] `/login` screen
+- [ ] JWT Guard protecting authenticated endpoints
+- [ ] Navbar (logo, login/register, logged-in state)
 - [ ] Short character creation flow (race/origin choice, starting traits)
 - [ ] Single starting location (the clearing)
 - [ ] Energy resource, server-authoritative time-based regeneration

@@ -8,8 +8,13 @@ Each entry should be short — a git-log summary, not a design doc. Detailed rea
 
 ## [Unreleased]
 ### Added
-- Added packages/ui with Storybook, first Button component wired into apps/web"
-- Added shared Tailwind v4 theme (packages/ui/src/styles/theme.css), migrated Button to use design tokens
+- `packages/ui`: Storybook (react-vite) setup with Button, Input, and Modal (built on Radix UI `Dialog`) components
+- Shared Tailwind v4 design tokens (`packages/ui/src/styles/theme.css`) consumed by both Storybook and `apps/web`
+- `/register` screen: form with Zod validation, typed API client (`apiPost`/`ApiError`), centralized route/endpoint constants (`AppPaths`, `ApiEndpoints`)
+- i18n via next-intl (single locale for now, no URL routing) for UI copy, validation messages, and API error codes
+- Backend: structured `{ code, message }` error responses with a shared `AuthErrorCode` type, replacing plain error strings
+- CORS enabled on the API for local frontend development
+- Unit tests for `AuthService` and `AuthController`
 
 ### Changed
 -
