@@ -15,6 +15,8 @@ Each entry should be short — a git-log summary, not a design doc. Detailed rea
 - Backend: structured `{ code, message }` error responses with a shared `AuthErrorCode` type, replacing plain error strings
 - CORS enabled on the API for local frontend development
 - Unit tests for `AuthService` and `AuthController`
+- `/login` screen: form with Zod validation, copy that varies by context (`?registered=true` vs. default "unauthorized" framing), `?redirect=` support for sending users back where they came from
+- BFF pattern: Next.js Route Handlers (`src/app/api/auth/**`, exposed to the browser as `InternalApiRoutes`) proxy auth requests to `apps/api` server-side; the JWT is set as an `httpOnly` cookie by Next.js itself and never reaches client-side JavaScript (see `docs/DECISIONS.md` #005)
 
 ### Changed
 -

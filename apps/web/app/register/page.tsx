@@ -7,9 +7,9 @@ import type { RegisterResponse } from '@ashen-contracts/shared';
 import { ApiError, apiPost } from '@/src/http/api';
 import { RegisterFieldErrors } from './register.types';
 import { registerSchema } from './register.schema';
-import { ApiEndpoints } from '@/src/http/endpoints';
 import { AppPaths, buildPath } from '@/src/routes/routes';
 import { useTranslations } from 'next-intl';
+import { InternalApiRoutes } from '@/src/http';
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -47,7 +47,7 @@ export default function RegisterPage() {
 
     setLoading(true);
     try {
-      await apiPost<RegisterResponse>(ApiEndpoints.auth.register, { email, password });
+      await apiPost<RegisterResponse>(InternalApiRoutes.auth.register, { email, password });
       router.push(buildPath(AppPaths.login, { registered: 'true' }));
     } catch (err) {
       setServerError(err instanceof ApiError ? tErrors(err.code ?? 'GENERIC') : tErrors('GENERIC'));

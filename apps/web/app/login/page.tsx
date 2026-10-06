@@ -8,9 +8,7 @@ import type { LoginResponse } from '@ashen-contracts/shared';
 import { loginSchema } from './login.schema';
 import type { LoginFieldErrors } from './login.types';
 import { AppPaths } from '@/src/routes/routes';
-import { ApiEndpoints } from '@/src/http/endpoints';
-import { ApiError, apiPost } from '@/src/http/api';
-import { setToken } from '@/src/http/token';
+import { InternalApiRoutes, ApiError, apiPost } from '@/src/http';
 
 function LoginForm() {
   const router = useRouter();
@@ -57,12 +55,7 @@ function LoginForm() {
 
     setLoading(true);
     try {
-      const { accessToken } = await apiPost<LoginResponse>(ApiEndpoints.auth.login, {
-        email,
-        password,
-      });
-      setToken(accessToken);
-      // AppPaths.home for now — swap to a dedicated "/play" root once it exists.
+      await apiPost(InternalApiRoutes.auth.login, { email, password });
       router.push(redirectTarget ?? AppPaths.home);
     } catch (err) {
       setServerError(
