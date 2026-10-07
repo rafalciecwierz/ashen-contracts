@@ -19,8 +19,8 @@ The skeleton: something real, deployed, and playable, even if rough.
 - [X] Auth (Storybook setup and wiring up with web app)
 - [x] `packages/ui`: Storybook, Button/Input/Modal components, shared Tailwind v4 design tokens
 - [x] `/register` screen (Zod validation, i18n, typed API client)
-- [ ] `/login` screen
-- [ ] JWT Guard protecting authenticated endpoints
+- [x] `/login` screen (context-aware copy, `?redirect=` support, BFF + httpOnly cookie)
+- [x] JWT Guard protecting authenticated endpoints (global, opt-out via `@Public()`)
 - [ ] Navbar (logo, login/register, logged-in state)
 - [ ] Short character creation flow (race/origin choice, starting traits)
 - [ ] Single starting location (the clearing)
