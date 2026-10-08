@@ -1,8 +1,12 @@
-import { Body, Controller, Post } from '@nestjs/common';
+import { Body, Controller, Get, Post } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { LoginDto, RegisterDto } from './dto';
-import { LoginResponse, RegisterResponse } from '@ashen-contracts/shared';
-import { Public } from './guards/public.decorator';
+import {
+  JwtPayload,
+  LoginResponse,
+  RegisterResponse,
+} from '@ashen-contracts/shared';
+import { CurrentUser, Public } from './decorators';
 
 @Controller('auth')
 export class AuthController {
@@ -18,5 +22,10 @@ export class AuthController {
   @Post('login')
   login(@Body() dto: LoginDto): Promise<LoginResponse> {
     return this.authService.login(dto);
+  }
+
+  @Get('me')
+  me(@CurrentUser() user: JwtPayload) {
+    return this.authService.me(user.sub);
   }
 }

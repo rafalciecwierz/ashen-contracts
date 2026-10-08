@@ -28,3 +28,17 @@ export interface JwtPayload {
   sub: string;
   email: string;
 }
+
+/**
+ * Response shape for `GET /auth/me` — who the current session belongs to.
+ * Account identity only; game data (character name, energy, ...) comes from
+ * the character endpoints, not from here.
+ * Requires a valid JWT (the route is not `@Public()`).
+ * @see docs/features/01-auth.md
+ */
+export interface MeResponse {
+  /** UUID of the authenticated player. */
+  id: string;
+  /** The email the player registered with. */
+  email: string;
+}

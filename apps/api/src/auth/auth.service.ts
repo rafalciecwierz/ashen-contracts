@@ -10,6 +10,7 @@ import { JwtService } from '@nestjs/jwt';
 import {
   AuthErrorCode,
   LoginResponse,
+  MeResponse,
   RegisterResponse,
 } from '@ashen-contracts/shared';
 
@@ -70,5 +71,21 @@ export class AuthService {
     });
 
     return { accessToken: token };
+  }
+
+  async me(userId: string): Promise<MeResponse> {
+    const player = await this.prisma.player.findUnique({
+      where: { id: userId },
+    });
+
+    if (!player) {
+      const code: AuthErrorCode = 'INVALID_CREDENTIALS';
+      throw new UnauthorizedException({
+        code,
+        message: 'Account no longer exists',
+      });
+    }
+
+    return { id: player.id, email: player.email };
   }
 }
