@@ -23,6 +23,10 @@
       "submitting": "Logging in…"
     }
   },
+  "play": {
+    "title": "The road awaits",
+    "body": "Your journey has not yet begun. This place is still being built."
+  },
   "validation": {
     "invalidEmail": "Enter a valid email address.",
     "passwordTooShort": "Password must be at least 8 characters.",

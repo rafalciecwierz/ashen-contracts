@@ -9,8 +9,9 @@
  */
 export const ApiEndpoints = {
   auth: {
-    register: '/auth/register',
     login: '/auth/login',
+    me: '/auth/me',
+    register: '/auth/register',
   },
 } as const;
 

@@ -1,4 +1,4 @@
-import { Button, Modal } from '@ashen-contracts/ui';
+import { Button } from '@ashen-contracts/ui';
 
 export default function Home() {
   return (
@@ -7,7 +7,6 @@ export default function Home() {
         <div>
           <h1>Ashen contracts</h1>
           <Button>Rozpocznij swoja przygode!</Button>
-          <Modal />
         </div>
       </main>
     </div>

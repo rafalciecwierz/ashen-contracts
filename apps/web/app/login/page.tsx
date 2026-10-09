@@ -4,7 +4,6 @@ import { Suspense, useState, type SubmitEvent } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { Input, Button } from '@ashen-contracts/ui';
-import type { LoginResponse } from '@ashen-contracts/shared';
 import { loginSchema } from './login.schema';
 import type { LoginFieldErrors } from './login.types';
 import { AppPaths } from '@/src/routes/routes';
@@ -20,13 +19,14 @@ function LoginForm() {
   //   send them back there after a successful login instead of the default.
   const registered = searchParams.get('registered') === 'true';
   const redirectTarget = searchParams.get('redirect');
+  const safeRedirect = redirectTarget?.startsWith('/') && !redirectTarget.startsWith('//') ? redirectTarget : null;
 
   const t = useTranslations('auth.login');
   const tValidation = useTranslations('validation');
   const tErrors = useTranslations('errors');
 
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [email, setEmail] = useState<string>('');
+  const [password, setPassword] = useState<string>('');
   const [fieldErrors, setFieldErrors] = useState<LoginFieldErrors>({});
   const [serverError, setServerError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -47,7 +47,7 @@ function LoginForm() {
     return false;
   }
 
-  async function handleSubmit(event: SubmitEvent<HTMLFormElement>) {
+  async function handleSubmit(event: SubmitEvent<HTMLFormElement>): Promise<void> {
     event.preventDefault();
     setServerError(null);
 
@@ -56,7 +56,7 @@ function LoginForm() {
     setLoading(true);
     try {
       await apiPost(InternalApiRoutes.auth.login, { email, password });
-      router.push(redirectTarget ?? AppPaths.home);
+      router.push(safeRedirect ?? AppPaths.play);
     } catch (err) {
       setServerError(
         err instanceof ApiError ? tErrors(err.code ?? 'GENERIC') : tErrors('GENERIC'),
