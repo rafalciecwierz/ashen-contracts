@@ -47,7 +47,7 @@ export function UserMenu({ name, description, avatarSrc, items }: UserMenuProps)
             <DropdownMenu.Item
               key={item.label}
               onSelect={item.onSelect}
-              className="cursor-pointer rounded px-3 py-2 text-sm outline-none data-[highlighted]:bg-surface-raised"
+              className="cursor-pointer rounded px-3 py-2 text-sm outline-none data-highlighted:bg-surface-raised"
             >
               {item.label}
             </DropdownMenu.Item>

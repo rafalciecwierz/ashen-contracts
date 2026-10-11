@@ -1,7 +1,9 @@
 {
   "nav": {
     "login": "Log in",
-    "register": "Create account"
+    "register": "Create account",
+    "logout": "Log out",
+    "unnamedHero": "Unnamed Hero"
   },
   "auth": {
     "register": {

@@ -27,6 +27,8 @@ Purpose: a portfolio project to demonstrate full-stack engineering (frontend-fir
   ```
   Plain `jest.mock('@nestjs/jwt')` (no factory) still loads the real file to auto-generate the mock shape and fails the same way — the factory must be explicit. Apply this pattern proactively to any new NestJS module (Character, Location, Quest) that imports `@nestjs/swagger` decorators or similar ESM-shipping packages in its spec files.
 - [Add naming conventions, folder structure rules, DTO naming as they solidify]
+- **Where components live (apps/web):** generic, app-agnostic UI → `packages/ui`. Components used by a single route live next to it in a private `_components/` folder (e.g. `src/app/play/_components/`). A component used by two or more routes moves to `src/components/`. Start local; promote only when a second use appears.
+- **File naming (apps/web):** camelCase file names. Suffix by role: `.component.tsx` (React components), `.schema.ts` (Zod schemas), `.types.ts` (type declarations). Non-component modules are plain camelCase (`getCurrentUser.ts`, `routeHelpers.ts`).
 
 ## Common commands
 - `pnpm install` — install all workspace dependencies

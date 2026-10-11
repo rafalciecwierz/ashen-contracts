@@ -1,7 +1,9 @@
 import type { ReactNode } from 'react';
 import { redirect } from 'next/navigation';
 import { getCurrentUser } from '@/src/http/getCurrentUser';
-import { AppPaths, buildPath } from '@/src/routes/routes';
+import { AppPaths } from '@/src/routes/routes';
+import { PlayNavbar } from './_components';
+import { buildPath } from '@/src/routes/routeHelpers';
 
 export default async function PlayLayout({ children }: { children: ReactNode }) {
   const user = await getCurrentUser();
@@ -12,10 +14,7 @@ export default async function PlayLayout({ children }: { children: ReactNode }) 
 
   return (
     <div className="min-h-screen bg-bg text-ink flex flex-col">
-      {/* Temporary bar — replaced by the Navbar in the next step. */}
-      <header className="border-b border-surface-raised px-4 py-3 text-sm text-ink-muted">
-        {user.email}
-      </header>
+      <PlayNavbar email={user.email} />
       <div className="flex-1">{children}</div>
     </div>
   );

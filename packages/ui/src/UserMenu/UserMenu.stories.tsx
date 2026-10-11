@@ -1,6 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import { UserMenu } from './UserMenu.component';
-import { Navbar } from '..';
+import { Navbar, UserMenu } from '..';
 
 const meta: Meta<typeof UserMenu> = {
   title: 'Components/UserMenu',

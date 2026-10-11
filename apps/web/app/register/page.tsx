@@ -7,9 +7,10 @@ import type { RegisterResponse } from '@ashen-contracts/shared';
 import { ApiError, apiPost } from '@/src/http/api';
 import { RegisterFieldErrors } from './register.types';
 import { registerSchema } from './register.schema';
-import { AppPaths, buildPath } from '@/src/routes/routes';
+import { AppPaths } from '@/src/routes/routes';
 import { useTranslations } from 'next-intl';
 import { InternalApiRoutes } from '@/src/http';
+import { buildPath } from '@/src/routes/routeHelpers';
 
 export default function RegisterPage() {
   const router = useRouter();
