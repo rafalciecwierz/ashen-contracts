@@ -82,7 +82,8 @@ Verified:
 **Done when:** Submitting an empty password on `/login` shows a proper message.
 
 ### CRIT-05 — Add the `migrate` script and verify the Prisma config file name
-**Status:** ⬜ TODO
+**Status:** ✅ DONE (2026-10-12)
+**Notes:** Renamed `prisma7.config.ts` to `prisma.config.ts` (`git mv`), so every Prisma CLI command finds it without `--config`. Added `migrate` (`prisma migrate dev`), `migrate:deploy` (`prisma migrate deploy`) and `prisma:generate` (`prisma generate`) to `apps/api/package.json`. Verified against a throwaway `postgres:17-alpine` container with `DATABASE_URL` overridden (the `dotenv/config` import does not override variables already set): `pnpm --filter api migrate` applies `init_player` and creates `players`; on a recreated empty database, `migrate:deploy` applies it too; `prisma:generate` writes the client to `src/generated/prisma`. The CLI prints `Loaded Prisma config from prisma.config.ts`.
 **Problem:** CLAUDE.md documents `pnpm --filter api migrate`, but `apps/api/package.json` has no such script. The Prisma config is named `prisma7.config.ts`, while the CLI looks for `prisma.config.ts` by default.
 **Fix:** Rename to `prisma.config.ts`, or pass `--config` explicitly. Add `migrate` (`prisma migrate dev`), `migrate:deploy` and `prisma:generate` scripts.
 **Done when:** `pnpm --filter api migrate` works on a fresh database.

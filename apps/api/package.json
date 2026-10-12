@@ -22,6 +22,9 @@
     "test:cov": "vitest run --coverage",
     "test:debug": "vitest --inspect-brk --no-file-parallelism",
     "test:integration": "vitest run --config vitest.config.integration.mts",
+    "migrate": "prisma migrate dev",
+    "migrate:deploy": "prisma migrate deploy",
+    "prisma:generate": "prisma generate",
     "postinstall": "prisma skills sync || exit 0"
   },
   "dependencies": {
