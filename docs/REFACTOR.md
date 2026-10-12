@@ -42,7 +42,28 @@ Verified: two consecutive builds both produce `dist/main.js`, and `start:prod` b
 **Done when:** `pnpm --filter api build && pnpm --filter api start:prod` boots the API.
 
 ### CRIT-03 — Align NestJS major versions
-**Status:** ⬜ TODO
+**Status:** ✅ DONE (2026-10-12)
+**Notes:** All `@nestjs/*` packages are now 12.x. Versions published on the day of the upgrade (core/common/platform-express/testing 12.1.3, jwt 12.0.3, schematics 12.0.7) fell inside pnpm's `minimumReleaseAge` supply-chain window, so pnpm added them to `minimumReleaseAgeExclude`. To avoid weakening that policy, the upgrade uses the latest versions outside the window instead (12.1.2, 12.0.2, 12.0.6), with no exclusions. Gotcha: `@nestjs/core` and `@nestjs/platform-express` declare each other as peers. pnpm resolved that cycle to the newest version regardless of the policy until both were briefly pinned exactly; once the lockfile held 12.1.2, the ranges went back to `^`. Also upgraded `@types/express` to 5 (Nest 12 runs on Express 5) and `@types/node` to 24.
+
+NestJS 12 is entirely ESM-only, including `@nestjs/testing`, so the old per-module mocks could no longer work at all. The app stays CommonJS and loads ESM at runtime through Node's `require(esm)`, with no flags. API tests moved from Jest to Vitest (5.0.2, the same version `packages/ui` uses):
+- explicit `vitest` imports in specs, and `jest.fn` replaced by `vi.fn`;
+- `vitest.config.mts` and `vitest.config.integration.mts`; `test/jest-e2e.json` removed;
+- the backend "e2e" tests (NestJS template naming) were renamed to what they are, API integration tests: `test:e2e` became `test:integration`, and `*.e2e-spec.ts` became `*.integration-spec.ts`. "e2e" is now reserved for browser tests (WEB-11);
+- `jest`, `ts-jest` and `@types/jest` removed.
+
+A first iteration kept Jest 30 with `--experimental-vm-modules`. It was dropped in favour of Vitest to avoid an "experimental" flag in the test script; ADR #006 lists it as a rejected alternative. An SWC plugin, which the NestJS docs recommend for Vitest, turned out to be unnecessary: Vite 8's Oxc transformer emits decorator metadata (`design:paramtypes` verified in a throwaway test).
+
+Node engines are now `^22.22.3 || >=24.15` (the strictest of the NestJS 12 CLI tooling, Vitest and the runtime), and `.nvmrc` is set to 24.
+
+The ESM workaround mocks were removed from the auth specs. ADR #004 is marked superseded by the new ADR #006, which records the root cause and the alternatives. CLAUDE.md (convention and tech stack), README and ARCHITECTURE now say Vitest instead of Jest.
+
+Verified:
+- `pnpm test` passes (10/10, no mocks, no flags); `test:cov` excludes the generated client; `tsc` and `nest build` pass; `pnpm install --frozen-lockfile` passes pnpm's supply-chain check.
+- `start:prod` serves `/`, the auth endpoints (validation and guard behave as before) and Swagger at `/api`.
+
+Out of scope:
+- `test:integration` still fails on the bare `'src/prisma/prisma.module'` import, and after that on a missing `DATABASE_URL` because the integration run does not load `.env`. Both predate the task and are covered by API-10.
+- Remaining peer warnings, none from `@nestjs/*`, are tracked as REPO-08 and UI-07.
 **Problem:** `@nestjs/core` and `@nestjs/common` are 10.4.x, while `@nestjs/jwt`, `@nestjs/config` and `@nestjs/swagger` are 12.x. `swagger@12` requires core/common `^12` as peers. `jwt@12` and `swagger@12` are `"type": "module"` packages, which is the real root cause of the Jest ESM failures described in ADR #004.
 **Fix:** Upgrade all `@nestjs/*` packages, plus `@nestjs/cli`, `schematics` and `testing`, to the same major version (12.x). Then check whether the `jest.mock(..., factory)` workarounds are still needed. If not, remove them and the matching rule in CLAUDE.md. Rewrite ADR #004, or add a superseding ADR, so it states the real cause.
 **Done when:** `pnpm install` reports no peer-dependency warnings for `@nestjs/*`, the tests pass, the app boots, and ADR #004 and CLAUDE.md match the new reality.
@@ -66,7 +87,7 @@ Verified: two consecutive builds both produce `dist/main.js`, and `start:prod` b
 ### REPO-01 — Continuous integration (GitHub Actions)
 **Status:** ⬜ TODO
 **Problem:** There is no CI. Bugs like CRIT-01 and CRIT-02 only show up on someone else's machine.
-**Fix:** Add a workflow on `ubuntu-latest` that runs `pnpm install --frozen-lockfile`, lint, typecheck, unit tests and the build for all workspaces, with the pnpm store cached. Run it on push to `main` and on PRs.
+**Fix:** Add a workflow on `ubuntu-latest` that runs `pnpm install --frozen-lockfile`, lint, typecheck, unit tests and the build for all workspaces, with the pnpm store cached. Use Node from `.nvmrc` (≥ 24.9 is required since CRIT-03). Run it on push to `main` and on PRs.
 **Done when:** CI is green on `main`, and README shows a CI badge.
 
 ### REPO-02 — `docker-compose.yml` for Postgres and Redis
@@ -101,6 +122,12 @@ Verified: two consecutive builds both produce `dist/main.js`, and `start:prod` b
 **Status:** ⬜ TODO
 **Problem:** The current `add: ...` messages don't map to Keep a Changelog sections.
 **Fix:** Document the convention (`feat:`, `fix:`, `refactor:`, `docs:`, `chore:`, `test:` plus a `[TASK-ID]` suffix) in CLAUDE.md. Optionally add commitlint.
+
+### REPO-08 — Resolve remaining peer warnings from the NestJS CLI
+**Status:** ⬜ TODO
+**Problem:** Found during CRIT-03. `@nestjs/schematics@12` wants `typescript >=6.0.0`, while 5.9 is installed. `@nestjs/cli@12` wants `webpack ^5.105.4`, while 5.97 is installed through a transitive dependency. Both are dev-time tooling (`nest generate`, and webpack is unused because the build uses `tsc`), so nothing is broken today.
+**Fix:** Decide on TypeScript 6 for `apps/api` (or the whole repo, together with REPO-05). Check where the old webpack comes from and whether it can be deduplicated or dropped.
+**Done when:** `pnpm peers check` reports no issues for `apps/api`.
 
 ---
 
@@ -233,7 +260,7 @@ AI agents trust CLAUDE.md more than the code, so drift here produces wrong code.
 - In `auth.module.ts`, replace the bare `'src/prisma/prisma.module'` import with a relative one, per CLAUDE.md.
 - Remove the stale comment in `jwtAuth.guard.ts` ("to be added when...").
 - Replace the Hello World `AppController`, `AppService` and their spec with `GET /health` (`@nestjs/terminus`, DB check, `@Public()`).
-- Rewrite the e2e test against `/health`.
+- Rewrite the integration test (`test/app.integration-spec.ts`) against `/health`. Note: the integration run does not load `.env` (only `main.ts` imports `dotenv/config`), so `PrismaService` gets no `DATABASE_URL`. Either load env in `vitest.config.integration.mts` (`setupFiles: ['dotenv/config']`) or rely on API-03's `ConfigModule`. Found during CRIT-03.
 - Delete the empty `apps/api/mocked_prisma/` directory.
 - Replace or remove the `prisma.service.spec.ts` "should be defined" test.
 
@@ -286,7 +313,7 @@ AI agents trust CLAUDE.md more than the code, so drift here produces wrong code.
 
 ### WEB-06 — Decide between Server Actions and Route Handlers (ADR)
 **Status:** ⬜ TODO
-**Fix:** Compare the current Route Handler BFF with Server Actions plus `useActionState`. With Server Actions, the action sets the cookie, the client-side `apiPost` is no longer needed, and forms work without JS. Write ADR #006 with the decision, and implement it if Server Actions win.
+**Fix:** Compare the current Route Handler BFF with Server Actions plus `useActionState`. With Server Actions, the action sets the cookie, the client-side `apiPost` is no longer needed, and forms work without JS. Write an ADR (next free number) with the decision, and implement it if Server Actions win.
 
 ### WEB-07 — Remove create-next-app leftovers and fix the fonts
 **Status:** ⬜ TODO
@@ -345,6 +372,12 @@ AI agents trust CLAUDE.md more than the code, so drift here produces wrong code.
 **Status:** ⬜ TODO
 **Depends on:** REPO-01
 **Fix:** Add a Chromatic deploy step in CI, and put the Storybook link in README, replacing "coming soon".
+
+### UI-07 — Storybook Vitest addon peer mismatch
+**Status:** ⬜ TODO
+**Problem:** Found during CRIT-03 (`pnpm peers check`). `@storybook/addon-vitest@10.6` supports `vitest` and `@vitest/browser-playwright` `^3 || ^4`, but 5.0.2 is installed. Story tests may break or behave unpredictably.
+**Fix:** Either upgrade Storybook to a version that supports Vitest 5, or pin Vitest to 4.x in `packages/ui`. Then run the story tests to confirm.
+**Done when:** No peer warnings for `packages/ui`, and the story tests run green.
 
 ---
 

@@ -42,7 +42,7 @@ Game design & mechanics: [`docs/GAME_DESIGN.md`](./docs/GAME_DESIGN.md)
 | Backend | NestJS + PostgreSQL | Structured, testable architecture over a bare Express app |
 | Background jobs | Redis + BullMQ | Reliable, restart-safe handling of timed actions (builds, research) — the naive `setInterval` approach doesn't survive a server restart |
 | Real-time | Socket.io | Push updates to the client without polling |
-| Testing | Jest (unit) + Cypress / Playwright (e2e) | Coverage on the logic that actually matters: resource math, queue behavior |
+| Testing | Vitest (unit + API integration) + Cypress / Playwright (browser e2e) | Coverage on the logic that actually matters: resource math, queue behavior |
 
 This is a monorepo (`apps/web`, `apps/api`, `packages/ui`, `packages/shared`) managed with pnpm workspaces — full reasoning in [`docs/DECISIONS.md`](./docs/DECISIONS.md).
 
@@ -64,7 +64,7 @@ pnpm install
 pnpm dev
 ```
 
-Requires Node.js 20+, pnpm, and a local PostgreSQL + Redis instance (or see `docker-compose.yml` for a one-command setup — _planned_).
+Requires Node.js 24 (see `.nvmrc`; 22.22.3+ also works), pnpm, and a local PostgreSQL + Redis instance (or see `docker-compose.yml` for a one-command setup — _planned_).
 
 ## Project structure
 

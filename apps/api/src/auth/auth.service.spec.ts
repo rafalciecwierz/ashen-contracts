@@ -1,3 +1,4 @@
+import { beforeEach, describe, expect, it, vi, type Mock } from 'vitest';
 import { Test, TestingModule } from '@nestjs/testing';
 import { ConflictException, UnauthorizedException } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
@@ -5,14 +6,10 @@ import { AuthService } from './auth.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { JwtService } from '@nestjs/jwt';
 
-jest.mock('@nestjs/jwt', () => ({
-  JwtService: jest.fn(),
-}));
-
 describe('AuthService', () => {
   let service: AuthService;
-  let prisma: { player: { findUnique: jest.Mock; create: jest.Mock } };
-  let jwt: { signAsync: jest.Mock };
+  let prisma: { player: { findUnique: Mock; create: Mock } };
+  let jwt: { signAsync: Mock };
   const mockedUserId: string = 'uuid-123';
   const mockedUserEmail: string = 'test@test.com';
   const mockedUserPassword: string = 'password123';
@@ -20,12 +17,12 @@ describe('AuthService', () => {
   beforeEach(async () => {
     prisma = {
       player: {
-        findUnique: jest.fn(),
-        create: jest.fn(),
+        findUnique: vi.fn(),
+        create: vi.fn(),
       },
     };
     jwt = {
-      signAsync: jest.fn(),
+      signAsync: vi.fn(),
     };
 
     const module: TestingModule = await Test.createTestingModule({

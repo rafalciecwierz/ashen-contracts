@@ -68,7 +68,8 @@ This survives server restarts and scales past a single process — see `docs/DEC
 Used for push notifications only (action completed, event triggered) — not for gameplay-critical state. If a socket connection drops, the client falls back to fetching current state on reconnect/reload, so the game never depends on the socket staying alive.
 
 ## Testing
-- **Jest** — unit tests, focused on the logic that actually carries risk: resource math, queue job handlers, skill-check resolution
+- **Vitest** — unit tests, focused on the logic that actually carries risk: resource math, queue job handlers, skill-check resolution
+- **Vitest + supertest** — API integration tests (`apps/api/test/*.integration-spec.ts`, `pnpm --filter api test:integration`): boot the whole NestJS app and send real HTTP requests through guards, pipes and controllers to the database. NestJS templates call these "e2e"; here "e2e" is reserved for browser tests of the full system
 - **Cypress** — end-to-end coverage of the core loop (create character → run expedition → resolve event)
 
 ## Deployment

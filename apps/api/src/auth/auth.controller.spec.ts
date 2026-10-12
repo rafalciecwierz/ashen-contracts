@@ -1,14 +1,7 @@
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { Test, TestingModule } from '@nestjs/testing';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
-
-jest.mock('@nestjs/swagger', () => ({
-  ApiProperty: () => () => {},
-}));
-
-jest.mock('@nestjs/jwt', () => ({
-  JwtService: jest.fn(),
-}));
 
 describe('AuthController', () => {
   let controller: AuthController;
@@ -20,8 +13,8 @@ describe('AuthController', () => {
         {
           provide: AuthService,
           useValue: {
-            register: jest.fn(),
-            login: jest.fn(),
+            register: vi.fn(),
+            login: vi.fn(),
           },
         },
       ],

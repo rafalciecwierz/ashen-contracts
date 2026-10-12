@@ -11,7 +11,7 @@ Purpose: a portfolio project to demonstrate full-stack engineering (frontend-fir
 - Frontend: Next.js + TypeScript + Tailwind, shared components in Storybook (`packages/ui`)
 - Backend: NestJS + PostgreSQL + Redis + BullMQ (job queues for timed actions)
 - Real-time: Socket.io
-- Testing: Jest (unit), Cypress (e2e)
+- Testing: Vitest (unit + API integration via supertest), Cypress (browser e2e)
 - Package manager: pnpm (workspaces monorepo)
 - Structure: `apps/web`, `apps/api`, `packages/ui`, `packages/shared`
 
@@ -19,13 +19,8 @@ Purpose: a portfolio project to demonstrate full-stack engineering (frontend-fir
 - All resource/time calculations happen server-side. Never trust client-sent timestamps or resource values.
 - Any action with a real-world duration (building, research) goes through the job queue (BullMQ), not `setInterval`/naive polling.
 - Write tests for: resource regeneration math, queue/job behavior, action validation (enough resources? valid state?).
-- Import generated/external code (Prisma client, etc.) with explicit relative paths (`../generated/prisma/client` — the Prisma client is generated into `apps/api/src/generated/prisma`), never bare specifiers relying on `tsconfig.json`'s `baseUrl` — `nest start` resolves those, Jest does not, causing dev/test inconsistencies.
-- **Testing ESM-published NestJS libraries:** `@nestjs/jwt`, `@nestjs/swagger`, and similar packages ship code that includes ESM `import` syntax deep in their dependency tree. Jest's default config (CommonJS, ignoring `node_modules`) fails on these with `SyntaxError: Cannot use import statement outside a module`. Fix: mock the whole module with an explicit factory in the spec file, e.g.:
-  ```typescript
-  jest.mock('@nestjs/jwt', () => ({ JwtService: jest.fn() }));
-  jest.mock('@nestjs/swagger', () => ({ ApiProperty: () => () => {} }));
-  ```
-  Plain `jest.mock('@nestjs/jwt')` (no factory) still loads the real file to auto-generate the mock shape and fails the same way — the factory must be explicit. Apply this pattern proactively to any new NestJS module (Character, Location, Quest) that imports `@nestjs/swagger` decorators or similar ESM-shipping packages in its spec files.
+- Import generated/external code (Prisma client, etc.) with explicit relative paths (`../generated/prisma/client` — the Prisma client is generated into `apps/api/src/generated/prisma`), never bare specifiers relying on `tsconfig.json`'s `baseUrl` — `nest start` resolves those, Vitest does not, causing dev/test inconsistencies.
+- **NestJS 12 is ESM-only; `apps/api` stays CommonJS** and loads it through Node's `require(esm)`. API tests run on Vitest (`pnpm --filter api test`), not Jest. Spec files import test APIs explicitly (`import { describe, it, expect, vi } from 'vitest'`; no globals). Don't add an SWC plugin, because Vite's transformer already emits decorator metadata. See `docs/DECISIONS.md` #006.
 - [Add naming conventions, folder structure rules, DTO naming as they solidify]
 - **Where components live (apps/web):** generic, app-agnostic UI → `packages/ui`. Components used by a single route live next to it in a private `_components/` folder (e.g. `src/app/play/_components/`). A component used by two or more routes moves to `src/components/`. Start local; promote only when a second use appears.
 - **File naming (apps/web):** camelCase file names. Suffix by role: `.component.tsx` (React components), `.schema.ts` (Zod schemas), `.types.ts` (type declarations). Non-component modules are plain camelCase (`getCurrentUser.ts`, `routeHelpers.ts`).
