@@ -19,7 +19,7 @@ Purpose: a portfolio project to demonstrate full-stack engineering (frontend-fir
 - All resource/time calculations happen server-side. Never trust client-sent timestamps or resource values.
 - Any action with a real-world duration (building, research) goes through the job queue (BullMQ), not `setInterval`/naive polling.
 - Write tests for: resource regeneration math, queue/job behavior, action validation (enough resources? valid state?).
-- Import generated/external code (Prisma client, etc.) with explicit relative paths (`../../generated/prisma/client`), never bare specifiers relying on `tsconfig.json`'s `baseUrl` — `nest start` resolves those, Jest does not, causing dev/test inconsistencies.
+- Import generated/external code (Prisma client, etc.) with explicit relative paths (`../generated/prisma/client` — the Prisma client is generated into `apps/api/src/generated/prisma`), never bare specifiers relying on `tsconfig.json`'s `baseUrl` — `nest start` resolves those, Jest does not, causing dev/test inconsistencies.
 - **Testing ESM-published NestJS libraries:** `@nestjs/jwt`, `@nestjs/swagger`, and similar packages ship code that includes ESM `import` syntax deep in their dependency tree. Jest's default config (CommonJS, ignoring `node_modules`) fails on these with `SyntaxError: Cannot use import statement outside a module`. Fix: mock the whole module with an explicit factory in the spec file, e.g.:
   ```typescript
   jest.mock('@nestjs/jwt', () => ({ JwtService: jest.fn() }));

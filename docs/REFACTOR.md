@@ -30,7 +30,13 @@ Status legend: ⬜ TODO · 🔶 IN PROGRESS · ✅ DONE · 🚫 DROPPED
 **Done when:** `git ls-files packages/ui/src` matches the import paths exactly, and the build passes on a case-sensitive filesystem. CI (REPO-01) will guard this from then on.
 
 ### CRIT-02 — Fix the API build output path (`start:prod` is broken)
-**Status:** ⬜ TODO
+**Status:** ✅ DONE (2026-10-12)
+**Notes:** `include: ["src"]` alone was not enough, because `src` imported the Prisma client from `apps/api/generated/`, outside `src`. Changes:
+- Prisma now generates the client into `src/generated/prisma`, as in Prisma's NestJS guide. Updated the import, `.gitignore`, the ESLint ignore and Jest coverage exclusion, and the path example in CLAUDE.md.
+- `tsconfig.build.json` now sets `include: ["src"]` and `rootDir: "./src"`, so a future import from outside `src` fails the build loudly.
+- Found and fixed a second bug in `tsconfig.build.json`: `incremental: false`. With `rootDir` set, the `.tsbuildinfo` file landed outside `dist/`, and because `nest-cli` wipes `dist/`, every second `nest build` produced an empty `dist/`.
+
+Verified: two consecutive builds both produce `dist/main.js`, and `start:prod` boots and serves `GET /` and `POST /auth/login` (DB round-trip). Jest and `tsc` pass. The one remaining lint error (`login.dto.ts` missing a final newline) predates this task and is left for REPO-04.
 **Problem:** `nest build` emits `dist/src/main.js` because `prisma7.config.ts` and `generated/` are inside the compilation root. `start:prod` runs `node dist/main`, which does not exist.
 **Fix:** Restrict `tsconfig.build.json` to `"include": ["src"]`, or set `rootDir`. Make sure the generated Prisma client is still reachable at runtime, because it is imported via `../../generated/prisma/client`. Delete stale `dist/` before verifying.
 **Done when:** `pnpm --filter api build && pnpm --filter api start:prod` boots the API.
