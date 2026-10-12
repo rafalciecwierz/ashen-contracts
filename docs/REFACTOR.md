@@ -23,7 +23,8 @@ Status legend: ⬜ TODO · 🔶 IN PROGRESS · ✅ DONE · 🚫 DROPPED
 ## CRIT — Breaks the build or the app outside the local machine
 
 ### CRIT-01 — Fix file/directory casing in `packages/ui`
-**Status:** ⬜ TODO
+**Status:** ✅ DONE (2026-10-12)
+**Notes:** The working tree and all imports were already camelCase; only the git index held PascalCase paths. Committed the pending `'use client'`/`sideEffects` change separately first, then renamed all 6 component dirs and their 12 files in the index via temporary names (`git mv`). Verified on a fresh clone on a case-sensitive APFS volume: before the fix, `tsc` in `apps/web` fails because `@ashen-contracts/ui` imports don't resolve; after the fix, `tsc` passes and `next build` succeeds.
 **Problem:** The git index stores `packages/ui/src/Modal/Modal.component.tsx` (PascalCase), but on disk the directories are lowercase (`modal/`), and `src/index.ts` imports `./modal/modal.component`. macOS has a case-insensitive filesystem (`core.ignorecase=true`), so this works locally. A Linux checkout (CI, Vercel, a recruiter's clone) breaks `apps/web`'s build.
 **Fix:** Commit the pending `'use client'` and `sideEffects` changes first. Then pick one convention: camelCase per CLAUDE.md (`modal/modal.component.tsx`, `userMenu/userMenu.component.tsx`). Rename each path through a temporary name (`git mv Modal tmp && git mv tmp modal`) so git records the rename. Do the same for `*.stories.tsx`.
 **Done when:** `git ls-files packages/ui/src` matches the import paths exactly, and the build passes on a case-sensitive filesystem. CI (REPO-01) will guard this from then on.
