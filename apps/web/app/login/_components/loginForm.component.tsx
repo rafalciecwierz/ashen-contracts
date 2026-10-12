@@ -6,6 +6,7 @@ import { useTranslations } from 'next-intl';
 import { Input, Button } from '@ashen-contracts/ui';
 import { loginSchema } from '../login.schema';
 import type { LoginFieldErrors } from '../login.types';
+import type { ValidationMessageKey } from '@/src/i18n/validationKey';
 import { AppPaths } from '@/src/routes/routes';
 import { InternalApiRoutes, ApiError, apiPost } from '@/src/http';
 import { getSafeRedirect } from '@/src/routes/routeHelpers';
@@ -41,7 +42,7 @@ export function LoginForm() {
     const errors: LoginFieldErrors = {};
     for (const issue of result.error.issues) {
       const field = issue.path[0] as keyof LoginFieldErrors;
-      if (!errors[field]) errors[field] = issue.message;
+      if (!errors[field]) errors[field] = issue.message as ValidationMessageKey;
     }
     setFieldErrors(errors);
     return false;

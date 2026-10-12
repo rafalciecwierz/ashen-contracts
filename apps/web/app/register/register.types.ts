@@ -1,5 +1,7 @@
+import type { ValidationMessageKey } from '@/src/i18n/validationKey';
+
 export interface RegisterFieldErrors {
-  email?: string;
-  password?: string;
-  confirmPassword?: string;
+  email?: ValidationMessageKey;
+  password?: ValidationMessageKey;
+  confirmPassword?: ValidationMessageKey;
 }

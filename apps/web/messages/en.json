@@ -31,6 +31,7 @@
   },
   "validation": {
     "invalidEmail": "Enter a valid email address.",
+    "passwordRequired": "Enter your password.",
     "passwordTooShort": "Password must be at least 8 characters.",
     "passwordsDoNotMatch": "Passwords do not match."
   },

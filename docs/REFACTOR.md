@@ -69,7 +69,14 @@ Out of scope:
 **Done when:** `pnpm install` reports no peer-dependency warnings for `@nestjs/*`, the tests pass, the app boots, and ADR #004 and CLAUDE.md match the new reality.
 
 ### CRIT-04 — Add the missing `passwordRequired` translation key
-**Status:** ⬜ TODO
+**Status:** ✅ DONE (2026-10-12)
+**Notes:** Added `validation.passwordRequired` ("Enter your password."). Also did the optional part, so this class of bug now fails at compile time:
+- `src/i18n/appConfig.types.ts` types next-intl's `AppConfig.Messages` against `en.json`, so every `t('...')` call is checked.
+- Zod errors are translation keys stored as plain strings, which typed `t()` cannot check. Schemas now build them with `validationKey('...')` from `src/i18n/validationKey.ts`, which only accepts keys of the `validation` namespace. Field error types use `ValidationMessageKey`.
+
+Verified:
+- With the key temporarily removed, `tsc` fails on `validationKey('passwordRequired')`, and in the browser (headless Chrome via Playwright) the form shows the raw `validation.passwordRequired` and logs `MISSING_MESSAGE`.
+- With the key, `tsc` and ESLint pass, and an empty password shows "Enter your password." with no console errors.
 **Problem:** `apps/web/app/login/login.schema.ts` uses the error key `passwordRequired`, which does not exist in `messages/en.json`. Submitting an empty password shows a raw key or throws a next-intl error.
 **Fix:** Add `validation.passwordRequired`. Optionally make the translation keys type-checked against `en.json` (next-intl `AppConfig` / `Messages` typing) so this class of bug fails at compile time.
 **Done when:** Submitting an empty password on `/login` shows a proper message.

@@ -6,6 +6,7 @@ import { Input, Button } from '@ashen-contracts/ui';
 import type { RegisterResponse } from '@ashen-contracts/shared';
 import { ApiError, apiPost } from '@/src/http/api';
 import { RegisterFieldErrors } from './register.types';
+import type { ValidationMessageKey } from '@/src/i18n/validationKey';
 import { registerSchema } from './register.schema';
 import { AppPaths } from '@/src/routes/routes';
 import { useTranslations } from 'next-intl';
@@ -34,7 +35,7 @@ export default function RegisterPage() {
     const errors: RegisterFieldErrors = {};
     for (const issue of result.error.issues) {
       const field = issue.path[0] as keyof RegisterFieldErrors;
-      if (!errors[field]) errors[field] = issue.message;
+      if (!errors[field]) errors[field] = issue.message as ValidationMessageKey;
     }
     setFieldErrors(errors);
     return false;
