@@ -25,7 +25,7 @@ services:
     image: redis:8-alpine
     # AOF persistence keeps queued jobs across container restarts (see DECISIONS.md #001);
     # BullMQ requires `noeviction`, otherwise Redis may silently drop job keys under memory pressure.
-    command: ['redis-server', '--appendonly', 'yes', '--maxmemory-policy', 'noeviction']
+    command: redis-server --appendonly yes --maxmemory-policy noeviction
     ports:
       - '127.0.0.1:6379:6379'
     volumes:

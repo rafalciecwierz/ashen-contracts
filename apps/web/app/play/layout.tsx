@@ -5,7 +5,11 @@ import { AppPaths } from '@/src/routes/routes';
 import { PlayNavbar } from './_components';
 import { buildPath } from '@/src/routes/routeHelpers';
 
-export default async function PlayLayout({ children }: { children: ReactNode }) {
+export default async function PlayLayout({
+  children,
+}: {
+  children: ReactNode;
+}) {
   const user = await getCurrentUser();
 
   if (!user) {

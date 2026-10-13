@@ -9,7 +9,9 @@ export default meta;
 
 type Story = StoryObj<typeof UserMenu>;
 
-const items = [{ label: 'Log out', onSelect: () => console.log('Log out selected') }];
+const items = [
+  { label: 'Log out', onSelect: () => console.log('Log out selected') },
+];
 
 export const Default: Story = {
   args: {
@@ -23,8 +25,16 @@ export const InsideNavbar: Story = {
   parameters: { layout: 'fullscreen' },
   render: () => (
     <Navbar
-      left={<span className="font-heading text-lg text-ink">Ashen Contracts</span>}
-      right={<UserMenu name="Unnamed Hero" description="hero@example.com" items={items} />}
+      left={
+        <span className="font-heading text-lg text-ink">Ashen Contracts</span>
+      }
+      right={
+        <UserMenu
+          name="Unnamed Hero"
+          description="hero@example.com"
+          items={items}
+        />
+      }
     />
   ),
 };

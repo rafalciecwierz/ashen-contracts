@@ -20,7 +20,11 @@ export function Avatar({ name, src, size = 'md' }: AvatarProps) {
       aria-label={name}
       className={`inline-flex shrink-0 items-center justify-center overflow-hidden rounded-full bg-brand-600 font-body font-semibold text-ink ${sizeStyles[size]}`}
     >
-      {src ? <img src={src} alt="" className="h-full w-full object-cover" /> : initial}
+      {src ? (
+        <img src={src} alt="" className="h-full w-full object-cover" />
+      ) : (
+        initial
+      )}
     </span>
   );
 }

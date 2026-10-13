@@ -16,7 +16,8 @@ export default async function LoginPage({
   const user = await getCurrentUser();
   if (user) {
     const { redirect: redirectParam } = await searchParams;
-    const target = typeof redirectParam === 'string' ? getSafeRedirect(redirectParam) : null;
+    const target =
+      typeof redirectParam === 'string' ? getSafeRedirect(redirectParam) : null;
     redirect(target ?? AppPaths.play);
   }
 

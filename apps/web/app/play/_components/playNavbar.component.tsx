@@ -29,7 +29,9 @@ export function PlayNavbar({ email }: PlayNavbarProps) {
       }
       right={
         <>
-          <div className='font-heading text-lg text-ink'>{t('unnamedHero')}</div>
+          <div className="font-heading text-lg text-ink">
+            {t('unnamedHero')}
+          </div>
           <UserMenu
             name={t('unnamedHero')}
             description={email}

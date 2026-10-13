@@ -48,7 +48,9 @@ export function LoginForm() {
     return false;
   }
 
-  async function handleSubmit(event: SubmitEvent<HTMLFormElement>): Promise<void> {
+  async function handleSubmit(
+    event: SubmitEvent<HTMLFormElement>,
+  ): Promise<void> {
     event.preventDefault();
     setServerError(null);
 
@@ -60,7 +62,9 @@ export function LoginForm() {
       router.push(safeRedirect ?? AppPaths.play);
     } catch (err) {
       setServerError(
-        err instanceof ApiError ? tErrors(err.code ?? 'GENERIC') : tErrors('GENERIC'),
+        err instanceof ApiError
+          ? tErrors(err.code ?? 'GENERIC')
+          : tErrors('GENERIC'),
       );
     } finally {
       setLoading(false);
@@ -89,7 +93,9 @@ export function LoginForm() {
             autoComplete="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            error={fieldErrors.email ? tValidation(fieldErrors.email) : undefined}
+            error={
+              fieldErrors.email ? tValidation(fieldErrors.email) : undefined
+            }
           />
           <Input
             label={t('passwordLabel')}
@@ -97,7 +103,11 @@ export function LoginForm() {
             autoComplete="current-password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            error={fieldErrors.password ? tValidation(fieldErrors.password) : undefined}
+            error={
+              fieldErrors.password
+                ? tValidation(fieldErrors.password)
+                : undefined
+            }
           />
 
           {serverError && <p className="text-sm text-error">{serverError}</p>}

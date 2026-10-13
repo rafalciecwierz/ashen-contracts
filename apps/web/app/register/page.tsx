@@ -26,7 +26,11 @@ export default function RegisterPage() {
   const [loading, setLoading] = useState(false);
 
   function validate(): boolean {
-    const result = registerSchema.safeParse({ email, password, confirmPassword });
+    const result = registerSchema.safeParse({
+      email,
+      password,
+      confirmPassword,
+    });
     if (result.success) {
       setFieldErrors({});
       return true;
@@ -49,10 +53,17 @@ export default function RegisterPage() {
 
     setLoading(true);
     try {
-      await apiPost<RegisterResponse>(InternalApiRoutes.auth.register, { email, password });
+      await apiPost<RegisterResponse>(InternalApiRoutes.auth.register, {
+        email,
+        password,
+      });
       router.push(buildPath(AppPaths.login, { registered: 'true' }));
     } catch (err) {
-      setServerError(err instanceof ApiError ? tErrors(err.code ?? 'GENERIC') : tErrors('GENERIC'));
+      setServerError(
+        err instanceof ApiError
+          ? tErrors(err.code ?? 'GENERIC')
+          : tErrors('GENERIC'),
+      );
     } finally {
       setLoading(false);
     }
@@ -64,9 +75,7 @@ export default function RegisterPage() {
         onSubmit={handleSubmit}
         className="w-full max-w-sm bg-surface border border-surface-raised rounded-lg p-6 flex flex-col gap-4"
       >
-        <h1 className="text-xl font-heading text-ink">
-          {t('title')}
-        </h1>
+        <h1 className="text-xl font-heading text-ink">{t('title')}</h1>
 
         <Input
           label={t('emailLabel')}
@@ -82,7 +91,9 @@ export default function RegisterPage() {
           autoComplete="new-password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
-          error={fieldErrors.password ? tValidation(fieldErrors.password) : undefined}
+          error={
+            fieldErrors.password ? tValidation(fieldErrors.password) : undefined
+          }
         />
         <Input
           label={t('confirmPasswordLabel')}
@@ -90,7 +101,11 @@ export default function RegisterPage() {
           autoComplete="new-password"
           value={confirmPassword}
           onChange={(e) => setConfirmPassword(e.target.value)}
-          error={fieldErrors.confirmPassword ? tValidation(fieldErrors.confirmPassword) : undefined}
+          error={
+            fieldErrors.confirmPassword
+              ? tValidation(fieldErrors.confirmPassword)
+              : undefined
+          }
         />
 
         {serverError && <p className="text-sm text-error">{serverError}</p>}

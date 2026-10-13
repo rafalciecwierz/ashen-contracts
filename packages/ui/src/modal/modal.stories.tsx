@@ -24,8 +24,8 @@ export const Default: Story = {
           description="This action cannot be undone."
         >
           <p className="text-sm text-ink-muted mb-4">
-            Your progress on this contract will be lost. The bounty board will not hold it for
-            you a second time.
+            Your progress on this contract will be lost. The bounty board will
+            not hold it for you a second time.
           </p>
           <div className="flex justify-end gap-2">
             <Button variant="secondary" onClick={() => setOpen(false)}>
@@ -49,8 +49,9 @@ export const WithoutDescription: Story = {
         <Button onClick={() => setOpen(true)}>Open Modal</Button>
         <Modal open={open} onOpenChange={setOpen} title="A simple notice">
           <p className="text-sm text-ink-muted">
-            Modals without a description are valid — Radix will log a dev-only accessibility
-            warning in the console, which is expected and harmless for this case.
+            Modals without a description are valid — Radix will log a dev-only
+            accessibility warning in the console, which is expected and harmless
+            for this case.
           </p>
         </Modal>
       </>

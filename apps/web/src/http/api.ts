@@ -1,4 +1,4 @@
-import { AuthErrorCode } from "@ashen-contracts/shared";
+import { AuthErrorCode } from '@ashen-contracts/shared';
 
 export class ApiError extends Error {
   constructor(
@@ -10,7 +10,10 @@ export class ApiError extends Error {
   }
 }
 
-export async function apiPost<TResponse>(path: string, body: unknown): Promise<TResponse> {
+export async function apiPost<TResponse>(
+  path: string,
+  body: unknown,
+): Promise<TResponse> {
   const res = await fetch(path, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },

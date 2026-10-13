@@ -12,7 +12,9 @@ export default meta;
 
 type Story = StoryObj<typeof Navbar>;
 
-const Logo = () => <span className="font-heading text-lg text-ink">Ashen Contracts</span>;
+const Logo = () => (
+  <span className="font-heading text-lg text-ink">Ashen Contracts</span>
+);
 
 export const LoggedOut: Story = {
   args: {
@@ -29,7 +31,9 @@ export const LoggedOut: Story = {
 export const LoggedIn: Story = {
   args: {
     left: <Logo />,
-    center: <span className="text-sm text-ink-muted">Energy bar goes here</span>,
+    center: (
+      <span className="text-sm text-ink-muted">Energy bar goes here</span>
+    ),
     right: <Avatar name="Unnamed Hero" />,
   },
 };

@@ -1,6 +1,7 @@
 # Roadmap — Ashen Contracts
 
 ## Versioning philosophy
+
 This project has no fixed end date — development continues at whatever pace fits alongside job searching (and later, alongside a job). To make that sustainable:
 
 - Every version must be a **complete vertical slice** — fully working and playable, never a half-built feature left dangling. "Added a working hunting encounter" not "started the inventory system."
@@ -13,10 +14,12 @@ Status legend: 🔲 planned · 🔶 in progress · ✅ shipped
 ---
 
 ## v0.1 — Foundation & the character 🔶
+
 The skeleton: something real, deployed, and playable, even if rough.
-- [X] Auth (NestJS + JWT)
-- [X] Auth (Shared types setup)
-- [X] Auth (Storybook setup and wiring up with web app)
+
+- [x] Auth (NestJS + JWT)
+- [x] Auth (Shared types setup)
+- [x] Auth (Storybook setup and wiring up with web app)
 - [x] `packages/ui`: Storybook, Button/Input/Modal components, shared Tailwind v4 design tokens
 - [x] `/register` screen (Zod validation, i18n, typed API client)
 - [x] `/login` screen (context-aware copy, `?redirect=` support, BFF + httpOnly cookie)
@@ -29,29 +32,35 @@ The skeleton: something real, deployed, and playable, even if rough.
 - [ ] Deploy: Vercel (web) + Railway/Render (api + db)
 
 ## v0.2 — Expeditions & narrative events 🔲
+
 The mechanical signature of the game.
+
 - [ ] Expedition system: send character to a location, resolves after a duration
 - [ ] Event pool for the starting location: mundane / complication / choice outcomes
 - [ ] Basic inventory (items from event outcomes)
 - [ ] First item-gated alternate resolution (the "acorn & squirrel" pattern)
 
 ## v0.3 — Stats, XP & leveling 🔲
+
 - [ ] XP from expeditions/quests, leveling
 - [ ] Core stats (e.g. Might, Wits, Resolve)
 - [ ] Stat-based skill checks wired into narrative events
 
 ## v0.4 — The stronghold 🔲
+
 - [ ] Triggering quest that unlocks the stronghold
 - [ ] Training (skill/stat progression via a queued system — first use of BullMQ)
 - [ ] Blacksmith/armory (purchasable equipment)
 - [ ] Expedition-only loot distinct from purchasable gear
 
 ### 🏁 MVP checkpoint — interview-ready
+
 Through v0.4, the game has a full loop: create a character, explore, fight, level up, unlock and grow a base. This is the version to demo if a job opportunity comes up before the rest is built.
 
 ---
 
 ## v0.5 and beyond — open-ended
+
 No fixed scope past this point; each version is planned and logged individually in `CHANGELOG.md` as it's built. Known candidates, roughly in order of likely priority:
 
 - [ ] Real-time notifications (Socket.io) for completed actions
@@ -65,6 +74,7 @@ No fixed scope past this point; each version is planned and logged individually 
 - [ ] Deeper origin-story reveals (stretch)
 
 ## Log
+
 _(short entries — date + what shipped, mirrors the git tag history)_
 
 - [date]: [what shipped]

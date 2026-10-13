@@ -18,7 +18,12 @@ export interface UserMenuProps {
   items: UserMenuItem[];
 }
 
-export function UserMenu({ name, description, avatarSrc, items }: UserMenuProps) {
+export function UserMenu({
+  name,
+  description,
+  avatarSrc,
+  items,
+}: UserMenuProps) {
   return (
     <DropdownMenu.Root>
       <DropdownMenu.Trigger asChild>
@@ -38,7 +43,9 @@ export function UserMenu({ name, description, avatarSrc, items }: UserMenuProps)
         >
           <DropdownMenu.Label className="px-3 py-2">
             <div className="text-sm font-semibold text-ink">{name}</div>
-            {description && <div className="text-xs text-ink-muted">{description}</div>}
+            {description && (
+              <div className="text-xs text-ink-muted">{description}</div>
+            )}
           </DropdownMenu.Label>
 
           <DropdownMenu.Separator className="my-1 h-px bg-surface-raised" />
