@@ -28,6 +28,16 @@ Purpose: a portfolio project to demonstrate full-stack engineering (frontend-fir
 - **Where components live (apps/web):** generic, app-agnostic UI → `packages/ui`. Components used by a single route live next to it in a private `_components/` folder (e.g. `src/app/play/_components/`). A component used by two or more routes moves to `src/components/`. Start local; promote only when a second use appears.
 - **File naming (apps/web):** camelCase file names. Suffix by role: `.component.tsx` (React components), `.schema.ts` (Zod schemas), `.types.ts` (type declarations). Non-component modules are plain camelCase (`getCurrentUser.ts`, `routeHelpers.ts`).
 
+## Commit messages
+
+[Conventional Commits](https://www.conventionalcommits.org/): `type(scope): subject`, header ≤ 100 characters. The scope and a `[TASK-ID]` suffix are optional. Enforced by commitlint (`commitlint.config.mjs`), both in a local `commit-msg` hook and in CI.
+
+- Types: `feat` and `fix` map to the CHANGELOG's Added and Fixed sections, `refactor` and `perf` to Changed. `docs`, `test`, `chore`, `ci`, `build`, `style` and `revert` usually don't need a CHANGELOG entry.
+- Scope (optional): the workspace, i.e. `api`, `web`, `ui` or `shared`. Leave it out for repo-wide changes.
+- Subject: imperative, lowercase, no trailing period ("add logout endpoint", not "Added logout endpoint.").
+- `[TASK-ID]` suffix (optional, not enforced): only when the commit implements a task from `docs/REFACTOR.md` (e.g. `[REPO-07]`).
+- Example: `fix(api): switch to @prisma/adapter-pg [API-09]`
+
 ## Common commands
 
 - `pnpm install` — install all workspace dependencies

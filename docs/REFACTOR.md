@@ -256,7 +256,16 @@ Verified: all five root scripts pass, both in the working copy and on a fresh cl
 
 ### REPO-07 — Adopt Conventional Commits
 
-**Status:** ⬜ TODO
+**Status:** ✅ DONE (2026-10-13)
+
+**Notes:** CLAUDE.md now has a "Commit messages" section: `type(scope): subject [TASK-ID]`, a header of at most 100 characters, how types map to the Keep a Changelog sections, workspace scopes, and an example. It is enforced in two places:
+
+- **Locally:** `@commitlint/cli` with `@commitlint/config-conventional` (`commitlint.config.mjs`) runs in a `commit-msg` hook. The hook comes from `simple-git-hooks` and is installed by the root `prepare` script on `pnpm install`. The package's own postinstall is declined in `allowBuilds`, because pnpm blocks dependency build scripts by default and `prepare` does the same job. `SKIP_SIMPLE_GIT_HOOKS=1` skips the hook in an emergency.
+- **CI:** a "Lint commit messages" step, with `fetch-depth: 0`, checks only the commits a push or PR adds. For a new branch or a force-push, where the previous tip is unknown, it checks the latest commit. The SHAs are passed through `env`, not interpolated into the script.
+
+Old history is not rewritten. 35 of the 64 commits predate the convention (`add: ...`, `update: ...`).
+
+Verified: the hook accepts `chore: add MIT license [REPO-06]` and `fix(api): ... [API-09]`, and rejects `add: logout functionality` (type-enum), `Fix: Something` (type-case, subject-case) and a 107-character header. The CI range logic was simulated locally for a known previous tip, an unknown one (`--last`) and a range containing an old `add:` commit, which fails. The REPO-05 commit (102 characters) would fail the new rule, but it is already pushed, so CI never checks it again.
 
 **Problem:** The current `add: ...` messages don't map to Keep a Changelog sections.
 

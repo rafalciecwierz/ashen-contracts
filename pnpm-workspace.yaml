@@ -15,4 +15,6 @@ allowBuilds:
   bcrypt: true
   esbuild: true
   prisma: true
+  # Hooks are installed by the root `prepare` script instead of this package's postinstall
+  simple-git-hooks: false
   unrs-resolver: true
