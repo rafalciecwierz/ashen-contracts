@@ -93,7 +93,7 @@ Verified:
 ## REPO — Monorepo and tooling
 
 ### REPO-01 — Continuous integration (GitHub Actions)
-**Status:** 🟡 IN REVIEW (2026-10-13). Workflow written and every step verified locally on a fresh clone; "CI is green on `main`" still needs the first run on GitHub after push.
+**Status:** ✅ DONE (2026-10-13). First run on `main` (commit `474b2af`) passed: https://github.com/rafalciecwierz/ashen-contracts/actions/runs/38449561953
 **Notes:** `.github/workflows/ci.yml` runs one `verify` job on `ubuntu-latest` on push to `main` and on PRs. It uses `actions/checkout@v7`, `pnpm/action-setup@v6` (pnpm version from `packageManager`) and `actions/setup-node@v7` (Node from `.nvmrc`, pnpm store cached). It cancels superseded runs and has read-only `contents` permissions. Steps:
 - `pnpm install --frozen-lockfile`;
 - generate code: the Prisma client (`prisma:generate`) and the Next.js route types (`next typegen`);
