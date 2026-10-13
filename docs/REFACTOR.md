@@ -148,7 +148,16 @@ Verified on a fresh clone with no variables set in the shell, only the copied ex
 **Done when:** Every env variable read in the code appears in an `.env.example` file.
 
 ### REPO-04 — Unified formatting and linting
-**Status:** ⬜ TODO
+**Status:** 🟡 IN PROGRESS (2026-10-13). Part 1 of 2 (tooling) done; part 2 (format the codebase in one dedicated commit) is next.
+**Notes (part 1, tooling):**
+- **Prettier:** one root config. The API's `.prettierrc` (`singleQuote`, `trailingComma: all`) moved to the root, so its style becomes the repo style. `prettier` is a root devDependency. `.prettierignore` excludes the lockfile, the generated Prisma client, SQL migrations and the vendored agent skills; `.gitignore` is respected too. Root scripts are `format` (`prettier . --write`) and `format:check`, the latter instead of the `pnpm format --check` named in "Done when".
+- **API:** moved from ESLint 8 (`.eslintrc.js`) to an ESLint 9 flat config (`eslint.config.mjs`), based on the NestJS starter: `@eslint/js` + `typescript-eslint` `recommendedTypeChecked` (type-aware rules, as before via `parserOptions.project`) + `eslint-config-prettier`. Dropped `eslint-plugin-prettier`: Prettier runs on its own, not as a lint rule. The `lint` script no longer has `--fix`, so `lint:fix` was added and CI no longer needs `--no-fix`. The type-aware rules found three issues, all fixed: a floating `bootstrap()` promise (now `void`), an unnecessary `!` on `DATABASE_URL` (`strictNullChecks` is off), and an `any` server in the integration spec (now `INestApplication<Server>`).
+- **Web:** added `eslint-config-prettier` to the existing flat config.
+- **UI:** new flat config: `typescript-eslint` `recommended`, `react-hooks`, `storybook` and `eslint-config-prettier`, plus `lint` and `lint:fix` scripts. It covers 19 files, including `.storybook/`, which needs an explicit un-ignore. No findings.
+- Root `lint` is now `pnpm --recursive lint`, so it includes `packages/ui`. That part overlaps REPO-05. CI runs `pnpm lint`.
+- Stayed on ESLint 9, as the task says, although 10.12 is current and pnpm flags 9 as deprecated. Tried 10: `eslint-config-next@16.3.5` pulls in `eslint-plugin-react@7.37.5`, which crashes on ESLint 10 (`detectReactVersion`). Revisit when `eslint-config-next` supports 10.
+
+Verified: `pnpm lint` passes in all 3 workspaces. `tsc` in all 3, API tests and the API and web builds pass.
 **Problem:** The API uses ESLint 8 with the legacy `.eslintrc.js`, while web uses ESLint 9 flat config. There is no shared Prettier config, and quote style is mixed across files.
 **Fix:** Add a root Prettier config, migrate the API to an ESLint 9 flat config, add a `format` script at the root, and format the codebase in one dedicated commit.
 **Done when:** `pnpm lint` and `pnpm format --check` pass across all workspaces.
@@ -265,8 +274,12 @@ AI agents trust CLAUDE.md more than the code, so drift here produces wrong code.
 ### API-03 — Validated configuration via `@nestjs/config`
 **Status:** ⬜ TODO
 **Problem:** `@nestjs/config` is installed but unused. `JWT_SECRET` is read from `process.env` at import time with no validation. A missing secret only fails at the first login.
-**Fix:** Use `ConfigModule.forRoot({ isGlobal: true, validate })` with a Zod or Joi schema covering `DATABASE_URL`, `JWT_SECRET`, `PORT` and `CORS_ORIGIN`. Switch to `JwtModule.registerAsync` using `ConfigService`, and remove `import 'dotenv/config'` from `main.ts`.
-**Done when:** The app refuses to start with a clear error when a required variable is missing.
+**Problem (added 2026-10-13, found in REPO-03):** Swagger is fail-open. `main.ts` enables it whenever `NODE_ENV !== 'production'`, so a missing or mistyped value (e.g. `prod`) exposes the API docs in production. `nest start` does not set `NODE_ENV`.
+**Fix:** Use `ConfigModule.forRoot({ isGlobal: true, validate })` with a Zod or Joi schema covering `DATABASE_URL`, `JWT_SECRET`, `PORT` and `CORS_ORIGIN`. Switch to `JwtModule.registerAsync` using `ConfigService`, and remove `import 'dotenv/config'` from `main.ts`. Also:
+- add `NODE_ENV` to the schema as an enum (`development | production | test`), so a typo stops the app at startup;
+- make Swagger fail-closed: enable it only when `NODE_ENV === 'development'`, never just because the value is not `production`;
+- update the `NODE_ENV` comment in `apps/api/.env.example`.
+**Done when:** The app refuses to start with a clear error when a required variable is missing or `NODE_ENV` is invalid, and a test confirms that `/api` (Swagger) returns 404 unless `NODE_ENV=development`.
 
 ### API-04 — Handle the duplicate-email race in `register`
 **Status:** ⬜ TODO

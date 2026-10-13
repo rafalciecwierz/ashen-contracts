@@ -38,11 +38,8 @@ jobs:
       - name: Generate Next.js types
         run: pnpm --filter web exec next typegen
 
-      # The API lint script runs with --fix, which would silently repair errors in CI; --no-fix overrides it.
       - name: Lint
-        run: |
-          pnpm --filter api lint --no-fix
-          pnpm --filter web lint
+        run: pnpm lint
 
       - name: Typecheck
         run: |

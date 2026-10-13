@@ -11,11 +11,14 @@
     "dev": "pnpm --parallel --filter=\"./apps/*\" dev",
     "build": "pnpm --recursive --filter=\"./apps/*\" build",
     "test": "pnpm --recursive --filter=\"./apps/*\" test",
-    "lint": "pnpm --recursive --filter=\"./apps/*\" lint",
+    "lint": "pnpm --recursive lint",
     "dev:api": "pnpm --filter api dev",
-    "dev:web": "pnpm --filter web dev"
+    "dev:web": "pnpm --filter web dev",
+    "format": "prettier . --write",
+    "format:check": "prettier . --check"
   },
   "devDependencies": {
+    "prettier": "^3.9.10",
     "typescript": "5.1.3"
   }
 }

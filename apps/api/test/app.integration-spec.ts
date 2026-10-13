@@ -1,11 +1,12 @@
 import { beforeEach, describe, it } from 'vitest';
 import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication } from '@nestjs/common';
+import { Server } from 'node:http';
 import request from 'supertest';
 import { AppModule } from './../src/app.module';
 
 describe('AppController (integration)', () => {
-  let app: INestApplication;
+  let app: INestApplication<Server>;
 
   beforeEach(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({

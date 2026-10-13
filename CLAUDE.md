@@ -29,6 +29,8 @@ Purpose: a portfolio project to demonstrate full-stack engineering (frontend-fir
 - `pnpm install` — install all workspace dependencies
 - `pnpm dev` — run web + api locally
 - `pnpm test` — run unit tests
+- `pnpm lint` — ESLint in every workspace (`pnpm --filter <name> lint:fix` to auto-fix)
+- `pnpm format` / `pnpm format:check` — Prettier for the whole repo (config at the root)
 - `pnpm --filter api migrate` — run database migrations
 - `pnpm --filter ui storybook` — run Storybook for the component library
 
