@@ -273,7 +273,14 @@ Verified: the hook accepts `chore: add MIT license [REPO-06]` and `fix(api): ...
 
 ### REPO-08 — Resolve remaining peer warnings from the NestJS CLI
 
-**Status:** ⬜ TODO
+**Status:** ✅ DONE (2026-10-13)
+
+**Notes:**
+
+- **webpack:** nothing in the project used it. `ts-loader`, a NestJS starter leftover only needed for the webpack builder (the build uses `tsc`), pulled it in. Removed `ts-loader` together with three other unused starter devDependencies: `ts-node`, `tsconfig-paths` (the Nest CLI ships its own) and `source-map-support`. The lockfile still held the CLI's optional peers (`webpack`, `ts-loader`, `webpack-node-externals`, `tsconfig-paths-webpack-plugin`) from the old resolution, and neither `pnpm dedupe` nor `pnpm update` dropped them. Removing and re-adding `@nestjs/cli` did. An isolated install of `@nestjs/cli` confirmed that pnpm does not install those optional peers on its own.
+- **TypeScript 6:** moved the whole repo to **6.0.3** through the catalog (`~6.0.3`). It satisfies `@nestjs/schematics` (`>=6`), stays inside `typescript-eslint`'s supported range (`<6.1`), and is the stepping stone to TypeScript 7 (7.0.2 is out, but `typescript-eslint` does not support it yet). The only breakage was `baseUrl`, deprecated in 6.0 (error TS5101). Instead of `ignoreDeprecations`, removed `baseUrl` from `apps/api/tsconfig.json` and fixed the one import that relied on it (`'src/prisma/prisma.module'` in `auth.module.ts`, an API-10 item). CLAUDE.md's import rule was updated to match.
+
+Verified: `pnpm peers check` reports nothing for `apps/api`. The two remaining issues come from `@storybook/addon-vitest` (vitest 5 vs `^3 || ^4`) and are UI-07's. On TS 6: `typecheck`, `lint` (no unsupported-TS warning), `format:check`, `test` and `build` pass, `nest g service --dry-run` works, the built API boots and serves `GET /` against the compose Postgres, and `test:integration` passes.
 
 **Problem:** Found during CRIT-03. `@nestjs/schematics@12` wants `typescript >=6.0.0`, while 5.9 is installed. `@nestjs/cli@12` wants `webpack ^5.105.4`, while 5.97 is installed through a transitive dependency. Both are dev-time tooling (`nest generate`, and webpack is unused because the build uses `tsc`), so nothing is broken today.
 
@@ -487,7 +494,7 @@ Lint, `tsc` and unit tests (10/10) pass. The `pnpm add` reported peer warnings, 
 
 **Fix:**
 
-- In `auth.module.ts`, replace the bare `'src/prisma/prisma.module'` import with a relative one, per CLAUDE.md.
+- ~~In `auth.module.ts`, replace the bare `'src/prisma/prisma.module'` import with a relative one, per CLAUDE.md.~~ Done in REPO-08, which removed `baseUrl`. Since then `pnpm --filter api test:integration` passes (1/1) even without `DATABASE_URL`, because `GET /` never queries the DB. The `.env` note below still matters once `/health` checks the DB.
 - Remove the stale comment in `jwtAuth.guard.ts` ("to be added when...").
 - Replace the Hello World `AppController`, `AppService` and their spec with `GET /health` (`@nestjs/terminus`, DB check, `@Public()`).
 - Rewrite the integration test (`test/app.integration-spec.ts`) against `/health`. Note: the integration run does not load `.env` (only `main.ts` imports `dotenv/config`), so `PrismaService` gets no `DATABASE_URL`. Either load env in `vitest.config.integration.mts` (`setupFiles: ['dotenv/config']`) or rely on API-03's `ConfigModule`. Found during CRIT-03.
