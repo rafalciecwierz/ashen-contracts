@@ -191,7 +191,17 @@ Verified: `format:check` and `lint` pass; `tsc` in all 3 workspaces, API tests (
 
 ### REPO-05 — Root scripts and the TypeScript version
 
-**Status:** ⬜ TODO
+**Status:** ✅ DONE (2026-10-13)
+**Notes:**
+
+- **Root scripts:** `build`, `test`, `lint` and `typecheck` are `pnpm --recursive <script>`, so each one runs in every workspace that defines that script (`dev` still targets the apps only). New per-workspace scripts:
+  - `typecheck`: `tsc --noEmit` in api, ui and shared, and `next typegen && tsc --noEmit` in web (route types such as `LayoutProps` are generated and gitignored);
+  - `test`: `vitest run` in ui (Storybook interaction tests; they need Playwright's Chromium once).
+- **`packages/shared`:** got a `tsconfig.json` (strict) and a `typescript` devDependency, so it is now type-checked on its own, not only through the apps that import it.
+- **TypeScript:** one version, 5.9.3, from a pnpm catalog (`catalog:` in `pnpm-workspace.yaml`, referenced as `"typescript": "catalog:"` in all 5 package.json files). Before, the root pinned 5.1.3, which `packages/ui` silently used through hoisting, while api and web resolved 5.9.3. The latest TypeScript is 7.0.2, but `typescript-eslint` supports only `<6.1`. Moving to TypeScript 6 remains REPO-08's decision.
+- **CI:** now calls `pnpm lint`, `format:check`, `typecheck`, `test` and `build` (plus `build-storybook`). The separate `next typegen` step was dropped, because web's `typecheck` script runs it.
+
+Verified: all five root scripts pass, both in the working copy and on a fresh clone with the change applied. That covers API tests 10/10, UI tests 14/14, and `tsc` in 4 workspaces.
 **Problem:** Root `test`, `lint` and `build` only target `apps/*`, so `packages/ui` is skipped. There is no `typecheck` script. Root `typescript` is pinned to `5.1.3`, but `@nestjs/swagger@12` needs at least 5.5.
 **Fix:** Include `packages/*` where relevant, add `typecheck` (`tsc --noEmit` per workspace), and align the TypeScript version across workspaces.
 **Done when:** `pnpm typecheck` and `pnpm test` cover every workspace.

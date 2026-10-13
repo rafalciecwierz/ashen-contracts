@@ -32,7 +32,8 @@ Purpose: a portfolio project to demonstrate full-stack engineering (frontend-fir
 
 - `pnpm install` — install all workspace dependencies
 - `pnpm dev` — run web + api locally
-- `pnpm test` — run unit tests
+- `pnpm test` — unit tests in every workspace (UI story tests need `pnpm --filter @ashen-contracts/ui exec playwright install chromium` once)
+- `pnpm typecheck` — `tsc --noEmit` in every workspace
 - `pnpm lint` — ESLint in every workspace (`pnpm --filter <name> lint:fix` to auto-fix)
 - `pnpm format` / `pnpm format:check` — Prettier for the whole repo (config at the root)
 - `pnpm --filter api migrate` — run database migrations

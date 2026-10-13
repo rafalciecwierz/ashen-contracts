@@ -1,6 +1,11 @@
 packages:
   - 'apps/*'
   - 'packages/*'
+
+# Shared dependency versions, referenced as "catalog:" in each package.json
+catalog:
+  typescript: ~5.9.3
+
 allowBuilds:
   '@nestjs/core': true
   '@parcel/watcher': true
