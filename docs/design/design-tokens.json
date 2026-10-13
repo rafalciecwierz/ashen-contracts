@@ -1,0 +1,100 @@
+{
+  "$description": "Ashen Contracts design tokens: draft from the Chronicle screen mockup (2026-10-12). Reference only, not wired into the code yet. Format: W3C Design Tokens Community Group (DTCG), readable by Style Dictionary and easy to map to a Tailwind theme.",
+  "color": {
+    "$type": "color",
+    "bg": {
+      "base": { "$value": "#141210", "$description": "Page background, warm ash black" },
+      "surface": { "$value": "#1b1815", "$description": "Panels and cards" },
+      "surface-raised": { "$value": "#221d18", "$description": "Highlighted choice (item-gated option)" },
+      "surface-hover": { "$value": "#25211d", "$description": "Button hover background" },
+      "track": { "$value": "#2c2823", "$description": "Empty part of progress bars" }
+    },
+    "border": {
+      "subtle": { "$value": "#26221e", "$description": "List row dividers" },
+      "default": { "$value": "#2f2a25", "$description": "Panel borders" },
+      "strong": { "$value": "#3a342d", "$description": "Active event card" },
+      "control": { "$value": "#4a433a", "$description": "Button borders" },
+      "control-hover": { "$value": "#8a7f70" }
+    },
+    "text": {
+      "primary": { "$value": "#e6dfd3", "$description": "Body text and headings" },
+      "muted": { "$value": "#a39a8c", "$description": "Labels, meta, past chronicle entries (passes 4.5:1 on bg.surface)" },
+      "locked": { "$value": "#8f877a", "$description": "Locked locations" },
+      "disabled": { "$value": "#6f675c", "$description": "Locked nav items only: below 4.5:1, never use for content text" },
+      "on-accent": { "$value": "#1a1410", "$description": "Text on an accent fill" }
+    },
+    "accent": {
+      "ember": { "$value": "#d9773f", "$description": "Primary accent: energy, active state, rewards, current event" },
+      "link": { "$value": "#e0a37c" },
+      "link-hover": { "$value": "#f0c2a2" }
+    },
+    "neutral-fill": { "$value": "#9c9282", "$description": "Secondary progress bars (XP, reputation)" },
+    "accent-alternatives": {
+      "$description": "Alternative accents tried in the mockup's Tweaks panel; not part of the palette yet",
+      "gold": { "$value": "#c9a24a" },
+      "steel": { "$value": "#8fa8bf" },
+      "blood": { "$value": "#b55a5a" }
+    }
+  },
+  "font": {
+    "$description": "Google Fonts: https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600&family=EB+Garamond:ital,wght@0,400;0,500;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap",
+    "family": {
+      "$type": "fontFamily",
+      "display": { "$value": ["Cinzel", "serif"], "$description": "Wordmark, headings, uppercase labels, nav, buttons" },
+      "body": { "$value": ["EB Garamond", "Georgia", "serif"], "$description": "Narrative prose and UI text" },
+      "mono": { "$value": ["IBM Plex Mono", "monospace"], "$description": "Numbers, timers, timestamps, rewards" }
+    },
+    "weight": {
+      "$type": "fontWeight",
+      "regular": { "$value": 400 },
+      "medium": { "$value": 500 },
+      "semibold": { "$value": 600 }
+    },
+    "size": {
+      "$type": "dimension",
+      "label": { "$value": "12px", "$description": "Uppercase section labels (display font), timestamps (mono)" },
+      "meta": { "$value": "13px", "$description": "Mono meta, nav, buttons" },
+      "small": { "$value": "14px" },
+      "caption": { "$value": "16px" },
+      "body": { "$value": "18px" },
+      "lead": { "$value": "21px", "$description": "Current narrative event" },
+      "title": { "$value": "22px", "$description": "Character name, stat values" },
+      "heading": { "$value": "28px", "$description": "Location heading" }
+    },
+    "line-height": {
+      "$type": "number",
+      "body": { "$value": 1.55 },
+      "prose": { "$value": 1.6 }
+    },
+    "letter-spacing": {
+      "$type": "dimension",
+      "label": { "$value": "0.14em", "$description": "Uppercase section labels" },
+      "caps": { "$value": "0.12em", "$description": "Wordmark, nav, buttons" },
+      "heading": { "$value": "0.06em" }
+    }
+  },
+  "space": {
+    "$type": "dimension",
+    "1": { "$value": "4px" },
+    "2": { "$value": "8px" },
+    "3": { "$value": "12px" },
+    "4": { "$value": "16px" },
+    "5": { "$value": "20px", "$description": "Panel padding" },
+    "6": { "$value": "24px", "$description": "Page gutter and column gap" },
+    "7": { "$value": "28px", "$description": "Event card padding" }
+  },
+  "radius": {
+    "$type": "dimension",
+    "bar": { "$value": "3px" },
+    "default": { "$value": "4px", "$description": "Panels, buttons, stat tiles: kept deliberately sharp" }
+  },
+  "size": {
+    "$type": "dimension",
+    "container": { "$value": "1240px", "$description": "Max content width" },
+    "touch-min": { "$value": "44px", "$description": "Minimum interactive height" },
+    "choice-min": { "$value": "56px", "$description": "Narrative choice buttons" },
+    "bar": { "$value": "6px", "$description": "Progress bar height" },
+    "border": { "$value": "1px" },
+    "nav-indicator": { "$value": "2px", "$description": "Active nav underline" }
+  }
+}
