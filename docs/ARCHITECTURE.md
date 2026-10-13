@@ -82,4 +82,4 @@ Used for push notifications only (action completed, event triggered) — not for
 | `packages/ui` (Storybook) | Chromatic | Separate public link, independent of the game deployment |
 
 ## Local development
-`docker-compose.yml` (planned) will spin up local PostgreSQL and Redis so `pnpm dev` works end-to-end without manual service setup.
+`docker-compose.yml` runs PostgreSQL and Redis in containers, so `pnpm dev` works end-to-end without installing either service. The apps themselves run on the host. Ports are bound to `127.0.0.1` only, and the data lives in named volumes (`docker compose down -v` wipes it). Redis runs with AOF persistence and `maxmemory-policy noeviction`, as BullMQ requires. Setup steps: README, "Getting started locally".

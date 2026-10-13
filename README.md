@@ -58,14 +58,25 @@ _Coming as soon as v0.1 has a UI worth showing — placeholder for now._
 git clone https://github.com/rafalciecwierz/ashen-contracts.git
 cd ashen-contracts
 
-# install (workspace-aware)
+# start PostgreSQL and Redis in Docker
+docker compose up -d
+
+# install (workspace-aware; also generates the Prisma client)
 pnpm install
+
+# configure the API (the defaults match docker-compose.yml)
+cp apps/api/.env.example apps/api/.env
+
+# create the database schema
+pnpm --filter api migrate
 
 # run everything
 pnpm dev
 ```
 
-Requires Node.js 24 (see `.nvmrc`; 22.22.3+ also works), pnpm, and a local PostgreSQL + Redis instance (or see `docker-compose.yml` for a one-command setup — _planned_).
+Requires Node.js 24 (see `.nvmrc`; 22.22.3+ also works), pnpm, and Docker. To use your own PostgreSQL instead, point `DATABASE_URL` in `apps/api/.env` at it.
+
+`docker compose down` stops the containers and keeps the data; `docker compose down -v` also wipes it.
 
 ## Project structure
 

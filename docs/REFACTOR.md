@@ -116,7 +116,20 @@ Not in CI yet: `test:integration` (broken, API-10), lint for `packages/ui` (no E
 **Done when:** CI is green on `main`, and README shows a CI badge.
 
 ### REPO-02 — `docker-compose.yml` for Postgres and Redis
-**Status:** ⬜ TODO
+**Status:** ✅ DONE (2026-10-13)
+**Notes:** `docker-compose.yml` was already committed with API-09 (`cf9aaf3`). It defines:
+- `postgres:17-alpine` and `redis:8-alpine`, each with a health check and a named volume;
+- ports bound to `127.0.0.1` only, so the hard-coded dev credentials are not reachable from the network;
+- Redis with AOF persistence, so queued jobs survive a restart (ADR #001), and `maxmemory-policy noeviction`, as BullMQ requires.
+
+This commit adds:
+- `apps/api/.env.example`: `DATABASE_URL` now matches the compose database.
+- `prisma generate` in the API `postinstall`. A fresh clone showed that `migrate dev` in Prisma 7 no longer generates the client, so `pnpm dev` failed on the missing `src/generated/prisma`. CI no longer needs its own generate step, so that step was removed from the workflow.
+- README "Getting started" (compose, `.env` copy, migrate) and the ARCHITECTURE "Local development" section.
+
+Verified on a fresh clone with empty volumes: `docker compose up -d`, then `pnpm install`, `cp .env.example .env`, `pnpm --filter api migrate` and `pnpm dev` all work. Through the web app, `/login` returns 200, and register and login go through the Next.js route handlers to the API and Postgres; login sets the session cookie. Redis reports `noeviction`.
+
+The web app still needs `API_URL`, which was set by hand for the test. Documenting it is REPO-03. Besides the `.env` copy, the "Done when" command sequence therefore needs that one extra variable until REPO-03 lands.
 **Problem:** README and ARCHITECTURE promise a one-command local setup, but it is only planned. Redis is needed soon for BullMQ.
 **Fix:** Add a compose file with Postgres and Redis (named volumes, health checks), and set the matching `DATABASE_URL` in `.env.example`. Update the README "Getting started" section.
 **Done when:** A fresh clone runs end-to-end with `docker compose up -d && pnpm install && pnpm --filter api migrate && pnpm dev`.
