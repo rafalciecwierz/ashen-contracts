@@ -93,7 +93,24 @@ Verified:
 ## REPO — Monorepo and tooling
 
 ### REPO-01 — Continuous integration (GitHub Actions)
-**Status:** ⬜ TODO
+**Status:** 🟡 IN REVIEW (2026-10-13). Workflow written and every step verified locally on a fresh clone; "CI is green on `main`" still needs the first run on GitHub after push.
+**Notes:** `.github/workflows/ci.yml` runs one `verify` job on `ubuntu-latest` on push to `main` and on PRs. It uses `actions/checkout@v7`, `pnpm/action-setup@v6` (pnpm version from `packageManager`) and `actions/setup-node@v7` (Node from `.nvmrc`, pnpm store cached). It cancels superseded runs and has read-only `contents` permissions. Steps:
+- `pnpm install --frozen-lockfile`;
+- generate code: the Prisma client (`prisma:generate`) and the Next.js route types (`next typegen`);
+- lint: API and web;
+- typecheck: `tsc --noEmit` in API, web and UI;
+- test: API unit tests and the Storybook interaction tests in `packages/ui`, which need headless Chromium (`playwright install --with-deps --only-shell chromium`);
+- build: API, web and Storybook.
+
+The workflow calls per-workspace commands directly instead of root scripts, because the root scripts skip `packages/*` and there is no `typecheck` script yet. REPO-05 can replace these steps with root scripts.
+
+A fresh clone found two failures that a working copy hides:
+- `apps/web` `tsc` fails with `Cannot find name 'LayoutProps'`. Next.js declares that global type in the gitignored `.next/types`, which only exists after `next dev`/`next build`. CI now runs `next typegen` first.
+- API lint failed on the missing final newline in `login.dto.ts` (noted in CRIT-02). Fixed here, because CI cannot be green without it. The API `lint` script runs `eslint --fix`, which in CI would silently repair errors and pass, so CI calls it with `--no-fix`. REPO-04 should split it into `lint` and `lint:fix`.
+
+Verified on a fresh clone with no `DATABASE_URL` or `API_URL` set: every step passes (API 10/10 tests, UI 14/14 story tests). The YAML parses; actionlint was not available locally. The README has a CI badge.
+
+Not in CI yet: `test:integration` (broken, API-10), lint for `packages/ui` (no ESLint config there; REPO-04), and caching the Playwright browser download.
 **Problem:** There is no CI. Bugs like CRIT-01 and CRIT-02 only show up on someone else's machine.
 **Fix:** Add a workflow on `ubuntu-latest` that runs `pnpm install --frozen-lockfile`, lint, typecheck, unit tests and the build for all workspaces, with the pnpm store cached. Use Node from `.nvmrc` (≥ 24.9 is required since CRIT-03). Run it on push to `main` and on PRs.
 **Done when:** CI is green on `main`, and README shows a CI badge.

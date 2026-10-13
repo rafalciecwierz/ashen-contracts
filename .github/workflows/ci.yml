@@ -1,0 +1,68 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+# A newer push to the same branch or PR makes the older run pointless.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    name: Lint, typecheck, test, build
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - uses: actions/checkout@v7
+
+      # Installs the pnpm version pinned in the root package.json `packageManager` field.
+      - uses: pnpm/action-setup@v6
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      # Both are gitignored, generated code that lint, tsc and the builds depend on:
+      # the Prisma client (src/generated/prisma) and Next.js route types (e.g. the global LayoutProps).
+      - name: Generate code
+        run: |
+          pnpm --filter api prisma:generate
+          pnpm --filter web exec next typegen
+
+      # The API lint script runs with --fix, which would silently repair errors in CI; --no-fix overrides it.
+      - name: Lint
+        run: |
+          pnpm --filter api lint --no-fix
+          pnpm --filter web lint
+
+      - name: Typecheck
+        run: |
+          pnpm --filter api exec tsc --noEmit
+          pnpm --filter web exec tsc --noEmit
+          pnpm --filter @ashen-contracts/ui exec tsc --noEmit
+
+      # Storybook interaction tests in packages/ui run in headless Chromium.
+      - name: Install Playwright browser
+        run: pnpm --filter @ashen-contracts/ui exec playwright install --with-deps --only-shell chromium
+
+      - name: Test
+        run: |
+          pnpm --filter api test
+          pnpm --filter @ashen-contracts/ui exec vitest run
+
+      - name: Build
+        run: |
+          pnpm --filter api build
+          pnpm --filter web build
+          pnpm --filter @ashen-contracts/ui build-storybook

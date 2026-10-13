@@ -5,6 +5,7 @@ A browser-based idle/RPG game where players manage a stronghold, fulfill monster
 **Live demo:** _coming soon_
 **Storybook (component library):** _coming soon_
 
+[![CI](https://github.com/rafalciecwierz/ashen-contracts/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/rafalciecwierz/ashen-contracts/actions/workflows/ci.yml)
 ![status](https://img.shields.io/badge/status-in%20development-orange)
 ![frontend](https://img.shields.io/badge/frontend-Next.js%20%2B%20TypeScript-blue)
 ![backend](https://img.shields.io/badge/backend-NestJS%20%2B%20PostgreSQL-green)
