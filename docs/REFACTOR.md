@@ -248,7 +248,9 @@ Verified: all five root scripts pass, both in the working copy and on a fresh cl
 
 ### REPO-06 — Add a LICENSE
 
-**Status:** ⬜ TODO
+**Status:** ✅ DONE (2026-10-13)
+
+**Notes:** Chose MIT: the most common license for portfolio code, short, and it lets anyone read and reuse the code as long as the copyright notice stays. Added `LICENSE` (standard MIT text, `Copyright (c) 2026 Rafał Ciećwierz`). Set `"license": "MIT"` in all 5 package.json files: the API previously said `UNLICENSED`, the others had no field. Added a "License" section to the README.
 
 **Fix:** Add a `LICENSE` file (e.g. MIT) and set `license` in the package.json files.
 

@@ -1,6 +1,7 @@
 {
   "name": "ashen-contracts",
   "private": true,
+  "license": "MIT",
   "version": "0.1.0",
   "description": "A narrative-driven browser idle RPG — full-stack portfolio project.",
   "engines": {

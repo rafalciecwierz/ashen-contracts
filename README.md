@@ -98,3 +98,7 @@ docs/           → game design, roadmap, architecture decisions
 - [LinkedIn](https://www.linkedin.com/in/rafalciecwierz)
 - [GitHub](https://github.com/rafalciecwierz)
 - rafal.ciecwierz4@gmail.com
+
+## License
+
+[MIT](./LICENSE) © Rafał Ciećwierz

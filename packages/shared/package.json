@@ -2,6 +2,7 @@
   "name": "@ashen-contracts/shared",
   "version": "0.0.0",
   "private": true,
+  "license": "MIT",
   "types": "./src/index.ts",
   "exports": {
     ".": {
