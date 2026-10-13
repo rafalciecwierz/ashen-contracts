@@ -275,7 +275,18 @@ AI agents trust CLAUDE.md more than the code, so drift here produces wrong code.
 - Update `apps/web` translations to cover the new codes.
 
 ### API-09 — Prisma adapter and lifecycle
-**Status:** ⬜ TODO
+**Status:** ✅ DONE (2026-10-13)
+**Notes:** Done ahead of order because it blocked REPO-02: with `@prisma/adapter-ppg`, the API could not reach the docker-compose Postgres. Migrations worked, because the Prisma CLI uses its own TCP connection, but every query at runtime failed with `ECONNREFUSED 127.0.0.1:443`, since that adapter talks to Prisma Postgres over HTTPS. Changes:
+- replaced `@prisma/adapter-ppg` with `@prisma/adapter-pg@^7.10.0` (node-postgres over plain TCP), which works with any Postgres;
+- `PrismaService` implements `OnModuleDestroy` → `$disconnect()`;
+- `main.ts` calls `app.enableShutdownHooks()`.
+
+Verified on the built `dist/main.js`:
+- local compose Postgres: `register` and `login` work;
+- the existing Prisma Postgres URL from `apps/api/.env` (TCP on `db.prisma.io:5432`): `login` for an unknown user returns `INVALID_CREDENTIALS`, so the DB round-trip works;
+- on SIGTERM the app shuts down cleanly. Postgres goes from 1 to 0 open connections (`pg_stat_activity`), and the exit code is 143, because Nest re-raises the signal after its shutdown hooks run.
+
+Lint, `tsc` and unit tests (10/10) pass. The `pnpm add` reported peer warnings, all of them existing ones from REPO-08 and UI-07.
 **Problem:** `@prisma/adapter-ppg` targets Prisma Postgres. Railway, Render and local docker Postgres need `@prisma/adapter-pg`. The client is also never disconnected.
 **Fix:** Switch to `@prisma/adapter-pg`, implement `OnModuleDestroy` → `$disconnect()`, and call `app.enableShutdownHooks()`.
 
