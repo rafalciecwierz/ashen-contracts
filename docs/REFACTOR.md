@@ -135,7 +135,14 @@ The web app still needs `API_URL`, which was set by hand for the test. Documenti
 **Done when:** A fresh clone runs end-to-end with `docker compose up -d && pnpm install && pnpm --filter api migrate && pnpm dev`.
 
 ### REPO-03 — `.env.example` for `apps/web` and env documentation
-**Status:** ⬜ TODO
+**Status:** ✅ DONE (2026-10-13)
+**Notes:** `git grep process.env` (excluding generated code) finds 7 variables. All of them are now in an `.env.example` file, each with a comment and a working local default:
+- `apps/api/.env.example`: `DATABASE_URL`, `PORT`, `JWT_SECRET` (with an `openssl rand -base64 32` hint), `CORS_ORIGIN`, and `NODE_ENV=development`. Its comment notes that `nest start` does not set `NODE_ENV`, so a deployment must set `NODE_ENV=production`, or Swagger stays exposed.
+- New `apps/web/.env.example`: `API_URL`, meant to be copied to `.env.local`. `NODE_ENV` is documented in a comment only, because Next.js sets it itself and warns about non-standard values set in env files.
+- `apps/web/.gitignore` keeps ignoring `.env*` but adds `!.env.example` (confirmed with `git check-ignore`). The root and API ignore rules never matched `.env.example`.
+- README "Getting started" copies both example files.
+
+Verified on a fresh clone with no variables set in the shell, only the copied example files: migrate, then `pnpm dev`. Through the web app, register and login work, Swagger is served at `/api`, and the API returns `Access-Control-Allow-Origin: http://localhost:3000`. This also closes the `API_URL` gap left open in REPO-02.
 **Problem:** `apps/web` needs `API_URL`, but nothing documents it. The API's `.env.example` does not list `CORS_ORIGIN` or `NODE_ENV`.
 **Fix:** Add `apps/web/.env.example` and complete `apps/api/.env.example`. Root `.gitignore` must not ignore `.env.example`; `apps/web/.gitignore` currently has `.env*`.
 **Done when:** Every env variable read in the code appears in an `.env.example` file.

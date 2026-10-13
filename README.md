@@ -64,8 +64,9 @@ docker compose up -d
 # install (workspace-aware; also generates the Prisma client)
 pnpm install
 
-# configure the API (the defaults match docker-compose.yml)
+# configure env variables (the defaults work locally; each file documents its variables)
 cp apps/api/.env.example apps/api/.env
+cp apps/web/.env.example apps/web/.env.local
 
 # create the database schema
 pnpm --filter api migrate
