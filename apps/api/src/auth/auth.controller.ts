@@ -7,6 +7,7 @@ import {
   RegisterResponse,
 } from '@ashen-contracts/shared';
 import { CurrentUser, Public } from './decorators';
+import { ApiBearerAuth } from '@nestjs/swagger';
 
 @Controller('auth')
 export class AuthController {
@@ -25,6 +26,7 @@ export class AuthController {
   }
 
   @Get('me')
+  @ApiBearerAuth('Bearer')
   me(@CurrentUser() user: JwtPayload) {
     return this.authService.me(user.sub);
   }

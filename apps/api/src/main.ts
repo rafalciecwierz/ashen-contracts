@@ -18,6 +18,18 @@ async function bootstrap() {
       .setTitle('Ashen Contracts API')
       .setDescription('API for the Ashen Contracts browser game')
       .setVersion('0.1')
+      .addBearerAuth(
+        {
+          type: 'http',
+          scheme: 'bearer',
+          bearerFormat: 'JWT',
+          in: 'header',
+          name: 'Authorization',
+          description: 'Paste access token without Bearer prefix',
+        },
+        'Bearer',
+      )
+      // .addSecurityRequirements('Bearer')
       .build();
 
     const documentFactory = () => SwaggerModule.createDocument(app, config);
