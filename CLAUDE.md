@@ -10,11 +10,12 @@ Purpose: a portfolio project to demonstrate full-stack engineering (frontend-fir
 
 ## Tech stack
 
-- Frontend: Next.js + TypeScript + Tailwind, shared components in Storybook (`packages/ui`)
-- Backend: NestJS + PostgreSQL + Redis + BullMQ (job queues for timed actions)
-- Real-time: Socket.io
-- Testing: Vitest (unit + API integration via supertest), Cypress (browser e2e)
-- Package manager: pnpm (workspaces monorepo)
+- Frontend: Next.js 16 (App Router) + TypeScript + Tailwind v4, next-intl, Zod; shared components in Storybook (`packages/ui`, built on Radix UI)
+- Backend: NestJS 12 + Prisma 7 + PostgreSQL
+- Testing: Vitest everywhere: API unit tests, API integration tests via supertest, and Storybook interaction tests in `packages/ui` (browser mode, Playwright)
+- Tooling: pnpm workspaces, TypeScript 6 (one version via the pnpm catalog), ESLint 9 + Prettier, commitlint, GitHub Actions CI
+- Local infra: `docker-compose.yml` runs PostgreSQL and Redis
+- Planned, not installed yet: BullMQ on Redis (timed actions, v0.4), Socket.io (real-time), Cypress (browser e2e)
 - Structure: `apps/web`, `apps/api`, `packages/ui`, `packages/shared`
 
 ## Code conventions
@@ -24,9 +25,11 @@ Purpose: a portfolio project to demonstrate full-stack engineering (frontend-fir
 - Write tests for: resource regeneration math, queue/job behavior, action validation (enough resources? valid state?).
 - Import generated/external code (Prisma client, etc.) with explicit relative paths (`../generated/prisma/client` — the Prisma client is generated into `apps/api/src/generated/prisma`), never bare `src/...` specifiers. `apps/api` has no `baseUrl` (deprecated in TypeScript 6), so those no longer compile; they used to work under `nest start` but not in Vitest.
 - **NestJS 12 is ESM-only; `apps/api` stays CommonJS** and loads it through Node's `require(esm)`. API tests run on Vitest (`pnpm --filter api test`), not Jest. Spec files import test APIs explicitly (`import { describe, it, expect, vi } from 'vitest'`; no globals). Don't add an SWC plugin, because Vite's transformer already emits decorator metadata. See `docs/DECISIONS.md` #006.
-- [Add naming conventions, folder structure rules, DTO naming as they solidify]
-- **Where components live (apps/web):** generic, app-agnostic UI → `packages/ui`. Components used by a single route live next to it in a private `_components/` folder (e.g. `src/app/play/_components/`). A component used by two or more routes moves to `src/components/`. Start local; promote only when a second use appears.
-- **File naming (apps/web):** camelCase file names. Suffix by role: `.component.tsx` (React components), `.schema.ts` (Zod schemas), `.types.ts` (type declarations). Non-component modules are plain camelCase (`getCurrentUser.ts`, `routeHelpers.ts`).
+- **Where components live (apps/web):** generic, app-agnostic UI → `packages/ui`. Components used by a single route live next to it in a private `_components/` folder (e.g. `app/play/_components/`). A component used by two or more routes moves to `src/components/` (create it with the first such component). Start local; promote only when a second use appears.
+- **Where code lives (apps/web):** routes in `app/` (App Router; `app/api/` holds the BFF route handlers), non-route modules in `src/` (`src/http`, `src/i18n`, `src/routes`), imported as `@/src/...`.
+- **File naming (apps/web, packages/ui):** camelCase file names. Suffix by role: `.component.tsx` (React components), `.schema.ts` (Zod schemas), `.types.ts` (type declarations). Non-component modules are plain camelCase (`getCurrentUser.ts`, `routeHelpers.ts`). Stories: `.stories.tsx` next to the component.
+- **File naming (apps/api):** camelCase plus the Nest role suffix: `.module.ts`, `.controller.ts`, `.service.ts`, `.dto.ts`, `.guard.ts`, `.decorator.ts`; unit tests `.spec.ts` next to the file, integration tests `test/*.integration-spec.ts`.
+- **Keep docs in sync:** when a change alters architecture or conventions, update the relevant `docs/` file (feature spec, ADR in `DECISIONS.md`, `ARCHITECTURE.md`, this file) in the same commit. AI agents trust this file more than the code, so drift here produces wrong code.
 
 ## Commit messages
 
@@ -40,13 +43,14 @@ Purpose: a portfolio project to demonstrate full-stack engineering (frontend-fir
 
 ## Common commands
 
-- `pnpm install` — install all workspace dependencies
+- `docker compose up -d` — start PostgreSQL and Redis (first setup: see README "Getting started")
+- `pnpm install` — install all workspace dependencies (also generates the Prisma client and installs the commit hook)
 - `pnpm dev` — run web + api locally
 - `pnpm test` — unit tests in every workspace (UI story tests need `pnpm --filter @ashen-contracts/ui exec playwright install chromium` once)
 - `pnpm typecheck` — `tsc --noEmit` in every workspace
 - `pnpm lint` — ESLint in every workspace (`pnpm --filter <name> lint:fix` to auto-fix)
 - `pnpm format` / `pnpm format:check` — Prettier for the whole repo (config at the root)
-- `pnpm --filter api migrate` — run database migrations
+- `pnpm --filter api migrate` — create/apply migrations in development (`migrate:deploy` for deployments)
 - `pnpm --filter ui storybook` — run Storybook for the component library
 
 ## Where to find more context
@@ -55,9 +59,11 @@ Purpose: a portfolio project to demonstrate full-stack engineering (frontend-fir
 - Version roadmap (what we're building now vs later): `docs/ROADMAP.md`
 - Architecture decisions and reasoning: `docs/DECISIONS.md`
 - Detailed spec for the feature currently being built: `docs/features/`
+- System overview, deployment, local development: `docs/ARCHITECTURE.md`
+- Refactor/cleanup backlog with task IDs and per-task notes: `docs/REFACTOR.md`
 
 ## Current status (keep this updated)
 
-Current version in progress: v0.1
-Last completed: [update me]
-Next step: [update me]
+- Current version in progress: v0.1
+- Last completed: auth (register, login, logout, `GET /auth/me`, global JWT guard, BFF with httpOnly cookie); refactor backlog sections CRIT and REPO (`docs/REFACTOR.md`)
+- Next step: rest of the refactor backlog (AI, DOC, API, WEB, UI), then v0.1 character creation (`docs/features/02-character-creation.md`)
