@@ -323,7 +323,22 @@ AI agents trust CLAUDE.md more than the code, so drift here produces wrong code.
 
 ### AI-02 — Project `.claude/settings.json` with hooks and permissions
 
-**Status:** ⬜ TODO
+**Status:** ✅ DONE (2026-10-14)
+
+**Notes:** Added a committed `.claude/settings.json` (with `$schema` for editor validation) and `.claude/hooks/formatEditedFile.mjs`:
+
+- **Hook:** `PostToolUse` on `Edit|Write` runs the script, which reads the edited path from the hook's stdin JSON. It runs Prettier (`--ignore-unknown`, so `.prettierignore` applies), then `eslint --fix` from the nearest workspace that has an `eslint.config.mjs`. It skips files outside the repo and in `node_modules`, and it never blocks: leftover lint errors are for `pnpm lint` and CI. The script is in Node instead of a `jq` one-liner, so it needs no extra tool and stays readable. It takes about 2.6 s per API file, because the type-aware lint dominates.
+- **Deny:** `Read(**/.env)`, `.env.local`, `.env.*.local`, `.env.development`, `.env.production`, `.env.test`. Each name is listed explicitly, because a broad `.env*` deny would also block `.env.example`, and deny rules beat allow rules.
+- **Allow:** `pnpm test`, `pnpm lint`, `pnpm typecheck`, `pnpm format:check`, and `git status` / `git diff` / `git log` (the last one added as another read-only command).
+
+Verified:
+
+- Pipe test: a file with double quotes, bad indentation and `let` came back with single quotes, fixed indentation and `const`.
+- Live: an Edit that wrote `return "Hello World!"` with wrong indentation was reformatted immediately (empty `git diff`).
+- The Read tool on a dummy `.env.test` (fake content, deleted afterwards) was refused with "denied by your permission settings".
+- `jq` and Prettier accept the JSON.
+
+Limitation: `Read(...)` deny rules govern Claude's file tools. A shell command such as `cat .env` was also refused in the test session, but it is unclear whether this rule or the session's permission mode refused it. For a hard guarantee, enable the Bash sandbox, which applies `Read` deny rules to shell commands too. That is a user-level choice, not part of this repo.
 
 **Fix:** Add a committed `.claude/settings.json` with:
 
