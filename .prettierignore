@@ -2,15 +2,7 @@
 pnpm-lock.yaml
 apps/api/src/generated/
 apps/api/prisma/migrations/
-apps/api/skills-lock.json
 apps/web/next-env.d.ts
-
-# AI agent skills installed by `prisma skills sync` (vendored, not ours)
-apps/api/.agents/
-apps/api/.claude/
-apps/api/.cursor/
-apps/api/.devin/
-apps/api/.windsurf/
 
 # Third-party skills copied from mattpocock/skills: kept byte-identical to upstream for easy diffing (see each NOTICE.md)
 .claude/skills/grill-me/

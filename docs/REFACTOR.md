@@ -375,7 +375,16 @@ Verified: every SKILL.md has valid frontmatter whose `name` matches its folder. 
 
 ### AI-04 — Trim the Prisma agent skills
 
-**Status:** ⬜ TODO
+**Status:** ✅ DONE (2026-10-15)
+
+**Notes:** All Prisma skills were removed instead of trimmed, and nothing syncs skills any more. The problem statement was wrong about the mechanism: `prisma skills sync` is not a command in the installed Prisma CLI (7.10.0 prints `Unknown command "skills"`), and `|| exit 0` hid that failure on every install. The skills on disk came from a one-off `npx skills add prisma/skills` on 2026-09-23 (that tool's lockfile is `skills-lock.json`), went into five agent folders (`.agents`, `.claude`, `.cursor`, `.devin`, `.windsurf`), were gitignored, and were never updated. A fresh clone got none of them. Changes:
+
+- `postinstall` is now just `prisma generate`, and `apps/api/skills-lock.json` is removed.
+- The agent folders' entries were removed from `apps/api/.gitignore` and `.prettierignore`, so a future stray install shows up in `git status`. The local copies were deleted.
+- Deviation from the task: vendoring the "relevant" skills was tried first. `prisma-cli`, `prisma-client-api` and `prisma-upgrade-v7` were copied verbatim from prisma/skills `be16a87` into `apps/api/.claude/skills/`, without `prisma-postgres`, which covers the hosted Prisma Postgres product, not PostgreSQL. That approach was dropped after review: the agent already knows the Client API, the v7 migration is finished, the project uses one model with simple queries, and the copies would go stale with every Prisma release. The project-specific Prisma 7 knowledge is in CLAUDE.md and ADR #008.
+- New ADR #014 records the policy: only reviewed, committed skills for the project's own procedures, and no vendor reference skills.
+
+Verified with the vendored variant on a fresh clone: `pnpm install --frozen-lockfile` passes, and `postinstall` generates the Prisma client and creates no agent folders. The final variant only removes those files on top of that, so the same holds; `pnpm format:check` passes.
 
 **Problem:** The `postinstall` hook (`prisma skills sync`) installs 9 skills into 4 agent directories. Several are irrelevant (`prisma-mongodb-upgrade`, `prisma-compute`, `prisma-driver-adapter-implementation`) and only add noise to the context.
 

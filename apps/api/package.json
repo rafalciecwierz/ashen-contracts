@@ -26,7 +26,7 @@
     "migrate": "prisma migrate dev",
     "migrate:deploy": "prisma migrate deploy",
     "prisma:generate": "prisma generate",
-    "postinstall": "prisma generate && (prisma skills sync || exit 0)"
+    "postinstall": "prisma generate"
   },
   "dependencies": {
     "@ashen-contracts/shared": "workspace:*",

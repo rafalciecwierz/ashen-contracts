@@ -203,3 +203,19 @@ Alternatives considered:
 - Keep the settings in the user's local config only. Rejected: invisible in the repo, not reviewable, and lost on another machine.
 
 Consequences: the agent's output passes through the same formatting and lint gates as hand-written code, and changes to the agent's permissions show up in `git diff` and go through review like any other change. Limitation: `Read` deny rules govern the agent's file tools; a hard guarantee for shell commands needs the Bash sandbox, a user-level setting.
+
+## 014. Agent skills: only reviewed, committed copies of the project's own procedures; no vendor reference skills
+
+Date: 15.10.2026
+
+Context: the repo had two kinds of agent skills. AI-03 added skills for this project's procedures (`refactor-task`, `adr`) and a few general techniques copied from mattpocock/skills (`tdd`, `diagnosing-bugs`, `grilling`). Separately, a one-off `npx skills add prisma/skills` had installed 11 Prisma reference skills into five agent folders in `apps/api` (`.agents`, `.claude`, `.cursor`, `.devin`, `.windsurf`). Those were gitignored and never updated, and `postinstall` ran `prisma skills sync || exit 0`, which is not a command in Prisma CLI 7.10.0 and failed silently on every install. Some of them covered products the project doesn't use (Prisma Compute, hosted Prisma Postgres, MongoDB).
+
+Decision: `.claude/skills/` holds only skills that encode how this project works, or general techniques it adopts on purpose. Each is a committed file, and third-party ones are copied from a pinned commit with a `NOTICE.md`, so updates are manual and reviewed. Library and vendor reference skills (Prisma, and by the same rule NestJS, Next.js and so on) are not installed. The project's own way of using a library (Prisma 7's driver adapter, the generated client path, ESM) is written down in CLAUDE.md and the ADRs, and the code itself is the reference. Nothing installs or syncs skills automatically.
+
+Alternatives considered:
+
+- Vendor the three relevant Prisma skills (`prisma-cli`, `prisma-client-api`, `prisma-upgrade-v7`) into `apps/api/.claude/skills/`. Tried first, then rejected: the agent already knows the Prisma Client API, the v7 migration is finished, and the project uses one model with simple queries. In exchange for about 125 KB of third-party text that goes stale with every Prisma release, they would have saved almost nothing.
+- Keep the auto-installed, gitignored skills. Rejected: a fresh clone gets none of them, they cover irrelevant products, and the silently failing `postinstall` made them look maintained when they weren't.
+- Install skills through a plugin or `npx skills add`. Rejected: prompts change without review, and the tool writes copies for several agents.
+
+Consequences: the agent's context in this repo contains only instructions someone has reviewed, and every skill is visible in `git diff`. The cost is that library-specific knowledge the agent lacks has to be added by hand, to CLAUDE.md or an ADR, once a real gap shows up; an MCP server (AI-05) is the alternative for live documentation. `postinstall` is now just `prisma generate`.
