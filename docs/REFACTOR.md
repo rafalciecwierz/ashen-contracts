@@ -432,7 +432,9 @@ Write it right before character creation and refine it on that first feature.
 
 ### DOC-01 — Update `docs/features/01-auth.md` to match the implemented auth
 
-**Status:** ⬜ TODO
+**Status:** ✅ DONE (2026-10-15)
+
+**Notes:** Rewrote the spec against the code, keeping its structure. The "Token storage — open decision" section became "Session: BFF and httpOnly cookie", marked as resolved by ADR #005: the three route handlers (`register`, `login`, `logout`), `getCurrentUser()` for Server Components, the cookie flags, and the server-only `API_URL` (no `NEXT_PUBLIC_` variant). The spec also had drifted beyond what the task named, so these were brought in line too: the 7-day expiry is now decided, not a placeholder; `POST /auth/register` returns `{ id, email }` and issues no token; register redirects to `/login?registered=true`, and login to a safe `?redirect=` target or `/play`, not `/`; `/play` is protected and logout exists; the endpoints list the error `code`s; `Input` is built. The "Tests to write" list now marks which tests exist and points the missing ones to API-11, WEB-10 and WEB-11, and the edge cases point to API-07 (login timing) and API-08 (validation errors have no `code`). A `Status` field and a "Deviations from spec" section are left for DOC-03. The ADR #005 text and the comments in `src/http/endpoints.ts` say `src/app/api/**`, while the route handlers live in `app/api/`; the spec uses the real path, and WEB-01 (moving `app/` into `src/app/`) makes the others correct, so they were left alone. Verified by reading every file the spec describes (API auth module, DTOs, guard, BFF route handlers, `src/http`, pages, shared types, `.env.example`), a repo-wide search for `localStorage` and `NEXT_PUBLIC_API_URL` (only ADR #005 mentions them now, as history), and `pnpm format:check`.
 
 **Problem:** The spec still describes localStorage, a Bearer token sent from the client, and `NEXT_PUBLIC_API_URL`. All of that was rejected in ADR #005.
 
