@@ -392,7 +392,18 @@ Verified with the vendored variant on a fresh clone: `pnpm install --frozen-lock
 
 ### AI-05 — MCP configuration (`.mcp.json`)
 
-**Status:** ⬜ TODO
+**Status:** ✅ DONE (2026-10-15)
+
+**Notes:** A project `.mcp.json` with two servers. Claude Code asks each user to approve project servers on first use. They are deliberately not pre-approved in `.claude/settings.json`, so a fresh clone never starts third-party processes on its own.
+
+- **`next-devtools`** (`next-devtools-mcp@0.4.0`): discovers a running Next.js 16 dev server and proxies its built-in `/_next/mcp` endpoint (`get_errors`, `get_logs`, `get_page_metadata`, routes). Its anonymous telemetry is switched off in the server's `env` (`NEXT_TELEMETRY_DISABLED=1`), so nobody's machine reports usage without being asked. Since 0.4.0 its `nextjs_docs` tool only points to the docs Next.js bundles in `node_modules/next/dist/docs/`, and `browser_eval` only points to Vercel's `agent-browser` CLI, which is not installed because the Playwright server covers that.
+- **`playwright`** (`@playwright/mcp@0.0.83`): a headless, isolated (in-memory profile) Chromium. Screenshots, snapshots and console logs go to `.playwright-mcp/`, which is gitignored.
+- Both run through `pnpm --silent dlx` with exact versions, more than two weeks old, instead of `npx …@latest` as the vendors suggest. Changes to the agent's tooling are then reviewed like dependency bumps (ADR #014). `pnpm` is the repo's package manager anyway, and `npx` failed on the author's machine (root-owned files in `~/.npm`). `--silent` keeps pnpm's output off stdout, which the stdio protocol uses.
+- Prisma MCP was not added, for the same reason as the skills in AI-04: the CLI covers it.
+- Deviation from ADR #015's "one Playwright version": the MCP server bundles its own Playwright (1.64 alpha) and browser revision. It is agent tooling run by `dlx`, not a project dependency, so the catalog cannot cover it. It needs a one-time `pnpm dlx @playwright/mcp@0.0.83 install-browser chrome-for-testing`, now in CLAUDE.md. Gotcha: that install deleted the Storybook tests' `chromium_headless_shell-1243`, because Playwright removes revisions it believes are unused. Re-running `pnpm --filter @ashen-contracts/ui exec playwright install --only-shell chromium` restored it, and after that both revisions stay side by side.
+- CLAUDE.md "Tech stack" lists the servers. The `refactor-task` skill's verification step mentions them for UI changes.
+
+Verified with a stdio probe that starts each server exactly as `.mcp.json` defines it, completes the MCP handshake and calls a tool. Against a running `pnpm dev`, `nextjs_index` found the server on port 3000, and `get_errors` returned a hydration mismatch on `/`. Its diff showed only `bis_skin_checked` attributes, injected by a browser extension, not an app bug: the Playwright server's clean browser loaded `/login` and `/register` with no console errors and produced a correct screenshot. `pnpm --filter @ashen-contracts/ui test` passes (14/14) after the browser restore, and `pnpm format:check` passes. Found along the way: the page title is still "Create Next App", already covered by WEB-07.
 
 **Fix:** Add a project `.mcp.json` with the Next.js DevTools MCP (Next 16) and the Playwright MCP, so the agent can inspect runtime errors and verify the UI. Prisma MCP is optional.
 

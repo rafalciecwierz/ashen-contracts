@@ -16,7 +16,7 @@ argument-hint: <TASK-ID>
 4. **Verify for real.** Run what the task's "Done when" names. Prefer the strongest check that fits:
    - `pnpm lint`, `pnpm format:check`, `pnpm typecheck`, `pnpm test`, `pnpm build`;
    - a **fresh clone** in the scratchpad (`git clone` + apply the diff) for anything touching install, generated code, env files or CI. A working copy hides gitignored artefacts.
-   - the running app (`docker compose up -d`, then the API/web flow) for runtime changes.
+   - the running app (`docker compose up -d`, then the API/web flow) for runtime changes; for UI changes, the `playwright` and `next-devtools` MCP servers (`.mcp.json`) give a screenshot, the browser console and the dev server's errors.
      Clean up whatever you started (containers, dev servers, temporary files). Never read real `.env` files; use dummies.
 5. **Record the outcome** in the task's section of `docs/REFACTOR.md`:
    - `**Status:** ✅ DONE (YYYY-MM-DD)`, or `🚫 DROPPED (YYYY-MM-DD)` with the reason. Never delete a task.

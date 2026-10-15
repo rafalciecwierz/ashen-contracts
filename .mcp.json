@@ -1,0 +1,23 @@
+{
+  "mcpServers": {
+    "next-devtools": {
+      "command": "pnpm",
+      "args": ["--silent", "dlx", "next-devtools-mcp@0.4.0"],
+      "env": { "NEXT_TELEMETRY_DISABLED": "1" }
+    },
+    "playwright": {
+      "command": "pnpm",
+      "args": [
+        "--silent",
+        "dlx",
+        "@playwright/mcp@0.0.83",
+        "--browser",
+        "chromium",
+        "--headless",
+        "--isolated",
+        "--output-dir",
+        ".playwright-mcp"
+      ]
+    }
+  }
+}

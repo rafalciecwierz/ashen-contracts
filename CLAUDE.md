@@ -14,6 +14,7 @@ Purpose: a portfolio project to demonstrate full-stack engineering (frontend-fir
 - Backend: NestJS 12 + Prisma 7 + PostgreSQL
 - Testing: Vitest everywhere: API unit tests, API integration tests via supertest, and Storybook interaction tests in `packages/ui` (browser mode, Playwright)
 - Tooling: pnpm workspaces, TypeScript 6 (one version via the pnpm catalog), ESLint 9 + Prettier, commitlint, GitHub Actions CI
+- Agent MCP servers (`.mcp.json`, approved per user on first use): Next.js DevTools (runtime errors, routes and logs of a running `pnpm dev`) and Playwright (headless browser for checking UI changes; needs `pnpm dlx @playwright/mcp@0.0.83 install-browser chrome-for-testing` once)
 - Local infra: `docker-compose.yml` runs PostgreSQL and Redis
 - Planned, not installed yet: BullMQ on Redis (timed actions, v0.4), Socket.io (real-time), Cypress (browser e2e)
 - Structure: `apps/web`, `apps/api`, `packages/ui`, `packages/shared`

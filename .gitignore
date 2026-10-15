@@ -30,3 +30,6 @@ apps/api/prisma/*.db
 coverage/
 *storybook.log
 storybook-static
+
+# Agent tooling: snapshots, screenshots and console logs written by the Playwright MCP server (.mcp.json)
+.playwright-mcp/
