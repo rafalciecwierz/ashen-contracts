@@ -219,3 +219,30 @@ Alternatives considered:
 - Install skills through a plugin or `npx skills add`. Rejected: prompts change without review, and the tool writes copies for several agents.
 
 Consequences: the agent's context in this repo contains only instructions someone has reviewed, and every skill is visible in `git diff`. The cost is that library-specific knowledge the agent lacks has to be added by hand, to CLAUDE.md or an ADR, once a real gap shows up; an MCP server (AI-05) is the alternative for live documentation. `postinstall` is now just `prisma generate`.
+
+## 015. Browser e2e tests on Playwright, in a separate `apps/e2e` workspace
+
+Date: 15.10.2026
+
+Context: the docs disagreed on the e2e tool (README: "Cypress / Playwright", ARCHITECTURE and CLAUDE.md: Cypress, REFACTOR.md WEB-11: Playwright), and nothing said where the tests live or how they run. An e2e test here exercises the whole system: the browser talks to the Next.js BFF, which talks to the NestJS API, which talks to PostgreSQL. Playwright is already in the repo, but only as the browser driver for the Storybook interaction tests in `packages/ui` (Vitest browser mode); those are component tests, not e2e.
+
+Decision:
+
+- **Tool:** Playwright Test (`@playwright/test`). `playwright` and `@playwright/test` get one version for the whole repo through the pnpm catalog (as TypeScript does, #011), shared with `packages/ui`.
+- **Location:** a separate workspace, `apps/e2e`, with its own `package.json`, `playwright.config.ts` and specs. It depends on neither app's code, only on their URLs.
+- **Running:** root `pnpm test:e2e`. The workspace defines no `test`, `dev` or `build` script, so `pnpm test`, `pnpm dev` and `pnpm build` stay fast and need no database.
+- **Database:** a separate `ashen_contracts_e2e` database in the existing docker-compose PostgreSQL, created if missing and migrated with `prisma migrate deploy` in Playwright's global setup. Tests never touch development data.
+- **Servers:** Playwright's `webServer` builds and starts the API and the web app with production builds (`nest build` + `start:prod`, `next build` + `next start`) on dedicated ports, with the e2e environment (database URL, dummy JWT secret, `API_URL`) passed in by the config. Production builds cost nothing extra and catch bugs that `next dev` hides. Separate ports keep it from colliding with a running `pnpm dev`. Locally, already-running e2e servers are reused; in CI they always start fresh.
+- **Isolation:** every test registers its own user with a unique email; no table truncation, so tests can run in parallel.
+- **Login in tests:** through the UI for now; a `setup` project with `storageState` once many tests need a logged-in user.
+- **Browsers:** Chromium only to start with.
+- **CI:** its own `e2e` job in `ci.yml`, in parallel with `verify`, with PostgreSQL as a service container. On failure it uploads the HTML report and traces as an artifact. Traces are recorded on the first retry; CI retries twice.
+
+Alternatives considered:
+
+- Cypress. Rejected: Playwright is already a dependency, runs several browsers and parallel workers for free, and its `webServer` option starts both apps from the config. The author also wants to learn the tool that has become the default for new projects.
+- Specs inside `apps/web` (`apps/web/e2e/`). Rejected: the tests cover web, API and database together, so they would sit in one app while depending on all of it, and they would add Playwright to the web app's dependencies.
+- Running against `next dev`. Rejected for CI: slower on first load and not what gets deployed.
+- A separate PostgreSQL container for tests. Rejected: one more service to run, while a second database in the existing container gives the same isolation.
+
+Consequences: `pnpm test:e2e` needs `docker compose up -d` first and takes longer than unit tests, because it builds both apps. The CI job adds a few minutes, in parallel with the existing one. The detailed setup plan is REFACTOR.md WEB-11, and the docs still naming Cypress are fixed by DOC-02.

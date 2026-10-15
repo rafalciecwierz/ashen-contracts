@@ -457,7 +457,7 @@ Write it right before character creation and refine it on that first feature.
 
 - CHANGELOG: change `src/app/api/auth/**` to the real path, and fix the formatting of the `-JWT Guard` bullet.
 - ROADMAP: tick "Navbar" (it is already committed).
-- ARCHITECTURE and README: settle on one e2e tool (Playwright, see WEB-11).
+- ARCHITECTURE, README and CLAUDE.md: replace Cypress with Playwright as the e2e tool (decided in DECISIONS.md #015).
 - `packages/shared/src/types/errors.ts`: remove or fix the reference to a non-existent "type-only shared" ADR, or write that ADR.
 
 ### DOC-03 — Status field in feature specs
@@ -690,9 +690,22 @@ Lint, `tsc` and unit tests (10/10) pass. The `pnpm add` reported peer warnings, 
 
 **Status:** ⬜ TODO
 
-**Depends on:** REPO-02
+**Depends on:** REPO-02 (done). Decisions are in `docs/DECISIONS.md` #015; this is the setup plan.
 
-**Fix:** Use Playwright, the same tool Storybook tests already use. Cover the flow register → login → `/play` → logout, plus a redirect from `/play` to `/login?redirect=/play` when logged out. Run it in CI.
+**Fix:**
+
+- **Workspace:** create `apps/e2e` (`package.json` with `@playwright/test`, `playwright.config.ts`, `tsconfig.json`, ESLint config, `tests/`). Scripts: `test:e2e`, `lint`, `typecheck`; no `test`, `dev` or `build`, so the recursive root scripts skip it. Root `test:e2e` runs `pnpm --filter e2e test:e2e`.
+- **One Playwright version:** add `playwright` and `@playwright/test` to the pnpm catalog and switch `packages/ui` to `catalog:` too.
+- **Database:** global setup creates `ashen_contracts_e2e` in the docker-compose PostgreSQL if missing, then runs `prisma migrate deploy` (via `pnpm --filter api`) against it.
+- **Servers:** `webServer` entries build and start the API (`nest build` + `start:prod`) and the web app (`next build` + `next start`) on dedicated ports (proposal: API 3101, web 3100), passing `DATABASE_URL`, `JWT_SECRET` (dummy), `PORT`, `CORS_ORIGIN` and `API_URL` through `env`. `dotenv` does not override variables that are already set, so a developer's `.env` cannot leak in. `reuseExistingServer: !process.env.CI`. Check that this works next to a running `pnpm dev` (Next.js 16 keeps dev output in `.next/dev`).
+- **Config:** Chromium only, `baseURL` from the web port, `retries: 2` and `trace: 'on-first-retry'` in CI, HTML report.
+- **Tests:** register → login → `/play` → logout; logged out, `/play` redirects to `/login?redirect=/play`, and logging in from there lands back on `/play`; a duplicate email shows the inline error. Each test registers its own user with a unique email (a small helper). Prefer role- and label-based locators (`getByRole`, `getByLabel`) over CSS selectors.
+- **CI:** an `e2e` job in `ci.yml`, in parallel with `verify`: PostgreSQL 17 as a service container, `pnpm install --frozen-lockfile`, `playwright install --with-deps chromium`, `pnpm test:e2e`, and on failure `actions/upload-artifact` with `playwright-report/` and `test-results/` (short retention).
+- **Docs:** README "Getting started" and ARCHITECTURE (how to run e2e, `pnpm --filter e2e exec playwright test --ui` for debugging), CLAUDE.md commands and tech stack.
+
+**Done when:** `pnpm test:e2e` passes locally after `docker compose up -d`, the `e2e` CI job is green, and a deliberately broken assertion produces a downloadable report with a trace.
+
+**Not now:** Firefox/WebKit, a `storageState` setup project, and moving the API integration tests into the job that has a database (a candidate follow-up task once the job exists).
 
 ---
 

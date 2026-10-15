@@ -29,6 +29,7 @@ The skeleton: something real, deployed, and playable, even if rough.
 - [ ] Single starting location (the clearing)
 - [ ] Energy resource, server-authoritative time-based regeneration
 - [ ] Scripted opening quest ("First Blood" — bandit encounter)
+- [ ] E2E tests: Playwright in `apps/e2e`, auth flow, own CI job (plan: `docs/REFACTOR.md` WEB-11, decision: `docs/DECISIONS.md` #015)
 - [ ] Deploy: Vercel (web) + Railway/Render (api + db)
 
 ## v0.2 — Expeditions & narrative events 🔲
