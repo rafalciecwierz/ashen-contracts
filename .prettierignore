@@ -11,3 +11,9 @@ apps/api/.claude/
 apps/api/.cursor/
 apps/api/.devin/
 apps/api/.windsurf/
+
+# Third-party skills copied from mattpocock/skills: kept byte-identical to upstream for easy diffing (see each NOTICE.md)
+.claude/skills/grill-me/
+.claude/skills/grilling/
+.claude/skills/tdd/
+.claude/skills/diagnosing-bugs/

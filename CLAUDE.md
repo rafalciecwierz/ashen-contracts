@@ -61,6 +61,7 @@ Purpose: a portfolio project to demonstrate full-stack engineering (frontend-fir
 - Detailed spec for the feature currently being built: `docs/features/`
 - System overview, deployment, local development: `docs/ARCHITECTURE.md`
 - Refactor/cleanup backlog with task IDs and per-task notes: `docs/REFACTOR.md`
+- Agent skills (repeatable procedures: `refactor-task`, `adr`, `tdd`, `diagnosing-bugs`, `grill-me`): `.claude/skills/`
 
 ## Current status (keep this updated)
 

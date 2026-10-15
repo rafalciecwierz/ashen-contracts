@@ -350,7 +350,21 @@ Limitation: `Read(...)` deny rules govern Claude's file tools. A shell command s
 
 ### AI-03 — Project skills or slash commands for repeated workflows
 
-**Status:** ⬜ TODO
+**Status:** ✅ DONE (2026-10-14), partly: `implement-feature` and `release` are deferred to AI-08 and AI-09.
+
+**Notes:** A hybrid of our own skills for project-specific procedures and a few well-made third-party ones for general techniques. All of them are files in `.claude/skills/`, so they are versioned and reviewed like code.
+
+- **Own:**
+  - `refactor-task <ID>`: the process used for this backlog (one task, verify, preferably on a fresh clone, notes in the paragraph format, no commit, Conventional Commits message). It replaces what had lived only in the agent's private memory, which was deleted to keep a single source of truth.
+  - `adr`: appends to `DECISIONS.md` in its format, never rewrites, and supersedes by a new entry. When to offer an ADR at all follows three criteria adapted from mattpocock/skills (hard to reverse, surprising, a real trade-off).
+- **Third-party** from [mattpocock/skills](https://github.com/mattpocock/skills) (MIT), pinned at `49dd158`: `grill-me` + `grilling` (round-based interview over a decision tree; `grill-me` is user-only), `tdd` (agree on seams first, vertical slices, no tautological tests, mock only at system boundaries) and `diagnosing-bugs` (build a red-capable loop before forming hypotheses). Each folder has the verbatim `LICENSE` (the MIT condition) and a `NOTICE.md` with the source commit and the changes. The changes: references to `GLOSSARY.md`/ADR files now point to `docs/features/` and `DECISIONS.md`, and references to skills not installed here (`codebase-design`, `code-review`) were removed. These folders are in `.prettierignore`, so they stay byte-identical to upstream apart from the documented edits.
+- **Not taken:**
+  - `domain-modeling` / `grill-with-docs`: they write ADRs as separate `docs/adr/0001-*.md` files in a minimal format, and the model can trigger them on its own, so they would fork the ADR log.
+  - The issue-tracker workflow (`setup`, `to-tickets`, `triage`, `implement-spec`): this repo uses `docs/features` and REFACTOR.md instead.
+  - Installing through the plugin (it auto-updates prompts without review) or `npx skills add` (it may write copies for several agents, which is the clutter AI-04 removes).
+- CLAUDE.md "Where to find more context" lists the skills.
+
+Verified: every SKILL.md has valid frontmatter whose `name` matches its folder. The diff against upstream shows only the documented edits (`grilling` is byte-identical). `pnpm format:check` passes.
 
 **Fix:** Add these to `.claude/skills/`:
 
@@ -386,6 +400,31 @@ Limitation: `Read(...)` deny rules govern Claude's file tools. A shell command s
 **Status:** ⬜ TODO
 
 **Fix:** Explain the setup openly: spec-driven development via `docs/features`, ADRs as shared context, CLAUDE.md, hooks and skills, and what is reviewed by hand. This is a deliberate portfolio differentiator.
+
+### AI-08 — `implement-feature` skill
+
+**Status:** ⬜ TODO
+
+**Depends on:** AI-03
+
+**Fix:** A skill that implements a `docs/features/*.md` spec in stages, not autonomously:
+
+1. Read the spec, GAME_DESIGN, DECISIONS and ARCHITECTURE.
+2. Present a plan and resolve the spec's open decisions with the user (via `grilling`).
+3. Implement in vertical slices (API, then web) with tests from "Tests to write" (via `tdd`).
+4. Update CHANGELOG `[Unreleased]`, ROADMAP and, if warranted, an ADR. Never commit.
+
+Write it right before character creation and refine it on that first feature.
+
+**Done when:** Character creation was built with it, and the skill was adjusted with what that revealed.
+
+### AI-09 — `release` skill
+
+**Status:** ⬜ TODO
+
+**Fix:** A user-only skill (`disable-model-invocation: true`) that moves CHANGELOG `[Unreleased]` to a version, ticks ROADMAP, and prints the `git tag` / `git push --tags` commands for the user to run. It never tags or pushes itself.
+
+**Done when:** v0.1.0 was released with it.
 
 ---
 
