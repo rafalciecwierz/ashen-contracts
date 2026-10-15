@@ -409,7 +409,19 @@ Verified with a stdio probe that starts each server exactly as `.mcp.json` defin
 
 ### AI-06 — AI code review in CI
 
-**Status:** ⬜ TODO
+**Status:** ✅ DONE (2026-10-15)
+
+**Notes:** A separate workflow, `.github/workflows/claude-review.yml`, so the review never blocks or slows the `ci.yml` gate. Decisions:
+
+- **Trigger:** `pull_request` `opened`, `reopened` and `ready_for_review`. Drafts are skipped. `synchronize` is left out, so each PR gets one review and the cost stays predictable; closing and reopening the PR asks for another. PRs from forks are skipped, because they get no secrets and the action refuses authors without write access anyway.
+- **Credentials:** the step reads both `ANTHROPIC_API_KEY` (billed per token) and `CLAUDE_CODE_OAUTH_TOKEN` (`claude setup-token`, uses a Claude subscription). The action accepts whichever one is set, so the choice is made by creating a secret, not by editing the workflow. Without either secret, the job prints a notice and skips the review instead of failing, so forks and fresh clones stay green. With the OAuth token, the action cannot classify buffered inline comments (that needs the API key) and posts them all.
+- **GitHub access:** the workflow's own `GITHUB_TOKEN` with `contents: read` and `pull-requests: write`, instead of installing the Claude GitHub App, which asks for write access to contents and issues too. Comments appear as `github-actions[bot]`.
+- **Tools:** `Read`, `Glob`, `Grep`, `gh pr view/diff/comment` and the inline-comment MCP tool only. No Edit, Write or arbitrary Bash, and `--max-turns 40` with a 15-minute timeout caps a runaway run. The action restores `.claude/` and `CLAUDE.md` from the base branch, so a PR cannot rewrite its own review instructions.
+- **Prompt:** CLAUDE.md is the standard, with ADRs, ARCHITECTURE and the feature specs as context. It asks for bugs, security (including client-trusted resource or time values), convention and ADR violations, and tests CLAUDE.md requires, most severe first. Anything CI already checks, praise and nitpicks are excluded.
+- **Pinning:** `anthropics/claude-code-action` is pinned to the commit of v1.0.238 (2026-09-30), the newest release at least two weeks old, as in AI-05. A commit SHA rather than a tag, because this third-party action receives a secret and a token that can write to PRs. GitHub's own actions stay on major tags, as in `ci.yml`.
+- The model is left at the action's default, so the workflow does not name a model ID that goes stale.
+
+Verified with actionlint 1.7.7 (both workflows pass, including the use of `secrets` in job-level `env`) and `pnpm format:check`. The inputs, the `GITHUB_TOKEN` override, the either-secret check and the inline-comment tool were checked against the action's `action.yml` and source at the pinned commit. Not verified: a real run. That needs a repository secret and a PR, which the user does (see the CLAUDE.md "Tech stack" line). The README section on how AI is used in the project is AI-07.
 
 **Depends on:** REPO-01
 

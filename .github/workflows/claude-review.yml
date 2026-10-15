@@ -1,0 +1,89 @@
+name: Claude review
+
+# An AI code review on each pull request, checked against CLAUDE.md and docs/DECISIONS.md.
+# It only comments. Merging stays a human decision, and CI (ci.yml) stays the gate.
+on:
+  pull_request:
+    # No `synchronize`: one review per PR keeps the cost predictable.
+    # To review again after new pushes, close and reopen the PR.
+    types: [opened, reopened, ready_for_review]
+
+# Only the newest review of a PR matters.
+concurrency:
+  group: claude-review-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  review:
+    name: Review
+    # Skip drafts, and PRs from forks: those get no secrets, and the action refuses authors without write access.
+    if: >-
+      !github.event.pull_request.draft &&
+      github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: read
+      pull-requests: write
+    env:
+      # Either secret works: an API key (billed per token) or `claude setup-token` (uses a Claude subscription).
+      # Without either, the review is skipped instead of failing, so forks and fresh clones stay green.
+      HAS_CLAUDE_AUTH: ${{ secrets.ANTHROPIC_API_KEY != '' || secrets.CLAUDE_CODE_OAUTH_TOKEN != '' }}
+
+    steps:
+      - name: Report missing credentials
+        if: env.HAS_CLAUDE_AUTH != 'true'
+        run: echo "::notice::Claude review skipped, because neither ANTHROPIC_API_KEY nor CLAUDE_CODE_OAUTH_TOKEN is set."
+
+      - uses: actions/checkout@v7
+        if: env.HAS_CLAUDE_AUTH == 'true'
+        with:
+          fetch-depth: 1
+
+      # Pinned to a commit: this third-party action receives an Anthropic secret and a token that can write
+      # to PRs, so a moved tag must not change what runs. Bump it deliberately, like a dependency.
+      - uses: anthropics/claude-code-action@12dd8d74c712f5f3669365b2369b558c495b1104 # v1.0.238
+        if: env.HAS_CLAUDE_AUTH == 'true'
+        with:
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          # The workflow's own token, scoped by `permissions` above, instead of installing the Claude GitHub App.
+          # Comments are posted as github-actions[bot].
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          # Read-only tools plus the two ways to comment. No Edit, Write or arbitrary Bash.
+          claude_args: >-
+            --max-turns 40
+            --allowedTools "Read,Glob,Grep,Bash(gh pr view:*),Bash(gh pr diff:*),Bash(gh pr comment:*),mcp__github_inline_comment__create_inline_comment"
+          prompt: |
+            REPO: ${{ github.repository }}
+            PR NUMBER: ${{ github.event.pull_request.number }}
+
+            You are reviewing a pull request in Ashen Contracts, a portfolio monorepo
+            (Next.js web, NestJS API, shared UI library). Read CLAUDE.md first: its
+            conventions are the review standard. Consult docs/DECISIONS.md (ADRs),
+            docs/ARCHITECTURE.md and the relevant docs/features/*.md spec when the
+            change touches what they describe. Get the change with `gh pr diff` and
+            `gh pr view`, and read the surrounding code before judging it.
+
+            Report only problems a careful senior reviewer would raise, most severe first:
+            1. Bugs and incorrect behaviour, including missing error handling at boundaries.
+            2. Security: auth and session handling, input validation, secrets, and any
+               resource or time value trusted from the client (CLAUDE.md: all resource and
+               time calculations are server-side).
+            3. Violations of CLAUDE.md conventions or of an ADR: file placement and naming,
+               import style, timed actions outside the job queue, docs not updated in the
+               same change when a convention or architecture changed.
+            4. Missing tests where CLAUDE.md requires them (resource math, queue and job
+               behaviour, action validation).
+
+            Lint, formatting, types, tests and commit messages are already checked by CI:
+            do not comment on those. No praise, no style nitpicks, no speculative
+            "consider…" remarks without a concrete failure.
+
+            Post each finding as an inline comment on the exact line, saying what goes
+            wrong and when, and how to fix it. Then post one summary comment with
+            `gh pr comment`: a one-line verdict and the list of findings. If there are
+            none, say so in one line.
