@@ -44,7 +44,7 @@ jobs:
           fetch-depth: 1
 
       # Pinned to a commit: this third-party action receives an Anthropic secret and a token that can write
-      # to PRs, so a moved tag must not change what runs. Bump it deliberately, like a dependency (ADR #014).
+      # to PRs, so a moved tag must not change what runs. Bump it deliberately, like a dependency.
       - uses: anthropics/claude-code-action@12dd8d74c712f5f3669365b2369b558c495b1104 # v1.0.238
         if: env.HAS_CLAUDE_AUTH == 'true'
         with:
