@@ -55,7 +55,7 @@ Much of the code here is written with an AI coding agent ([Claude Code](https://
 
 **Shared context instead of re-explaining.** [`CLAUDE.md`](./CLAUDE.md) is kept short. It holds the conventions (file placement and naming, server-side resource math, timed actions through the job queue) and points to the rest. [`docs/DECISIONS.md`](./docs/DECISIONS.md) records every architecture decision with the alternatives I rejected. That makes it context for the agent and interview for me to revise on the topic. The rule is that a change to a convention updates these files in the same commit: the agent trusts CLAUDE.md more than the code, so a stale line there produces wrong code.
 
-**Guardrails that are enforced, not just asked for.** [`.claude/settings.json`](./.claude/settings.json) runs Prettier and `eslint --fix` on every file the agent edits, blocks it from reading real `.env` files, and pre-approves only read-only commands (tests, lint, typecheck, `git status/diff/log`). See ADR 013.
+**Guardrails that are enforced, not just asked for.** [`.claude/settings.json`](./.claude/settings.json) runs Prettier and `eslint --fix` on every file the agent edits, keeps its file tools away from real `.env` files (not a hard guarantee for shell commands), and pre-approves only read-only commands (tests, lint, typecheck, `git status/diff/log`). See ADR 013.
 
 **Skills for repeated procedures.** [`.claude/skills/`](./.claude/skills/) holds step-by-step procedures the agent follows: `refactor-task` (one backlog task from [`docs/REFACTOR.md`](./docs/REFACTOR.md), verified and written up), `adr`, `tdd`, `diagnosing-bugs` and `grilling`, where the agent questions my plan until the open decisions are settled. Some are adapted from [mattpocock/skills](https://github.com/mattpocock/skills) and pinned to a commit. No vendor skills get installed automatically (ADR 014).
 
@@ -63,7 +63,7 @@ Much of the code here is written with an AI coding agent ([Claude Code](https://
 
 **What stays with me:**
 
-- **Every commit.** The agent never commits. I read the diff, make my own code enhancements, decide what goes in and write the commit message. One backlog task means one commit, and each task's notes record what changed, what differs from the plan and how it was verified.
+- **Every commit.** By my own rule, not a technical lock, the agent doesn't commit. I read the diff, make my own code enhancements, decide what goes in and write the commit message. One backlog task means one commit, and each task's notes record what changed, what differs from the plan and how it was verified.
 - **Decisions.** The agent proposes options and argues for one, but each ADR is a decision I made.
 - **The gate.** CI ([`ci.yml`](./.github/workflows/ci.yml): lint, format, typecheck, tests, build, commit messages) checks agent-written and hand-written code the same way. An AI review ([`claude-review.yml`](./.github/workflows/claude-review.yml)) comments on each PR against CLAUDE.md and the ADRs, but it can only read and comment. Merging is my call.
 
