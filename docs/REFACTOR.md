@@ -429,7 +429,9 @@ Verified with actionlint 1.7.7 (both workflows pass, including the use of `secre
 
 ### AI-07 — README section: "How I use AI in this project"
 
-**Status:** ⬜ TODO
+**Status:** ✅ DONE (2026-10-16)
+
+**Notes:** A new README section, placed after "Tech stack & why" and written for a recruiter or interviewer. It covers every point from the task: specs in `docs/features` (including "Tests to write"), CLAUDE.md and the ADRs as shared context with the same-commit sync rule, the `.claude/settings.json` hook and permission rules (ADR 013), the skills with mattpocock attribution (ADR 014), and the MCP servers (AI-05), which the task predates. "What is reviewed by hand" became a "What stays with me" list: commits, decisions, and CI plus the comment-only AI review (AI-06) as the gate. Every file and link in the section was checked to exist, and each statement was checked against the setup files and ADRs. The README's existing claims (e.g. Cypress in the tech stack table) were left alone, because fixing them belongs to DOC-02.
 
 **Fix:** Explain the setup openly: spec-driven development via `docs/features`, ADRs as shared context, CLAUDE.md, hooks and skills, and what is reviewed by hand. This is a deliberate portfolio differentiator.
 
