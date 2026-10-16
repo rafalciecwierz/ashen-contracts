@@ -47,6 +47,26 @@ Game design & mechanics: [`docs/GAME_DESIGN.md`](./docs/GAME_DESIGN.md)
 
 This is a monorepo (`apps/web`, `apps/api`, `packages/ui`, `packages/shared`) managed with pnpm workspaces — full reasoning in [`docs/DECISIONS.md`](./docs/DECISIONS.md).
 
+## How I use AI in this project
+
+Much of the code here is written with an AI coding agent ([Claude Code](https://claude.com/claude-code)). I'm open about that, because how the agent is set up and kept in check is part of what this project shows. The setup is all in the repo, and changes to it are reviewed like any other change.
+
+**Specs before code.** Each feature starts as a spec in [`docs/features/`](./docs/features/): business rules, data, endpoints, edge cases and the tests to write. The agent builds against the spec, and the spec is updated when the implementation changes it, so the docs describe what the code actually does.
+
+**Shared context instead of re-explaining.** [`CLAUDE.md`](./CLAUDE.md) is kept short. It holds the conventions (file placement and naming, server-side resource math, timed actions through the job queue) and points to the rest. [`docs/DECISIONS.md`](./docs/DECISIONS.md) records every architecture decision with the alternatives I rejected. That makes it context for the agent and interview for me to revise on the topic. The rule is that a change to a convention updates these files in the same commit: the agent trusts CLAUDE.md more than the code, so a stale line there produces wrong code.
+
+**Guardrails that are enforced, not just asked for.** [`.claude/settings.json`](./.claude/settings.json) runs Prettier and `eslint --fix` on every file the agent edits, keeps its file tools away from real `.env` files (not a hard guarantee for shell commands), and pre-approves only read-only commands (tests, lint, typecheck, `git status/diff/log`). See ADR 013.
+
+**Skills for repeated procedures.** [`.claude/skills/`](./.claude/skills/) holds step-by-step procedures the agent follows: `refactor-task` (one backlog task from [`docs/REFACTOR.md`](./docs/REFACTOR.md), verified and written up), `adr`, `tdd`, `diagnosing-bugs` and `grilling`, where the agent questions my plan until the open decisions are settled. Some are adapted from [mattpocock/skills](https://github.com/mattpocock/skills) and pinned to a commit. No vendor skills get installed automatically (ADR 014).
+
+**Tools to check its own work.** [`.mcp.json`](./.mcp.json) gives the agent a headless browser (Playwright) and the Next.js dev server's errors and logs, so it can confirm a UI change in the running app instead of assuming it works.
+
+**What stays with me:**
+
+- **Every commit.** By my own rule, not a technical lock, the agent doesn't commit. I read the diff, make my own code enhancements, decide what goes in and write the commit message. One backlog task means one commit, and each task's notes record what changed, what differs from the plan and how it was verified.
+- **Decisions.** The agent proposes options and argues for one, but each ADR is a decision I made.
+- **The gate.** CI ([`ci.yml`](./.github/workflows/ci.yml): lint, format, typecheck, tests, build, commit messages) checks agent-written and hand-written code the same way. An AI review ([`claude-review.yml`](./.github/workflows/claude-review.yml)) comments on each PR against CLAUDE.md and the ADRs, but it can only read and comment. Merging is my call.
+
 ## Screenshots
 
 _Coming as soon as v0.1 has a UI worth showing — placeholder for now._
