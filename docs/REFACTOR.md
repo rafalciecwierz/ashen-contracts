@@ -461,7 +461,16 @@ Write it right before character creation and refine it on that first feature.
 
 ### AI-09 — `release` skill
 
-**Status:** ⬜ TODO
+**Status:** ✅ DONE (2026-10-16)
+
+**Notes:** `.claude/skills/release/SKILL.md`, user-only (`disable-model-invocation: true`), invoked as `/release 0.1.0`. Three steps: check, prepare, hand over. Decisions:
+
+- **Checks before any edit:** semver higher than the newest tag, a clean `main` that matches `origin/main`, every item of the ROADMAP version ticked (ROADMAP requires complete vertical slices; patch releases skip this), a non-empty `[Unreleased]`, and lint, format, typecheck, tests and build passing. CI status is confirmed by the user, because `gh` isn't installed here.
+- **CHANGELOG:** entries move to `## [x.y.z] - date`, empty sections are dropped, and Keep a Changelog link references (`[Unreleased]` compare, the version's release or compare link) are added. ROADMAP gets the ✅ marker and a "Log" line, and CLAUDE.md "Current status" is updated, all in one `chore: release vX.Y.Z` commit.
+- **`package.json` versions are not bumped.** Every workspace is private and never published, and they already disagree (root and web 0.1.0, api 0.0.1, packages 0.0.0). The tag and CHANGELOG are the version record.
+- **Printed commands:** an annotated tag (`git tag -a`), and `git push origin vX.Y.Z` instead of the task's `git push --tags`, which would push every local tag. A note covers a protected `main` (tag the merge commit).
+
+Listed in CLAUDE.md and the README's AI section. Deviation from "Done when": as with AI-08, the user decided the task is writing the skill; its first run is the v0.1.0 release. The commented-out `[0.1.0]` template in CHANGELOG.md, which lists planned features rather than shipped ones, was left alone: the skill builds the section from `[Unreleased]`, so the template can go once v0.1.0 is cut.
 
 **Fix:** A user-only skill (`disable-model-invocation: true`) that moves CHANGELOG `[Unreleased]` to a version, ticks ROADMAP, and prints the `git tag` / `git push --tags` commands for the user to run. It never tags or pushes itself.
 
