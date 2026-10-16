@@ -1,4 +1,4 @@
-import { AuthErrorCode } from '@ashen-contracts/shared';
+import type { AuthErrorCode } from '@ashen-contracts/shared';
 
 export class ApiError extends Error {
   constructor(

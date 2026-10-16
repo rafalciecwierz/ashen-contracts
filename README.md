@@ -36,14 +36,14 @@ Game design & mechanics: [`docs/GAME_DESIGN.md`](./docs/GAME_DESIGN.md)
 
 ## Tech stack & why
 
-| Layer           | Choice                                                               | Why                                                                                                                                     |
-| --------------- | -------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------- |
-| Frontend        | Next.js + TypeScript                                                 | Type-safe, SSR where useful, industry-standard for React roles                                                                          |
-| UI components   | Custom library + Storybook                                           | Mirrors real production work — isolated, testable, reusable components                                                                  |
-| Backend         | NestJS + PostgreSQL                                                  | Structured, testable architecture over a bare Express app                                                                               |
-| Background jobs | Redis + BullMQ                                                       | Reliable, restart-safe handling of timed actions (builds, research) — the naive `setInterval` approach doesn't survive a server restart |
-| Real-time       | Socket.io                                                            | Push updates to the client without polling                                                                                              |
-| Testing         | Vitest (unit + API integration) + Cypress / Playwright (browser e2e) | Coverage on the logic that actually matters: resource math, queue behavior                                                              |
+| Layer           | Choice                                                     | Why                                                                                                                                     |
+| --------------- | ---------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------- |
+| Frontend        | Next.js + TypeScript                                       | Type-safe, SSR where useful, industry-standard for React roles                                                                          |
+| UI components   | Custom library + Storybook                                 | Mirrors real production work — isolated, testable, reusable components                                                                  |
+| Backend         | NestJS + PostgreSQL                                        | Structured, testable architecture over a bare Express app                                                                               |
+| Background jobs | Redis + BullMQ                                             | Reliable, restart-safe handling of timed actions (builds, research) — the naive `setInterval` approach doesn't survive a server restart |
+| Real-time       | Socket.io                                                  | Push updates to the client without polling                                                                                              |
+| Testing         | Vitest (unit + API integration) + Playwright (browser e2e) | Coverage on the logic that actually matters: resource math, queue behavior                                                              |
 
 This is a monorepo (`apps/web`, `apps/api`, `packages/ui`, `packages/shared`) managed with pnpm workspaces — full reasoning in [`docs/DECISIONS.md`](./docs/DECISIONS.md).
 

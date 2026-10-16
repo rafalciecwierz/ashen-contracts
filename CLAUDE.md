@@ -16,7 +16,7 @@ Purpose: a portfolio project to demonstrate full-stack engineering (frontend-fir
 - Tooling: pnpm workspaces, TypeScript 6 (one version via the pnpm catalog), ESLint 9 + Prettier, commitlint, GitHub Actions CI (`ci.yml`; plus an AI review that only comments on PRs, `claude-review.yml`, which needs an `ANTHROPIC_API_KEY` or `CLAUDE_CODE_OAUTH_TOKEN` repo secret)
 - Agent MCP servers (`.mcp.json`, approved per user on first use): Next.js DevTools (runtime errors, routes and logs of a running `pnpm dev`) and Playwright (headless browser for checking UI changes; needs `pnpm dlx @playwright/mcp@0.0.83 install-browser chrome-for-testing` once)
 - Local infra: `docker-compose.yml` runs PostgreSQL and Redis
-- Planned, not installed yet: BullMQ on Redis (timed actions, v0.4), Socket.io (real-time), Cypress (browser e2e)
+- Planned, not installed yet: BullMQ on Redis (timed actions, v0.4), Socket.io (real-time), Playwright e2e tests in `apps/e2e` (`docs/DECISIONS.md` #015)
 - Structure: `apps/web`, `apps/api`, `packages/ui`, `packages/shared`
 
 ## Code conventions

@@ -1,7 +1,7 @@
 /**
  * Stable error codes the API can return. Kept as a type-only union (no
- * runtime object) to stay consistent with the rest of packages/shared —
- * see docs/DECISIONS.md for why shared is import-type-only.
+ * runtime object), like everything else in packages/shared: the package
+ * ships raw .ts with no build step, so consumers only import types from it.
  *
  * Backend: annotate the literal you throw against this type, so a typo is
  * caught at compile time instead of silently reaching the client.

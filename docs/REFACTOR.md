@@ -492,7 +492,16 @@ Listed in CLAUDE.md and the README's AI section. Deviation from "Done when": as 
 
 ### DOC-02 — Fix small inconsistencies across docs
 
-**Status:** ⬜ TODO
+**Status:** ✅ DONE (2026-10-16)
+
+**Notes:** All four points, with two deviations:
+
+- CHANGELOG: the BFF path is now `apps/web/app/api/auth/**`, and the JWT Guard bullet is a top-level item with `@Public()` in code formatting.
+- ROADMAP: "Navbar" was only half done. The navbar on `/play` (logo, user menu with logout) exists, but no public page has one with login/register links. The item was split into those two, and only the first is ticked.
+- Cypress → Playwright in README (tech stack table), CLAUDE.md ("Planned": Playwright e2e in `apps/e2e`) and ARCHITECTURE (Testing, marked as planned, auth flow first).
+- `errors.ts`: the reference to a non-existent ADR was replaced with the actual reason (the package ships raw `.ts` with no build step). No ADR was written, because SHARED-01 plans runtime code in `packages/shared` (shared constants or Zod schemas), which would reverse the decision soon. A note for that was added to SHARED-01.
+
+Verified: `git grep -i cypress` now finds Cypress only in the lockfile (a Storybook peer dependency), the ADR that rejected it, and this file. `pnpm format:check`, `pnpm lint` and `pnpm typecheck` pass.
 
 **Fix:**
 
@@ -640,6 +649,8 @@ Lint, `tsc` and unit tests (10/10) pass. The `pnpm add` reported peer warnings, 
 **Problem:** The frontend validates with Zod and the backend with class-validator. Rules such as the minimum password length of 8 are duplicated by hand.
 
 **Fix:** The minimum is to export shared constants (`PASSWORD_MIN_LENGTH`) from `packages/shared` and use them on both sides. The target is shared Zod schemas used by web and by the API (via `nestjs-zod`). Record the choice in an ADR.
+
+**Note (from DOC-02):** `packages/shared` is type-only today: it ships raw `.ts` with no build step, and the comment in `src/types/errors.ts` says so. Shared constants or Zod schemas are runtime code, so this task has to give the package a build (or make both apps compile it) and update that comment. Also, `apps/web/src/http/api.ts` imports `AuthErrorCode` without `import type`, which only works because the bundler drops type-only imports.
 
 ---
 
