@@ -24,7 +24,8 @@ The skeleton: something real, deployed, and playable, even if rough.
 - [x] `/register` screen (Zod validation, i18n, typed API client)
 - [x] `/login` screen (context-aware copy, `?redirect=` support, BFF + httpOnly cookie)
 - [x] JWT Guard protecting authenticated endpoints (global, opt-out via `@Public()`)
-- [ ] Navbar (logo, login/register, logged-in state)
+- [x] Navbar on `/play` (logo, user menu with logout)
+- [ ] Navbar on public pages (logo, login/register links)
 - [ ] Short character creation flow (race/origin choice, starting traits)
 - [ ] Single starting location (the clearing)
 - [ ] Energy resource, server-authoritative time-based regeneration
