@@ -437,7 +437,14 @@ Verified with actionlint 1.7.7 (both workflows pass, including the use of `secre
 
 ### AI-08 — `implement-feature` skill
 
-**Status:** ⬜ TODO
+**Status:** ✅ DONE (2026-10-16)
+
+**Notes:** Written ahead of the planned "right before character creation", at the user's request. `.claude/skills/implement-feature/SKILL.md` follows the four steps above, with two decisions from the user:
+
+- **One commit per stage, on a feature branch** (`feat/<spec-name>`, created by the skill if on `main`): first the spec with its open decisions settled (`docs:`), then each slice. The skill stops after each stage and waits for the user to commit. Slices default to API, then web, and the plan may split a large side further.
+- **Open decisions are found in the spec text** (specs have no dedicated section: "suggest", "sketch", "finalize when", content missing from GAME_DESIGN, conflicts with an ADR), settled through `grilling`, and written back into the spec, so it describes what is built.
+
+CHANGELOG, ROADMAP and the CLAUDE.md status go into the last slice's commit, per the docs-in-sync rule. Listed in CLAUDE.md and the README's AI section. Deviation from "Done when": the user decided the task is writing the skill, not trying it out. The skill gets its first real run, and the adjustments that brings, with character creation, once the rest of the backlog is done.
 
 **Depends on:** AI-03
 
