@@ -77,7 +77,7 @@ Used for push notifications only (action completed, event triggered) — not for
 
 - **Vitest** — unit tests, focused on the logic that actually carries risk: resource math, queue job handlers, skill-check resolution
 - **Vitest + supertest** — API integration tests (`apps/api/test/*.integration-spec.ts`, `pnpm --filter api test:integration`): boot the whole NestJS app and send real HTTP requests through guards, pipes and controllers to the database. NestJS templates call these "e2e"; here "e2e" is reserved for browser tests of the full system
-- **Cypress** — end-to-end coverage of the core loop (create character → run expedition → resolve event)
+- **Playwright** — browser end-to-end tests of the whole system in `apps/e2e`, run with `pnpm test:e2e` (planned, see `docs/DECISIONS.md` #015): the auth flow first, then the core loop (create character → run expedition → resolve event)
 
 ## Deployment
 
