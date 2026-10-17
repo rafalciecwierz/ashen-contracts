@@ -59,7 +59,7 @@ Purpose: a portfolio project to demonstrate full-stack engineering (frontend-fir
 - Full game design & mechanics: `docs/GAME_DESIGN.md`
 - Version roadmap (what we're building now vs later): `docs/ROADMAP.md`
 - Architecture decisions and reasoning: `docs/DECISIONS.md`
-- Detailed spec for the feature currently being built: `docs/features/`
+- Feature specs, one per feature, each with a `Status` (planned | in progress | done) and "Deviations from spec": `docs/features/`
 - System overview, deployment, local development: `docs/ARCHITECTURE.md`
 - Refactor/cleanup backlog with task IDs and per-task notes: `docs/REFACTOR.md`
 - Agent skills (repeatable procedures: `implement-feature`, `refactor-task`, `adr`, `tdd`, `diagnosing-bugs`, `grilling`; user-only: `/release`, and `/grill-me` as a shortcut to `grilling`): `.claude/skills/`

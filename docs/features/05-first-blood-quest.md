@@ -1,5 +1,7 @@
 # Feature: Opening quest — "First Blood" (v0.1)
 
+**Status:** planned
+
 ## Goal
 
 A scripted, one-time quest that fires shortly after character creation: a low-stakes bandit encounter that narratively reveals the character is more capable than they appear. This is the first taste of the event/narrative system that expeditions will use more broadly from v0.2 onward — worth building deliberately, since its structure gets reused.
@@ -43,3 +45,7 @@ CharacterQuestProgress
 - Integration: character creation → quest is immediately available in `in_progress` state
 - Integration: submitting a choice completes the quest and grants the reward exactly once
 - Integration: submitting a second choice after completion is rejected
+
+## Deviations from spec
+
+None yet. When the feature is built, list here every place where the code differs from the spec as first written, and why.

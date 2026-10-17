@@ -1,5 +1,7 @@
 # Feature: Starting location — the Clearing (v0.1)
 
+**Status:** planned
+
 ## Goal
 
 A single accessible location where the character exists after creation. In v0.1 this is mostly a data model and a screen to view it — the ability to run expeditions there comes in v0.2 (`docs/ROADMAP.md`), but the location and its narrative framing need to exist first.
@@ -41,3 +43,7 @@ Using a join table (`CharacterLocationUnlock`) rather than a flag on `Character`
 
 - Integration: new character has exactly one unlocked location (the clearing) immediately after creation
 - Integration: fetching a locked location returns 403
+
+## Deviations from spec
+
+None yet. When the feature is built, list here every place where the code differs from the spec as first written, and why.

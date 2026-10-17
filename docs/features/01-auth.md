@@ -1,5 +1,7 @@
 # Feature: Authentication (v0.1)
 
+**Status:** done
+
 ## Goal
 
 Players can register and log in. Every subsequent feature (character, energy, expeditions) is scoped to an authenticated player.
@@ -85,3 +87,12 @@ Client components call `InternalApiRoutes` through `apiPost` (`src/http/api.ts`)
 - Frontend: invalid input blocks submit with the correct inline error — not yet (WEB-10)
 - Frontend: successful register/login redirects, and login sets the session cookie — not yet (WEB-10, WEB-11)
 - Frontend: a server error (409/401) renders inline without crashing the page — not yet (WEB-10)
+
+## Deviations from spec
+
+Where the implementation differs from the spec as first written (see `git log -- docs/features/01-auth.md`):
+
+- **Token storage:** the spec planned `localStorage`, with the client sending the JWT as a Bearer token to `NEXT_PUBLIC_API_URL`. Built instead as a BFF with an httpOnly cookie and a server-only `API_URL` (`docs/DECISIONS.md` #005), so the browser never holds the token or knows the API's address.
+- **Register does not log in:** the spec had `POST /auth/register` return a JWT. It returns `{ id, email }`, and the player logs in once after registering (`/login?registered=true`).
+- **Redirect target:** the spec redirected to `/` until character creation exists. Login redirects to a safe `?redirect=` target or `/play`, the first protected route.
+- **Known gaps:** login response timing still reveals whether an email exists (API-07), validation errors have no `code` (API-08), and the tests marked "not yet" above are still missing (API-11, WEB-10, WEB-11).

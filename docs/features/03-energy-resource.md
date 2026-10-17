@@ -1,5 +1,7 @@
 # Feature: Energy resource (v0.1)
 
+**Status:** planned
+
 ## Goal
 
 The character has an "energy" resource that gates actions and regenerates passively over time, calculated server-side — this is the foundational time-based mechanic everything else (expeditions, training) builds on.
@@ -38,3 +40,7 @@ Character (extends the record from 02-character-creation.md)
 - Unit: the energy-recalculation function given various elapsed times, including "already at max" and "way overdue"
 - Unit: an action is rejected when energy cost exceeds current energy
 - Integration: concurrent spend requests don't drive energy below zero
+
+## Deviations from spec
+
+None yet. When the feature is built, list here every place where the code differs from the spec as first written, and why.
