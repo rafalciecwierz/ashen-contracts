@@ -23,6 +23,7 @@ Each entry should be short — a git-log summary, not a design doc. Detailed rea
 
 ### Changed
 
+- API configuration goes through `@nestjs/config` with a Zod schema: the API refuses to start if `NODE_ENV`, `DATABASE_URL` or `JWT_SECRET` is missing or invalid. `NODE_ENV` is now required, and Swagger is served only when it is `development`
 - `apps/api` compiles in TypeScript strict mode, with `strictPropertyInitialization` off as in the NestJS 12 CLI template (see `docs/DECISIONS.md` #016)
 
 ### Fixed
