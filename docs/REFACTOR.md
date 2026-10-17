@@ -538,7 +538,9 @@ Verified: `git grep -i cypress` now finds Cypress only in the lockfile (a Storyb
 
 **Status:** ⬜ TODO
 
-**Fix:** Use `new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true, transform: true })`. Add a test that confirms unknown fields are rejected.
+**Problem (added 2026-10-17, found in the API-01 review):** the pipe is registered only in `main.ts` (`app.useGlobalPipes(...)`), so an app built from `AppModule` in tests (`createNestApplication()` in `test/app.integration-spec.ts`) has no validation: a body without `email` reaches the service as `undefined`. Since API-01 (`docs/DECISIONS.md` #016), the validation is the only guarantee that DTO fields are set, so tests must run with it.
+
+**Fix:** Register the pipe as an `APP_PIPE` provider in `AppModule` instead of in `main.ts`, so every app built from the module (production and tests) gets it. A shared `configureApp(app)` was considered, but every test would have to remember to call it. Use `new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true, transform: true })`. Add integration tests confirming that unknown fields are rejected and that a register/login body without `email` or `password` returns 400.
 
 ### API-03 — Validated configuration via `@nestjs/config`
 
