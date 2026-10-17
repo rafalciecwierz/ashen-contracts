@@ -11,10 +11,11 @@
     "outDir": "./dist",
     "incremental": true,
     "skipLibCheck": true,
-    "strictNullChecks": false,
-    "noImplicitAny": false,
-    "strictBindCallApply": false,
-    "forceConsistentCasingInFileNames": false,
+    "strict": true,
+    // Off on purpose, as in the NestJS 12 CLI template (`nest new --strict`):
+    // in Nest only DTOs have uninitialized fields, and the global
+    // ValidationPipe guarantees them. See docs/DECISIONS.md #016.
+    "strictPropertyInitialization": false,
     "noFallthroughCasesInSwitch": false
   }
 }

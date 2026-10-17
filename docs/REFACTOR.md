@@ -524,7 +524,9 @@ Verified: `git grep -i cypress` now finds Cypress only in the lockfile (a Storyb
 
 ### API-01 — Enable strict TypeScript
 
-**Status:** ⬜ TODO
+**Status:** ✅ DONE (2026-10-17)
+
+**Notes:** `apps/api/tsconfig.json` now sets `"strict": true` with `"strictPropertyInitialization": false`. The explicit opt-outs were removed rather than flipped: `strictNullChecks`, `noImplicitAny` and `strictBindCallApply` (all part of `strict`), and `forceConsistentCasingInFileNames: false` (a NestJS starter leftover; the TypeScript default is `true`, which guards the kind of casing bug fixed in CRIT-01). `noFallthroughCasesInSwitch` is not part of `strict` and was left as it was. Deviation from the task text ("fix the resulting errors"): full strict produced only four errors, all `strictPropertyInitialization` on the fields of `LoginDto` and `RegisterDto`. The first fix, the definite-assignment `!` on every DTO field, was dropped in review: in Nest the DTOs are the only classes with uninitialized fields, so the check would only ever add `!`s. That check is off instead, matching what `nest new --strict` generates since NestJS 12. DTO fields stay plain, and the reasoning, including the research into both options, is in `docs/DECISIONS.md` #016, with a convention line in CLAUDE.md. The tsconfig has no `include`, so `tsc --noEmit` also type-checks the unit and integration specs. Strict mode found no real bug in the current code. Its value is `strictNullChecks` for the code still to come. Verified: `pnpm --filter api typecheck`, `lint`, `test` (10 unit tests) and `build` pass, and so does `pnpm format:check`. The integration tests were not run, because the change only affects types. The ESLint config still has `@typescript-eslint/no-explicit-any` off, which leaves a loophole in `noImplicitAny`. Tightening lint rules is not part of this task.
 
 **Problem:** `apps/api/tsconfig.json` sets `strictNullChecks: false` and `noImplicitAny: false`.
 
