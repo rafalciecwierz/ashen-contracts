@@ -1,5 +1,7 @@
 # Feature: Character creation (v0.1)
 
+**Status:** planned
+
 ## Goal
 
 A short creation flow that sets up the player's character: a race/origin choice and a small number of starting traits. Keep it brief and flavorful — this is scene-setting for the mystery-origin narrative, not a deep character-builder.
@@ -43,3 +45,7 @@ Character
 - Unit: stat calculation from a given race + trait combination
 - Integration: full creation flow end-to-end, including the "already has a character" rejection
 - Integration: creation fails gracefully with an invalid race/trait value
+
+## Deviations from spec
+
+None yet. When the feature is built, list here every place where the code differs from the spec as first written, and why.

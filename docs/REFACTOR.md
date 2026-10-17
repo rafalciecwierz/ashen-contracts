@@ -512,7 +512,9 @@ Verified: `git grep -i cypress` now finds Cypress only in the lockfile (a Storyb
 
 ### DOC-03 — Status field in feature specs
 
-**Status:** ⬜ TODO
+**Status:** ✅ DONE (2026-10-17)
+
+**Notes:** Every spec in `docs/features/` now has a `**Status:**` line under its title (the same bold-field style as this file) and a "Deviations from spec" section at the end. `01-auth.md` is `done`; the other four are `planned`, with "None yet" as their deviations. The auth deviations are measured against the spec as first written (before DOC-01): `localStorage` replaced by the BFF and httpOnly cookie (ADR #005), register returning `{ id, email }` instead of a JWT, and the login redirect going to `/play` instead of `/`. Auth is marked `done` even though some of its tests are missing, because the ROADMAP ticks it and the missing tests already have tasks; a "Known gaps" bullet points to API-07, API-08, API-11, WEB-10 and WEB-11 so the status doesn't overclaim. Beyond the task text: the `implement-feature` skill now sets the status (`in progress` once the spec's decisions are committed, `done` in the last slice) and requires a deviation line whenever a slice changes the spec, because otherwise nothing keeps the field current. README ("Specs before code") and CLAUDE.md ("Where to find more context", which also said `docs/features/` only held the feature currently being built) mention the field. Verified with `pnpm format:check` and by reading the auth deviations against the DOC-01 diff (`git show 7d77571`).
 
 **Fix:** Add `Status: planned | in progress | done` and "Deviations from spec" to each `docs/features/*.md`.
 

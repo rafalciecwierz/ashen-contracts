@@ -51,7 +51,7 @@ This is a monorepo (`apps/web`, `apps/api`, `packages/ui`, `packages/shared`) ma
 
 Much of the code here is written with an AI coding agent ([Claude Code](https://claude.com/claude-code)). I'm open about that, because how the agent is set up and kept in check is part of what this project shows. The setup is all in the repo, and changes to it are reviewed like any other change.
 
-**Specs before code.** Each feature starts as a spec in [`docs/features/`](./docs/features/): business rules, data, endpoints, edge cases and the tests to write. The agent builds against the spec, and the spec is updated when the implementation changes it, so the docs describe what the code actually does.
+**Specs before code.** Each feature starts as a spec in [`docs/features/`](./docs/features/): business rules, data, endpoints, edge cases and the tests to write. The agent builds against the spec, and the spec is updated when the implementation changes it, so the docs describe what the code actually does. Each spec carries a status (planned, in progress, done) and a "Deviations from spec" section that records where the code departed from the plan, and why.
 
 **Shared context instead of re-explaining.** [`CLAUDE.md`](./CLAUDE.md) is kept short. It holds the conventions (file placement and naming, server-side resource math, timed actions through the job queue) and points to the rest. [`docs/DECISIONS.md`](./docs/DECISIONS.md) records every architecture decision with the alternatives I rejected. That makes it context for the agent and interview for me to revise on the topic. The rule is that a change to a convention updates these files in the same commit: the agent trusts CLAUDE.md more than the code, so a stale line there produces wrong code.
 
