@@ -23,7 +23,7 @@ Each entry should be short — a git-log summary, not a design doc. Detailed rea
 
 ### Changed
 
--
+- `apps/api` compiles in TypeScript strict mode, with `strictPropertyInitialization` off as in the NestJS 12 CLI template (see `docs/DECISIONS.md` #016)
 
 ### Fixed
 
