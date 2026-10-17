@@ -5,6 +5,7 @@ import * as bcrypt from 'bcrypt';
 import { AuthService } from './auth.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { JwtService } from '@nestjs/jwt';
+import { Prisma } from '../generated/prisma/client';
 
 describe('AuthService', () => {
   let service: AuthService;
@@ -68,6 +69,39 @@ describe('AuthService', () => {
       ).rejects.toThrow(ConflictException);
 
       expect(prisma.player.create).not.toHaveBeenCalled();
+    });
+
+    it('throws ConflictException when a concurrent request registers the same email first', async () => {
+      prisma.player.findUnique.mockResolvedValue(null);
+      prisma.player.create.mockRejectedValue(
+        new Prisma.PrismaClientKnownRequestError(
+          'Unique constraint failed on the fields: (`email`)',
+          { code: 'P2002', clientVersion: 'test' },
+        ),
+      );
+
+      const result = service.register({
+        email: mockedUserEmail,
+        password: mockedUserPassword,
+      });
+
+      await expect(result).rejects.toThrow(ConflictException);
+      await expect(result).rejects.toMatchObject({
+        response: { code: 'EMAIL_ALREADY_REGISTERED' },
+      });
+    });
+
+    it('rethrows other database errors from create', async () => {
+      const dbError = new Error('connection lost');
+      prisma.player.findUnique.mockResolvedValue(null);
+      prisma.player.create.mockRejectedValue(dbError);
+
+      await expect(
+        service.register({
+          email: mockedUserEmail,
+          password: mockedUserPassword,
+        }),
+      ).rejects.toBe(dbError);
     });
   });
 

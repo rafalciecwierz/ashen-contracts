@@ -36,7 +36,7 @@ Error responses carry a stable `code` (`AuthErrorCode` in `@ashen-contracts/shar
 
 ## Edge cases to handle
 
-- Duplicate email on register → 409, `EMAIL_ALREADY_REGISTERED`
+- Duplicate email on register → 409, `EMAIL_ALREADY_REGISTERED`, also when two requests register the same email at once (the unique index rejects the second `create`, Prisma `P2002`)
 - Wrong password or unknown email on login → 401, `INVALID_CREDENTIALS` (same response for both, so it doesn't reveal whether the email exists; response timing still differs, see API-07)
 - Missing/expired/invalid JWT on a protected route → 401, `INVALID_CREDENTIALS`
 - Valid JWT for an account that no longer exists → 401 on `GET /auth/me`
