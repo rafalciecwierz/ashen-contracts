@@ -546,7 +546,31 @@ Verified: `git grep -i cypress` now finds Cypress only in the lockfile (a Storyb
 
 ### API-03 — Validated configuration via `@nestjs/config`
 
-**Status:** ⬜ TODO
+**Status:** ✅ DONE (2026-10-17)
+
+**Notes:** `ConfigModule.forRoot({ isGlobal: true, validate: validateEnv })` in `AppModule`. The schema is in `src/config/env.schema.ts`, exports an `Env` type, and is read through `ConfigService<Env, true>` with `{ infer: true }`. Choices the task left open:
+
+- **Zod over Joi:** the web app already uses Zod 4 (the same 4.6.5 is now an API dependency, one copy in the lockfile), so the repo keeps one validation library.
+- **`NODE_ENV` is required, with no default:** a default of `development` would make a deployment that forgets it fail open again.
+- **`JWT_SECRET` needs at least 32 characters** (256 bits, the HS256 key size).
+- **`PORT` and `CORS_ORIGIN` keep their old defaults** (3001, `http://localhost:3000`).
+- **Error output:** `validateEnv` throws `z.prettifyError` output, which names each invalid variable and never prints its value.
+
+`JwtModule.registerAsync` and `PrismaService` take their values from `ConfigService`. `main.ts` no longer imports `dotenv/config` (`dotenv` stays, because `prisma.config.ts` uses it) and reads nothing from `process.env`. Swagger moved to `src/setupSwagger.ts`, which serves `/api` only when `NODE_ENV === 'development'`. It takes `NODE_ENV` as a parameter, so a test can call it the way `main.ts` does. The `.env.example` comments explain the validation, the required `NODE_ENV` and the secret length. CLAUDE.md has a convention line (read env through `ConfigService`, declare it in the schema), and the CHANGELOG has an entry.
+
+Tests:
+
+- `env.schema.spec.ts`: valid env with defaults, `PORT` coercion, each required variable missing, a `prod` typo, a short secret.
+- `test/swagger.integration-spec.ts`: `/api` returns 200 in `development` and 404 in `production` and `test`. Red check: with the old rule (anything but `production`), the `test` case fails.
+- `vitest.config.integration.mts` now sets dummy env values for the integration run (they override `apps/api/.env`).
+- `prisma.service.spec.ts` gets a `ConfigService` with a dummy `DATABASE_URL`. Its rewrite stays with API-10.
+
+Verified:
+
+- `pnpm --filter api typecheck`, `lint`, `test` (17), `test:integration` (10) and `build` pass, and so does `pnpm format:check`.
+- The built API, started outside `apps/api` so no `.env` is loaded, exits with a clear error for a missing `JWT_SECRET`, `NODE_ENV=prod`, and a missing `NODE_ENV`.
+- With a valid env against the compose Postgres, `production` serves no `/api` (404) and `development` does (200). In both, register, login and `GET /auth/me` work, so the JWT secret and the database URL come through `ConfigService`, and CORS keeps its default origin.
+- Breaking for existing local setups: a `.env` without a valid `NODE_ENV` (or with a secret shorter than 32 characters) now stops the API. The owner's own `.env` failed on `NODE_ENV` and has to be updated from `.env.example`.
 
 **Problem:** `@nestjs/config` is installed but unused. `JWT_SECRET` is read from `process.env` at import time with no validation. A missing secret only fails at the first login.
 
@@ -631,7 +655,7 @@ Lint, `tsc` and unit tests (10/10) pass. The `pnpm add` reported peer warnings, 
 - ~~In `auth.module.ts`, replace the bare `'src/prisma/prisma.module'` import with a relative one, per CLAUDE.md.~~ Done in REPO-08, which removed `baseUrl`. Since then `pnpm --filter api test:integration` passes (1/1) even without `DATABASE_URL`, because `GET /` never queries the DB. The `.env` note below still matters once `/health` checks the DB.
 - Remove the stale comment in `jwtAuth.guard.ts` ("to be added when...").
 - Replace the Hello World `AppController`, `AppService` and their spec with `GET /health` (`@nestjs/terminus`, DB check, `@Public()`).
-- Rewrite the integration test (`test/app.integration-spec.ts`) against `/health`. Note: the integration run does not load `.env` (only `main.ts` imports `dotenv/config`), so `PrismaService` gets no `DATABASE_URL`. Either load env in `vitest.config.integration.mts` (`setupFiles: ['dotenv/config']`) or rely on API-03's `ConfigModule`. Found during CRIT-03.
+- Rewrite the integration test (`test/app.integration-spec.ts`) against `/health`. Note: the integration run does not load `.env` (only `main.ts` imports `dotenv/config`), so `PrismaService` gets no `DATABASE_URL`. Either load env in `vitest.config.integration.mts` (`setupFiles: ['dotenv/config']`) or rely on API-03's `ConfigModule`. Found during CRIT-03. (Update from API-03: the integration run now gets dummy env values from `vitest.config.integration.mts`. Postgres must be running for a `/health` DB check, and the dummy `DATABASE_URL` points at the compose database.)
 - Delete the empty `apps/api/mocked_prisma/` directory.
 - Replace or remove the `prisma.service.spec.ts` "should be defined" test.
 
