@@ -27,7 +27,7 @@ Each entry should be short — a git-log summary, not a design doc. Detailed rea
 
 ### Fixed
 
--
+- API request validation now also runs in apps built from `AppModule` (integration tests): the `ValidationPipe` moved from `main.ts` to an `APP_PIPE` provider. It rejects unknown body fields with 400 and turns bodies into DTO instances
 
 ---
 
