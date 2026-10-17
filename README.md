@@ -84,9 +84,11 @@ docker compose up -d
 # install (workspace-aware; also generates the Prisma client)
 pnpm install
 
-# configure env variables (the defaults work locally; each file documents its variables)
+# configure env variables (each file documents its variables; the defaults work locally,
+# except JWT_SECRET: the API refuses to start until you set it to a real secret)
 cp apps/api/.env.example apps/api/.env
 cp apps/web/.env.example apps/web/.env.local
+openssl rand -base64 32   # paste the output as JWT_SECRET in apps/api/.env
 
 # create the database schema
 pnpm --filter api migrate

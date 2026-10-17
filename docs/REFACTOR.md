@@ -586,7 +586,13 @@ Verified:
 
 ### API-04 — Handle the duplicate-email race in `register`
 
-**Status:** ⬜ TODO
+**Status:** ✅ DONE (2026-10-17)
+
+**Notes:** `register` catches `Prisma.PrismaClientKnownRequestError` with code `P2002` on `create` and throws the same 409 `EMAIL_ALREADY_REGISTERED` as the existing check, built by one `emailAlreadyRegistered()` helper. Any other error is rethrown. The `findUnique` check stays as a fast path, because it skips the bcrypt hash for an email that is already taken; a comment says the unique index is the real guard. Not checking `meta.target`: `email` is the only unique column a `create` can collide on (`id` is a generated UUID). Two unit tests: a `P2002` from `create` gives `ConflictException` with the right `code` (red check: it fails on the old service), and any other error is rethrown unchanged.
+
+Reproduced and verified against the compose Postgres with the built API, firing 10 rounds of two concurrent registrations for the same email. Before: every round returned 201 and 500, with 20 `P2002` lines in the log (the bcrypt hash between the check and the insert makes the window wide). After: every round returned 201 and 409, with no `P2002` in the log. `pnpm --filter api typecheck`, `lint`, `test` (19), `test:integration` (10) and `build` pass, and so does `pnpm format:check`. The auth spec's edge case and the CHANGELOG mention the concurrent case.
+
+Also in this change, a follow-up to API-03 that the owner asked for: the `JWT_SECRET` placeholder in `apps/api/.env.example` was shortened to 30 characters (committed separately), so a copied `.env` fails validation until a real secret is set. The README "Getting started" block now has an `openssl rand -base64 32` step, and the `.env.example` header and comment say the placeholder is too short on purpose. Verified: a `.env` copied from the example stops the API with "Too small: expected string to have >=32 characters → at JWT_SECRET", and with a generated secret the API starts.
 
 **Problem:** The `findUnique` → `create` sequence is not atomic. Two concurrent requests produce a Prisma `P2002` error, which surfaces as a 500 instead of a 409.
 
