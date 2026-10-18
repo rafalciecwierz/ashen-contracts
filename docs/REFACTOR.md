@@ -16,7 +16,7 @@ Status legend: ⬜ TODO · 🔶 IN PROGRESS · ✅ DONE · 🚫 DROPPED
 1. **Critical:** CRIT-01 → CRIT-05
 2. **Safety net:** REPO-01 (CI), REPO-02 (docker-compose), REPO-03
 3. **Docs and AI context in sync:** AI-01, DOC-01, DOC-02, AI-02
-4. **API hardening:** API-01 → API-12
+4. **API hardening:** API-01 → API-13
 5. **Frontend:** WEB-01 → WEB-13, UI-01 → UI-06
 6. Everything else, then continue with the v0.1 roadmap (character creation)
 
@@ -624,7 +624,7 @@ Also in this change, at the owner's request: `POST /auth/login` returned 201 (Ne
 
 Tests: `clientIp.spec.ts` (secret right, missing, wrong of equal or other length, empty; missing or invalid `X-Client-IP`; IPv6 /64), `env.schema.spec.ts` for the two new variables, and `test/authThrottling.integration-spec.ts` through `AppModule` with an in-memory `PrismaService` (moved from the API-05 spec into `test/fakePrisma.ts`): the 6th login and the 4th registration give 429 with a code and `Retry-After`; a made-up `X-Client-IP` with no secret or a wrong one does not bypass the limit; two players behind the BFF are counted separately; the 11th login for one email from 11 IPs (case variants included) gives 429; logins don't count against the register limit; with `trust proxy` 1 a forged left part of `X-Forwarded-For` doesn't help. Red checks: dropping the secret check fails the two forged-header tests, and `trust proxy` `true` fails the proxy test. `auth.controller.spec.ts` overrides the new guard. By hand, with the built API, `next build` + `next start` and the compose Postgres: the 6th login through the BFF gives 429 and the login form shows "Too many attempts…", a player with another `X-Forwarded-For` is not blocked, direct calls with a made-up `X-Client-IP` share the localhost bucket, and `Retry-After: 60` is set. `pnpm typecheck`, `lint`, `test` (API 34), `test:integration` (21), `build` and `format:check` pass.
 
-Found on the way: locally `next start` passes a client-sent `X-Forwarded-For` through, so the forwarded IP is only as trustworthy as the proxy in front of Next.js (Vercel overwrites it; noted in #017). A developer's own `.env` files need `BFF_SECRET` in both apps after this change. Left for other tasks: closing the API to requests without the secret (API-12), validating `API_URL` as `https://` outside development (WEB-12), an optional limiter in the BFF (WEB-13), and `BFF_SECRET` in the e2e servers' env (noted in WEB-11).
+Found on the way: locally `next start` passes a client-sent `X-Forwarded-For` through, so the forwarded IP is only as trustworthy as the proxy in front of Next.js (Vercel overwrites it; noted in #017). A developer's own `.env` files need `BFF_SECRET` in both apps after this change. After code review, #017's consequences now also say that the per-email limit lets anyone lock an account out indefinitely by repeating 10 wrong logins every 15 minutes, and that successful logins count too; accepted for now, fix in API-13. Left for other tasks: closing the API to requests without the secret (API-12), the per-email lockout (API-13), validating `API_URL` as `https://` outside development (WEB-12), an optional limiter in the BFF (WEB-13), and `BFF_SECRET` in the e2e servers' env (noted in WEB-11).
 
 **Fix:** Add `@nestjs/throttler` with a strict limit on `POST /auth/login` and `/auth/register`.
 
@@ -701,6 +701,19 @@ Lint, `tsc` and unit tests (10/10) pass. The `pnpm add` reported peer warnings, 
 **Problem:** The API is publicly reachable on Railway/Render. Since API-06 the BFF proves itself with `X-BFF-Secret`, but the API only uses that to trust the forwarded player IP; anyone can still call every endpoint directly.
 
 **Fix:** Decide (ADR) whether the API rejects every request without a matching secret, e.g. with a global guard. Send the secret from all BFF calls (logout, `getCurrentUser`), not only login and register. Resolve the conflict with the planned browser WebSocket connection to the API (ARCHITECTURE), e.g. a short-lived socket token issued through the BFF. Keep Swagger usable in development.
+
+### API-13 — Stop the per-email login limit from locking owners out
+
+**Status:** ⬜ TODO
+
+**Problem:** API-06's `email` throttler (10 logins per 15 minutes) is keyed only on the email in the request body, so it cannot tell the owner from an attacker. Ten requests with a player's email and any password, spread over IPs to stay under the per-IP limit, make every login for that email return 429 for 15 minutes, the correct password included. Repeating it every 15 minutes locks the account out indefinitely. Successful logins also count towards the 10. Accepted for now in `docs/DECISIONS.md` #017; found in code review.
+
+**Fix:** Device cookies, as OWASP describes for lockout without denial of service:
+
+- After a successful login the API also returns a signed device token (email and a random device id, signed with a key from `ConfigService`, valid e.g. 90 days). The BFF stores it in an httpOnly cookie and sends it with later login requests.
+- A login with a valid device token for that email skips the per-email limit; the per-IP limit still applies. Without one, the per-email limit applies as now.
+- Count only failed attempts for the per-email limit: `@nestjs/throttler` has no option for that, so it needs a counter in `AuthService.login` on `INVALID_CREDENTIALS`, not a throttler.
+- Record the decision in a new ADR (it changes #017's consequences). A new device during an attack can still be locked out; CAPTCHA or an email link would fix that, but need new infrastructure and are out of scope.
 
 ## SHARED — `packages/shared`
 
