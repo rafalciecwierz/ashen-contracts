@@ -37,7 +37,7 @@ Error responses carry a stable `code` (`AuthErrorCode` in `@ashen-contracts/shar
 ## Edge cases to handle
 
 - Duplicate email on register → 409, `EMAIL_ALREADY_REGISTERED`, also when two requests register the same email at once (the unique index rejects the second `create`, Prisma `P2002`)
-- Wrong password or unknown email on login → 401, `INVALID_CREDENTIALS` (same response for both, so it doesn't reveal whether the email exists; response timing still differs, see API-07)
+- Wrong password or unknown email on login → 401, `INVALID_CREDENTIALS` (same response and the same response time for both, so it doesn't reveal whether the email exists: an unknown email is compared against a dummy bcrypt hash of the same cost)
 - Missing/expired/invalid JWT on a protected route → 401, `INVALID_CREDENTIALS`
 - Valid JWT for an account that no longer exists → 401 on `GET /auth/me`
 - Password shorter than 8 characters on register → 400 validation error before hitting the database
@@ -84,6 +84,7 @@ Client components call `InternalApiRoutes` through `apiPost` (`src/http/api.ts`)
 
 - Unit: password hashing/verification — done (`auth.service.spec.ts`)
 - Unit: register/login/me service behavior, including duplicate email and wrong credentials — done (`auth.service.spec.ts`)
+- Unit: an unknown email on login still runs bcrypt, and gets the same error as a wrong password — done (`auth.service.spec.ts`)
 - Unit: JWT validation in `JwtAuthGuard` — not yet (API-11)
 - Integration: register → login → access a protected route end-to-end — not yet
 - Integration: duplicate email is rejected — not yet
@@ -101,4 +102,4 @@ Where the implementation differs from the spec as first written (see `git log --
 - **Token storage:** the spec planned `localStorage`, with the client sending the JWT as a Bearer token to `NEXT_PUBLIC_API_URL`. Built instead as a BFF with an httpOnly cookie and a server-only `API_URL` (`docs/DECISIONS.md` #005), so the browser never holds the token or knows the API's address.
 - **Register does not log in:** the spec had `POST /auth/register` return a JWT. It returns `{ id, email }`, and the player logs in once after registering (`/login?registered=true`).
 - **Redirect target:** the spec redirected to `/` until character creation exists. Login redirects to a safe `?redirect=` target or `/play`, the first protected route.
-- **Known gaps:** login response timing still reveals whether an email exists (API-07), validation errors have no `code` (API-08), and the tests marked "not yet" above are still missing (API-11, WEB-10, WEB-11).
+- **Known gaps:** validation errors have no `code` (API-08), and the tests marked "not yet" above are still missing (API-11, WEB-10, WEB-11).
