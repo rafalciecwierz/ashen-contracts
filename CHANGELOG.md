@@ -28,6 +28,8 @@ Each entry should be short — a git-log summary, not a design doc. Detailed rea
 
 ### Fixed
 
+- Emails are trimmed and lowercased on register and login, so `Test@X.com` and `test@x.com` are the same account instead of two
+- `POST /auth/login` returns 200 instead of 201, since it creates nothing
 - Two concurrent registrations with the same email return 409 `EMAIL_ALREADY_REGISTERED` for the second one instead of a 500
 - API request validation now also runs in apps built from `AppModule` (integration tests): the `ValidationPipe` moved from `main.ts` to an `APP_PIPE` provider. It rejects unknown body fields with 400 and turns bodies into DTO instances
 

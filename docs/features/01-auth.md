@@ -29,7 +29,7 @@ Player (table "players")
 Every route requires a valid JWT by default (global `JwtAuthGuard`); public routes opt out with `@Public()`.
 
 - `POST /auth/register` (public) — { email, password } → creates Player, returns `RegisterResponse` ({ id, email }). Does not log the player in: no token is issued.
-- `POST /auth/login` (public) — { email, password } → validates, returns `LoginResponse` ({ accessToken })
+- `POST /auth/login` (public) — { email, password } → validates, returns 200 with `LoginResponse` ({ accessToken })
 - `GET /auth/me` — `Authorization: Bearer <token>` → returns `MeResponse` ({ id, email }) of the authenticated player
 
 Error responses carry a stable `code` (`AuthErrorCode` in `@ashen-contracts/shared`) next to the human-readable `message`, so the frontend translates by code instead of parsing English text. Validation errors come from the global `ValidationPipe` (an `APP_PIPE` provider in `AppModule`; `message` is an array, no `code` yet; see API-08 in `docs/REFACTOR.md`). It rejects fields a DTO does not declare and turns the body into a DTO instance.
@@ -42,6 +42,7 @@ Error responses carry a stable `code` (`AuthErrorCode` in `@ashen-contracts/shar
 - Valid JWT for an account that no longer exists → 401 on `GET /auth/me`
 - Password shorter than 8 characters on register → 400 validation error before hitting the database
 - Missing `email` or `password`, or a field the DTO does not declare → 400 validation error, on register and login
+- Email casing and surrounding whitespace → ignored: register and login trim and lowercase the email in the DTO (`@NormalizeEmail()`), so `Test@X.com` and `test@x.com` are one account and the stored email is lowercase
 
 ## Frontend (apps/web)
 
@@ -86,6 +87,7 @@ Client components call `InternalApiRoutes` through `apiPost` (`src/http/api.ts`)
 - Integration: register → login → access a protected route end-to-end — not yet
 - Integration: duplicate email is rejected — not yet
 - Integration: a register/login body with a missing field or an unknown field returns 400 — done (`test/auth.integration-spec.ts`)
+- Integration: emails that differ only in case or whitespace resolve to the same account — done (`test/emailNormalization.integration-spec.ts`, with an in-memory `PrismaService`)
 - Frontend: invalid input blocks submit with the correct inline error — not yet (WEB-10)
 - Frontend: successful register/login redirects, and login sets the session cookie — not yet (WEB-10, WEB-11)
 - Frontend: a server error (409/401) renders inline without crashing the page — not yet (WEB-10)
