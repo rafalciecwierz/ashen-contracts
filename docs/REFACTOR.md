@@ -630,7 +630,13 @@ Found on the way: locally `next start` passes a client-sent `X-Forwarded-For` th
 
 ### API-07 — Avoid user enumeration via login timing
 
-**Status:** ⬜ TODO
+**Status:** ✅ DONE (2026-10-18)
+
+**Notes:** `AuthService.login` now always runs one `bcrypt.compare`: against the player's hash, or against `DUMMY_PASSWORD_HASH` when the email has no account, and then throws the same `INVALID_CREDENTIALS` for both cases (one `invalidCredentials()` helper, like `emailAlreadyRegistered()`). The dummy hash is not a hard-coded string: it is hashed once when the module loads, from a random UUID, with the same `BCRYPT_ROUNDS` constant that `register` now uses. So its cost always matches real hashes (a hard-coded `$2b$10$…` would silently drift if the rounds change), and no password can match it. Cost: one synchronous hash (about 70 ms) at startup. Caveat for later: hashes stored with an older cost after a rounds change would make those accounts' logins faster or slower than the dummy; rehash on login if the cost ever changes.
+
+Tests: `auth.service.spec.ts` wraps the real `bcrypt.compare` in a spy (`vi.mock` with `importOriginal`), and checks that a login for an unknown email calls it once with the given password and a hash with the same `$2b$10$` prefix as a real one, and that an unknown email and a wrong password get identical error bodies. Red check: with the old service the bcrypt test fails. Measured with the built API against the compose Postgres, 20 logins each (spread over client IPs and accounts through the BFF headers so API-06's limits don't interfere): before, an unknown email took 3.8 ms on average and a wrong password 72.4 ms; after, 71.7 ms and 70.7 ms. `pnpm --filter api typecheck`, `lint`, `test` (36), `test:integration` (21) and `build` pass, and so does `pnpm format:check`. The auth spec (edge case, tests, known gaps) and CHANGELOG are updated.
+
+Not in scope: register still says 409 `EMAIL_ALREADY_REGISTERED` for a taken email, which reveals the account as directly as the old timing did. That is inherent to register without email verification (answering "check your inbox" for both cases needs an email flow), and API-06's per-IP register limit (3 per hour) keeps it slow.
 
 **Problem:** When the email does not exist, the response returns immediately without running bcrypt. The timing difference reveals whether an account exists.
 

@@ -29,6 +29,7 @@ Each entry should be short — a git-log summary, not a design doc. Detailed rea
 
 ### Fixed
 
+- Login takes as long for an unknown email as for a wrong password (bcrypt runs against a dummy hash), so response timing no longer reveals which emails are registered
 - Emails are trimmed and lowercased on register and login, so `Test@X.com` and `test@x.com` are the same account instead of two
 - `POST /auth/login` returns 200 instead of 201, since it creates nothing
 - Two concurrent registrations with the same email return 409 `EMAIL_ALREADY_REGISTERED` for the second one instead of a 500
