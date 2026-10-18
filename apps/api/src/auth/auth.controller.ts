@@ -1,4 +1,12 @@
-import { Body, Controller, Get, HttpCode, Post } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  HttpCode,
+  Post,
+  UseGuards,
+} from '@nestjs/common';
+import { SkipThrottle, Throttle } from '@nestjs/throttler';
 import { AuthService } from './auth.service';
 import { LoginDto, RegisterDto } from './dto';
 import {
@@ -8,6 +16,8 @@ import {
 } from '@ashen-contracts/shared';
 import { CurrentUser, Public } from './decorators';
 import { ApiBearerAuth } from '@nestjs/swagger';
+import { AuthThrottlerGuard } from './guards/authThrottler.guard';
+import { LOGIN_LIMITS, REGISTER_LIMITS } from './throttling/authThrottling';
 
 @Controller('auth')
 export class AuthController {
@@ -15,6 +25,9 @@ export class AuthController {
 
   @Public()
   @Post('register')
+  @UseGuards(AuthThrottlerGuard)
+  @Throttle(REGISTER_LIMITS)
+  @SkipThrottle({ email: true })
   register(@Body() dto: RegisterDto): Promise<RegisterResponse> {
     return this.authService.register(dto);
   }
@@ -22,6 +35,8 @@ export class AuthController {
   @Public()
   @Post('login')
   @HttpCode(200)
+  @UseGuards(AuthThrottlerGuard)
+  @Throttle(LOGIN_LIMITS)
   login(@Body() dto: LoginDto): Promise<LoginResponse> {
     return this.authService.login(dto);
   }

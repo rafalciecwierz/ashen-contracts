@@ -1,4 +1,5 @@
 import { ApiEndpoints } from '@/src/http';
+import { bffHeaders } from '@/src/http/bffHeaders';
 import { setSessionCookie } from '@/src/http/session';
 import { NextRequest, NextResponse } from 'next/server';
 
@@ -9,7 +10,7 @@ export async function POST(request: NextRequest) {
 
   const res = await fetch(`${API_URL}${ApiEndpoints.auth.login}`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: bffHeaders(request),
     body: JSON.stringify(body),
   });
 

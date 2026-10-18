@@ -7,6 +7,8 @@ import { APP_GUARD } from '@nestjs/core';
 import { ConfigService } from '@nestjs/config';
 import { Env } from '../config/env.schema';
 import { JwtAuthGuard } from './guards/jwtAuth.guard';
+import { ThrottlerModule } from '@nestjs/throttler';
+import { authThrottlerOptions } from './throttling/authThrottling';
 
 @Module({
   imports: [
@@ -18,6 +20,11 @@ import { JwtAuthGuard } from './guards/jwtAuth.guard';
         secret: config.get('JWT_SECRET', { infer: true }),
         signOptions: { expiresIn: '7d' },
       }),
+    }),
+    // Applied only to login and register, through AuthThrottlerGuard.
+    ThrottlerModule.forRootAsync({
+      inject: [ConfigService],
+      useFactory: authThrottlerOptions,
     }),
   ],
   providers: [AuthService, { provide: APP_GUARD, useClass: JwtAuthGuard }],

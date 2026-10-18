@@ -5,6 +5,7 @@ const validEnv = {
   NODE_ENV: 'development',
   DATABASE_URL: 'postgresql://ashen:ashen@localhost:5432/ashen_contracts',
   JWT_SECRET: 'a'.repeat(32),
+  BFF_SECRET: 'b'.repeat(32),
 };
 
 describe('validateEnv', () => {
@@ -13,6 +14,7 @@ describe('validateEnv', () => {
       ...validEnv,
       PORT: 3001,
       CORS_ORIGIN: 'http://localhost:3000',
+      TRUST_PROXY_HOPS: 0,
     });
   });
 
@@ -20,7 +22,7 @@ describe('validateEnv', () => {
     expect(validateEnv({ ...validEnv, PORT: '4000' }).PORT).toBe(4000);
   });
 
-  it.each(['NODE_ENV', 'DATABASE_URL', 'JWT_SECRET'])(
+  it.each(['NODE_ENV', 'DATABASE_URL', 'JWT_SECRET', 'BFF_SECRET'])(
     'rejects a missing %s and names it in the error',
     (name) => {
       const env: Record<string, unknown> = { ...validEnv };
@@ -39,6 +41,21 @@ describe('validateEnv', () => {
   it('rejects a JWT_SECRET shorter than 32 characters', () => {
     expect(() => validateEnv({ ...validEnv, JWT_SECRET: 'short' })).toThrow(
       'JWT_SECRET',
+    );
+  });
+
+  it('rejects a BFF_SECRET shorter than 32 characters', () => {
+    expect(() => validateEnv({ ...validEnv, BFF_SECRET: 'short' })).toThrow(
+      'BFF_SECRET',
+    );
+  });
+
+  it('coerces TRUST_PROXY_HOPS and rejects a negative value', () => {
+    expect(
+      validateEnv({ ...validEnv, TRUST_PROXY_HOPS: '1' }).TRUST_PROXY_HOPS,
+    ).toBe(1);
+    expect(() => validateEnv({ ...validEnv, TRUST_PROXY_HOPS: '-1' })).toThrow(
+      'TRUST_PROXY_HOPS',
     );
   });
 });

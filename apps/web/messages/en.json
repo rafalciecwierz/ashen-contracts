@@ -38,6 +38,7 @@
   "errors": {
     "EMAIL_ALREADY_REGISTERED": "This email is already registered.",
     "INVALID_CREDENTIALS": "Incorrect email or password.",
+    "TOO_MANY_REQUESTS": "Too many attempts. Wait a few minutes and try again.",
     "GENERIC": "Something went wrong. Please try again."
   }
 }

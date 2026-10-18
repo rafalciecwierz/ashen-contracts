@@ -2,6 +2,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { Test, TestingModule } from '@nestjs/testing';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
+import { AuthThrottlerGuard } from './guards/authThrottler.guard';
 
 describe('AuthController', () => {
   let controller: AuthController;
@@ -18,7 +19,11 @@ describe('AuthController', () => {
           },
         },
       ],
-    }).compile();
+    })
+      // Throttling is covered by test/authThrottling.integration-spec.ts.
+      .overrideGuard(AuthThrottlerGuard)
+      .useValue({ canActivate: () => true })
+      .compile();
 
     controller = module.get<AuthController>(AuthController);
   });

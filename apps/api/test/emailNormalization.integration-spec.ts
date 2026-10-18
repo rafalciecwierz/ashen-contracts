@@ -5,26 +5,7 @@ import { Server } from 'node:http';
 import request from 'supertest';
 import { AppModule } from './../src/app.module';
 import { PrismaService } from './../src/prisma/prisma.service';
-
-type StoredPlayer = { id: string; email: string; passwordHash: string };
-
-// In-memory stand-in for the two Prisma calls AuthService makes. Lookups are
-// exact and case-sensitive, like the unique index on Player.email, so these
-// tests pass only if the DTOs normalize the email before it reaches the service.
-function createFakePrisma() {
-  const players = new Map<string, StoredPlayer>();
-  return {
-    player: {
-      findUnique: ({ where }: { where: { email: string } }) =>
-        Promise.resolve(players.get(where.email) ?? null),
-      create: ({ data }: { data: Omit<StoredPlayer, 'id'> }) => {
-        const player = { id: `player-${players.size + 1}`, ...data };
-        players.set(player.email, player);
-        return Promise.resolve(player);
-      },
-    },
-  };
-}
+import { createFakePrisma } from './fakePrisma';
 
 describe('Email normalization (integration)', () => {
   let app: INestApplication<Server>;
