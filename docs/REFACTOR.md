@@ -600,7 +600,13 @@ Also in this change, a follow-up to API-03 that the owner asked for: the `JWT_SE
 
 ### API-05 — Normalize email addresses
 
-**Status:** ⬜ TODO
+**Status:** ✅ DONE (2026-10-18)
+
+**Notes:** A `@NormalizeEmail()` property decorator (`src/auth/decorators/normalizeEmail.decorator.ts`, a `class-transformer` `@Transform`) trims and lowercases `email` in `RegisterDto` and `LoginDto`. It runs before `@IsEmail()`, because the global `ValidationPipe` (`transform: true`) transforms the body before validating it, so `' Test@X.com '` is accepted and reaches `AuthService` as `test@x.com`. A non-string is passed through unchanged for `@IsEmail()` to reject. One shared decorator instead of two inline `@Transform`s, so register and login cannot drift apart. Lowercasing the whole address, local part included: RFC 5321 allows a case-sensitive local part, but no mainstream provider uses one, and two accounts that differ only in case are the bug this task fixes. Not done: a Postgres `citext` column or a case-insensitive unique index. Normalizing at the boundary keeps one canonical value in the database, so the existing unique index already covers it; nothing writes emails outside these DTOs yet.
+
+Tests: a unit spec runs both DTOs through `plainToInstance` + `validate` (normalized value is valid; a number still fails `@IsEmail()`). A new `test/emailNormalization.integration-spec.ts` boots `AppModule` with an in-memory `PrismaService` whose lookups are exact, like the unique index: register `' Test@X.com '` stores `test@x.com`, login with `test@x.com` after registering `Test@X.com` returns a token, and registering `TEST@x.com` after `test@x.com` is a 409. Red check: with the old DTOs all three integration tests fail. Also checked against the compose Postgres with the built API: register `' …@Example.COM '` 201 with a lowercase email, register the lowercase form 409, login with `…@EXAMPLE.com` returns a token (left one `api05-…@example.com` player in the local dev database). The dev database had no stored emails that are not already trimmed and lowercase (0 of 34), so no data migration is needed. `pnpm --filter api typecheck`, `lint`, `test` (23), `test:integration` (13) and `build` pass (rerun after the `@HttpCode` change), and so does `pnpm format:check`. Auth spec (edge case, tests) and CHANGELOG updated.
+
+Also in this change, at the owner's request: `POST /auth/login` returned 201 (Nest's default for `POST`) although it creates nothing. It now has `@HttpCode(200)`, and the integration login test asserts 200. The BFF (`apps/web/app/api/auth/login/route.ts`) checks only `res.ok`, so the web app is unaffected. The auth spec and CHANGELOG mention the status.
 
 **Fix:** Trim and lowercase the email in the DTOs (`@Transform`) for both register and login. Test that `Test@X.com` and `test@x.com` resolve to the same account.
 
