@@ -85,10 +85,11 @@ docker compose up -d
 pnpm install
 
 # configure env variables (each file documents its variables; the defaults work locally,
-# except JWT_SECRET: the API refuses to start until you set it to a real secret)
+# except JWT_SECRET and BFF_SECRET: the API refuses to start until you set them)
 cp apps/api/.env.example apps/api/.env
 cp apps/web/.env.example apps/web/.env.local
 openssl rand -base64 32   # paste the output as JWT_SECRET in apps/api/.env
+openssl rand -base64 32   # paste the output as BFF_SECRET in apps/api/.env AND apps/web/.env.local
 
 # create the database schema
 pnpm --filter api migrate

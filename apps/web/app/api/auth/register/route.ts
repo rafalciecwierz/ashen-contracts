@@ -1,4 +1,5 @@
 import { ApiEndpoints } from '@/src/http';
+import { bffHeaders } from '@/src/http/bffHeaders';
 import { NextRequest, NextResponse } from 'next/server';
 
 const API_URL = process.env.API_URL;
@@ -8,7 +9,7 @@ export async function POST(request: NextRequest) {
 
   const res = await fetch(`${API_URL}${ApiEndpoints.auth.register}`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: bffHeaders(request),
     body: JSON.stringify(body),
   });
 

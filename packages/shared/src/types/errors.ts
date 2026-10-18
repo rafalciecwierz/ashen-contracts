@@ -8,4 +8,5 @@
  * Frontend: type ApiError.code against this (plus a fallback string) so
  * the i18n error dictionary can be checked against the same set of keys.
  */
-export type AuthErrorCode = 'EMAIL_ALREADY_REGISTERED' | 'INVALID_CREDENTIALS';
+export type AuthErrorCode =
+  'EMAIL_ALREADY_REGISTERED' | 'INVALID_CREDENTIALS' | 'TOO_MANY_REQUESTS';

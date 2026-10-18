@@ -16,8 +16,8 @@ Status legend: ⬜ TODO · 🔶 IN PROGRESS · ✅ DONE · 🚫 DROPPED
 1. **Critical:** CRIT-01 → CRIT-05
 2. **Safety net:** REPO-01 (CI), REPO-02 (docker-compose), REPO-03
 3. **Docs and AI context in sync:** AI-01, DOC-01, DOC-02, AI-02
-4. **API hardening:** API-01 → API-11
-5. **Frontend:** WEB-01 → WEB-11, UI-01 → UI-06
+4. **API hardening:** API-01 → API-12
+5. **Frontend:** WEB-01 → WEB-13, UI-01 → UI-06
 6. Everything else, then continue with the v0.1 roadmap (character creation)
 
 ---
@@ -612,7 +612,19 @@ Also in this change, at the owner's request: `POST /auth/login` returned 201 (Ne
 
 ### API-06 — Rate limiting on auth endpoints
 
-**Status:** ⬜ TODO
+**Status:** ✅ DONE (2026-10-18)
+
+**Notes:** `@nestjs/throttler` 6.7.1 (supports NestJS 12), with an `AuthThrottlerGuard` on `POST /auth/login` and `/auth/register` only, not global. Deviation from the task text, agreed with the owner: a plain per-IP limit would not work, because the browser never calls the API, so behind the BFF every player has the BFF's IP and would share one bucket. Design and rejected alternatives are in `docs/DECISIONS.md` #017. In short:
+
+- Two named throttlers. `ip`: login 5 per minute, register 3 per hour. `email`: login 10 per 15 minutes per email, normalized like the DTO (the guard runs before the `ValidationPipe`, so `normalizeEmail` is now exported from `normalizeEmail.decorator.ts`). Limits are constants in `src/auth/throttling/authThrottling.ts`.
+- The BFF route handlers for login and register send `X-Client-IP` (first entry of the `X-Forwarded-For` that Vercel sets) and `X-BFF-Secret` (`apps/web/src/http/bffHeaders.ts`). `resolveClientIp` (`src/auth/throttling/clientIp.ts`) trusts `X-Client-IP` only when it is a valid IP and the secret matches (`timingSafeEqual` over SHA-256 digests, so the length isn't leaked either); otherwise it uses `req.ip`. IPv6 is grouped by /64 (the throttler's default `normalizeIp`).
+- New env vars: `BFF_SECRET` (both apps, at least 32 characters in the API's Zod schema; the API's `.env.example` placeholder is too short on purpose, like `JWT_SECRET`) and `TRUST_PROXY_HOPS` (API, default 0, set 1 behind the Railway/Render proxy; `main.ts` passes it to Express `trust proxy`). The integration config has a dummy `BFF_SECRET`.
+- A 429 has `{ code: 'TOO_MANY_REQUESTS', message }` (new `AuthErrorCode`) and a standard `Retry-After` header; the library's `Retry-After-<name>` and `X-RateLimit-*` headers are off. The web app translates the code (`messages/en.json`), so both forms show it inline.
+- Counters are in memory, fine for one API instance; move them to Redis with BullMQ in v0.4.
+
+Tests: `clientIp.spec.ts` (secret right, missing, wrong of equal or other length, empty; missing or invalid `X-Client-IP`; IPv6 /64), `env.schema.spec.ts` for the two new variables, and `test/authThrottling.integration-spec.ts` through `AppModule` with an in-memory `PrismaService` (moved from the API-05 spec into `test/fakePrisma.ts`): the 6th login and the 4th registration give 429 with a code and `Retry-After`; a made-up `X-Client-IP` with no secret or a wrong one does not bypass the limit; two players behind the BFF are counted separately; the 11th login for one email from 11 IPs (case variants included) gives 429; logins don't count against the register limit; with `trust proxy` 1 a forged left part of `X-Forwarded-For` doesn't help. Red checks: dropping the secret check fails the two forged-header tests, and `trust proxy` `true` fails the proxy test. `auth.controller.spec.ts` overrides the new guard. By hand, with the built API, `next build` + `next start` and the compose Postgres: the 6th login through the BFF gives 429 and the login form shows "Too many attempts…", a player with another `X-Forwarded-For` is not blocked, direct calls with a made-up `X-Client-IP` share the localhost bucket, and `Retry-After: 60` is set. `pnpm typecheck`, `lint`, `test` (API 34), `test:integration` (21), `build` and `format:check` pass.
+
+Found on the way: locally `next start` passes a client-sent `X-Forwarded-For` through, so the forwarded IP is only as trustworthy as the proxy in front of Next.js (Vercel overwrites it; noted in #017). A developer's own `.env` files need `BFF_SECRET` in both apps after this change. Left for other tasks: closing the API to requests without the secret (API-12), validating `API_URL` as `https://` outside development (WEB-12), an optional limiter in the BFF (WEB-13), and `BFF_SECRET` in the e2e servers' env (noted in WEB-11).
 
 **Fix:** Add `@nestjs/throttler` with a strict limit on `POST /auth/login` and `/auth/register`.
 
@@ -682,7 +694,13 @@ Lint, `tsc` and unit tests (10/10) pass. The `pnpm add` reported peer warnings, 
 - a malformed or non-Bearer header returns 401;
 - an invalid or expired token returns 401, and a valid token sets `request.user`.
 
----
+### API-12 — Reject API requests that don't come from the BFF
+
+**Status:** ⬜ TODO
+
+**Problem:** The API is publicly reachable on Railway/Render. Since API-06 the BFF proves itself with `X-BFF-Secret`, but the API only uses that to trust the forwarded player IP; anyone can still call every endpoint directly.
+
+**Fix:** Decide (ADR) whether the API rejects every request without a matching secret, e.g. with a global guard. Send the secret from all BFF calls (logout, `getCurrentUser`), not only login and register. Resolve the conflict with the planned browser WebSocket connection to the API (ARCHITECTURE), e.g. a short-lived socket token issued through the BFF. Keep Swagger usable in development.
 
 ## SHARED — `packages/shared`
 
@@ -793,7 +811,7 @@ Lint, `tsc` and unit tests (10/10) pass. The `pnpm add` reported peer warnings, 
 - **Workspace:** create `apps/e2e` (`package.json` with `@playwright/test`, `playwright.config.ts`, `tsconfig.json`, ESLint config, `tests/`). Scripts: `test:e2e`, `lint`, `typecheck`; no `test`, `dev` or `build`, so the recursive root scripts skip it. Root `test:e2e` runs `pnpm --filter e2e test:e2e`.
 - **One Playwright version:** add `playwright` and `@playwright/test` to the pnpm catalog and switch `packages/ui` to `catalog:` too.
 - **Database:** global setup creates `ashen_contracts_e2e` in the docker-compose PostgreSQL if missing, then runs `prisma migrate deploy` (via `pnpm --filter api`) against it.
-- **Servers:** `webServer` entries build and start the API (`nest build` + `start:prod`) and the web app (`next build` + `next start`) on dedicated ports (proposal: API 3101, web 3100), passing `DATABASE_URL`, `JWT_SECRET` (dummy), `PORT`, `CORS_ORIGIN` and `API_URL` through `env`. `dotenv` does not override variables that are already set, so a developer's `.env` cannot leak in. `reuseExistingServer: !process.env.CI`. Check that this works next to a running `pnpm dev` (Next.js 16 keeps dev output in `.next/dev`).
+- **Servers:** `webServer` entries build and start the API (`nest build` + `start:prod`) and the web app (`next build` + `next start`) on dedicated ports (proposal: API 3101, web 3100), passing `DATABASE_URL`, `JWT_SECRET` (dummy), `BFF_SECRET` (the same dummy to both servers, since API-06), `PORT`, `CORS_ORIGIN` and `API_URL` through `env`. `dotenv` does not override variables that are already set, so a developer's `.env` cannot leak in. `reuseExistingServer: !process.env.CI`. Check that this works next to a running `pnpm dev` (Next.js 16 keeps dev output in `.next/dev`).
 - **Config:** Chromium only, `baseURL` from the web port, `retries: 2` and `trace: 'on-first-retry'` in CI, HTML report.
 - **Tests:** register → login → `/play` → logout; logged out, `/play` redirects to `/login?redirect=/play`, and logging in from there lands back on `/play`; a duplicate email shows the inline error. Each test registers its own user with a unique email (a small helper). Prefer role- and label-based locators (`getByRole`, `getByLabel`) over CSS selectors.
 - **CI:** an `e2e` job in `ci.yml`, in parallel with `verify`: PostgreSQL 17 as a service container, `pnpm install --frozen-lockfile`, `playwright install --with-deps chromium`, `pnpm test:e2e`, and on failure `actions/upload-artifact` with `playwright-report/` and `test-results/` (short retention).
@@ -802,6 +820,22 @@ Lint, `tsc` and unit tests (10/10) pass. The `pnpm add` reported peer warnings, 
 **Done when:** `pnpm test:e2e` passes locally after `docker compose up -d`, the `e2e` CI job is green, and a deliberately broken assertion produces a downloadable report with a trace.
 
 **Not now:** Firefox/WebKit, a `storageState` setup project, and moving the API integration tests into the job that has a database (a candidate follow-up task once the job exists).
+
+### WEB-12 — Validate the web app's environment
+
+**Status:** ⬜ TODO
+
+**Problem:** `apps/web` reads `API_URL` and `BFF_SECRET` straight from `process.env`, with no validation. Since API-06 the BFF sends `X-BFF-Secret` to `API_URL`, so an `http://` URL in production would send the secret in clear text.
+
+**Fix:** A Zod schema for the web app's server-side env (like `apps/api/src/config/env.schema.ts`), checked at startup: `API_URL` a URL that must be `https://` when `NODE_ENV` is `production`, and `BFF_SECRET` at least 32 characters. Read the variables through it instead of `process.env`.
+
+### WEB-13 — Optional: a rate limiter in the BFF
+
+**Status:** ⬜ TODO
+
+**Problem:** Since API-06 the API limits login and register; every rejected attempt still costs a round trip from the BFF to the API.
+
+**Fix:** Only once the deployment is known: a limiter in the route handlers (or `proxy.ts`) as an extra layer, never instead of the API's (the API is public). On Vercel it needs a shared store (e.g. Upstash Redis), because serverless instances don't share memory. See `docs/DECISIONS.md` #017.
 
 ---
 

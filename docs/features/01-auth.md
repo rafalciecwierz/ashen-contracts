@@ -42,6 +42,7 @@ Error responses carry a stable `code` (`AuthErrorCode` in `@ashen-contracts/shar
 - Valid JWT for an account that no longer exists → 401 on `GET /auth/me`
 - Password shorter than 8 characters on register → 400 validation error before hitting the database
 - Missing `email` or `password`, or a field the DTO does not declare → 400 validation error, on register and login
+- Too many attempts → 429, `TOO_MANY_REQUESTS`, with a `Retry-After` header in seconds: login allows 5 per minute per player IP and 10 per 15 minutes per email, register 3 per hour per player IP. Behind the BFF the player IP comes from `X-Client-IP`, trusted only with the BFF secret (`docs/DECISIONS.md` #017); the form shows the error inline
 - Email casing and surrounding whitespace → ignored: register and login trim and lowercase the email in the DTO (`@NormalizeEmail()`), so `Test@X.com` and `test@x.com` are one account and the stored email is lowercase
 
 ## Frontend (apps/web)
@@ -87,6 +88,7 @@ Client components call `InternalApiRoutes` through `apiPost` (`src/http/api.ts`)
 - Integration: register → login → access a protected route end-to-end — not yet
 - Integration: duplicate email is rejected — not yet
 - Integration: a register/login body with a missing field or an unknown field returns 400 — done (`test/auth.integration-spec.ts`)
+- Integration: each rate limit returns 429, a forged `X-Client-IP` doesn't bypass it, and players behind the BFF are counted separately — done (`test/authThrottling.integration-spec.ts`)
 - Integration: emails that differ only in case or whitespace resolve to the same account — done (`test/emailNormalization.integration-spec.ts`, with an in-memory `PrismaService`)
 - Frontend: invalid input blocks submit with the correct inline error — not yet (WEB-10)
 - Frontend: successful register/login redirects, and login sets the session cookie — not yet (WEB-10, WEB-11)

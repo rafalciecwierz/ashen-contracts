@@ -10,6 +10,7 @@ export default defineConfig({
       DATABASE_URL:
         'postgresql://ashen:ashen@localhost:5432/ashen_contracts?schema=public',
       JWT_SECRET: 'integration-test-secret-not-used-anywhere-else',
+      BFF_SECRET: 'integration-test-bff-secret-not-used-elsewhere',
     },
   },
 });
