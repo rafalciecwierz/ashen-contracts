@@ -711,7 +711,13 @@ Tests: `test/app.integration-spec.ts` is replaced by `test/health.integration-sp
 
 ### API-11 — Unit tests for `JwtAuthGuard`
 
-**Status:** ⬜ TODO
+**Status:** ✅ DONE (2026-10-19)
+
+**Notes:** New `src/auth/guards/jwtAuth.guard.spec.ts`, 12 tests, covering the four cases and asserting the API-08 codes. The guard is built with a real `JwtService` (test secret) and a real `Reflector`, not mocks, so the tests sign real tokens and read the metadata of the real `@Public()` decorator on test classes. Only the `ExecutionContext` is a small fake (`getHandler`, `getClass`, `switchToHttp`). Mocking `verifyAsync` would only have tested that the guard maps the errors we told the mock to throw, not that `jsonwebtoken` throws a `TokenExpiredError` for an expired token. The cases: `@Public()` on the handler and on the controller lets a request through without calling `verifyAsync`, and a token sent to a public route anyway is not checked; no header, another scheme (`Basic`), `Bearer` with no token, a token with no scheme and an empty header are `UNAUTHORIZED` "Missing token"; a token that isn't a JWT and one signed with another secret are `UNAUTHORIZED` "Invalid token"; an expired one is `SESSION_EXPIRED`; a valid one resolves `true` and sets `request.user` to its payload.
+
+Red checks, four mutations of the guard, each run against the spec and then reverted: dropping the `@Public()` check fails 3 tests, dropping the `TokenExpiredError` branch 1, not setting `request.user` 1, and accepting any scheme 3. `pnpm --filter api typecheck`, `lint`, `test` (60) and `pnpm format:check` pass. The auth spec's test list and known gaps are updated.
+
+Found on the way, not changed: the guard accepts only `Bearer` with that exact case, while RFC 9110 makes auth schemes case-insensitive (`bearer x` is valid). The BFF always sends `Bearer`, so nothing breaks, and the spec doesn't fix the behaviour either way.
 
 **Fix:** Cover four cases:
 
