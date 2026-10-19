@@ -19,6 +19,24 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 20
 
+    # For the API integration tests: GET /health pings a real database. Same image
+    # and credentials as docker-compose.yml, which the DATABASE_URL in
+    # apps/api/vitest.config.integration.mts points at.
+    services:
+      postgres:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_USER: ashen
+          POSTGRES_PASSWORD: ashen
+          POSTGRES_DB: ashen_contracts
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U ashen -d ashen_contracts"
+          --health-interval 5s
+          --health-timeout 3s
+          --health-retries 10
+
     steps:
       - uses: actions/checkout@v7
         with:
@@ -73,6 +91,9 @@ jobs:
 
       - name: Test
         run: pnpm test
+
+      - name: API integration tests
+        run: pnpm --filter api test:integration
 
       - name: Build
         run: |
