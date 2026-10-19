@@ -297,3 +297,37 @@ Alternatives considered:
 - One custom `ApiException` class instead of Nest's built-in exceptions. Rejected: Nest's own exceptions already carry a status and a response object. The filter handles them, and errors thrown by libraries, without the code having to use a project class.
 
 Consequences: a client can always read `code`, and a 500 never shows internals (Prisma errors, SQL, file paths); the real cause is only in the server log. `INVALID_CREDENTIALS` now only means a wrong email or password at login. A missing or forged token is `UNAUTHORIZED`, and an expired one is `SESSION_EXPIRED`. The cost: the filter also rewrites bodies from libraries that have their own. The planned `@nestjs/terminus` health check would lose its per-check 503 body (noted in REFACTOR.md API-10). A new code needs a change to the shared union and to `en.json`. The web app still trusts the code it gets at runtime, so a code it doesn't know is REFACTOR.md WEB-09. Verified by unit tests for the filter and the validation factory, and by integration tests through `AppModule` (validation, token cases, unknown route, malformed JSON, a Prisma failure). Without the filter and the factory, 9 of them fail. Also checked by hand with the built API, including a 500 with Postgres stopped.
+
+## 019. The API stays publicly reachable; no gate that admits only the BFF
+
+Date: 19.10.2026
+
+Context: since #017, the BFF sends `X-BFF-Secret`, but the API uses it only to trust the forwarded player IP. Anyone can call any endpoint directly. #017 deferred the question of rejecting every request without the secret to REFACTOR.md API-12. The project is a portfolio piece on free hosting (#020) without a custom domain, and its owner wants a real-time WebSocket connection from the browser to the API.
+
+Decision: the API stays public. The JWT guard is the security boundary: every route needs a valid token unless it is marked `@Public()`, and only login, register and `/health` are. Login and register are rate limited by caller IP (#017). The BFF secret keeps its one job, which is making the forwarded IP trustworthy.
+
+Alternatives considered:
+
+- A global guard that rejects requests without the secret, with exceptions for `/health` and Swagger. Rejected: it is defence in depth, not a new boundary. It stops scanners and an endpoint marked `@Public()` by mistake, but not a logged-in player scripting the game, who can send the same requests through the BFF. It costs a static key to rotate in both apps, a header for every curl call, Swagger request and test, and a separate way in for the browser's WebSocket, which can't hold the secret. For this project that cost is higher than the risk.
+- A Vercel-issued OIDC token instead of a static secret. Rejected: it ties the API to Vercel and still needs a fallback for local development.
+- Network isolation (private network, IP allowlist). Rejected in #017: Vercel and Render share no private network, and Vercel's IPs are shared and change.
+
+Consequences: what protects the API is the JWT guard with `@Public()` as a visible opt-out, the `ValidationPipe`, rate limits on the public auth routes, and error bodies that never show internals (#018). A new public route has to be reviewed with that in mind. The Socket.io connection will authenticate with a short-lived token that the BFF fetches from the API, because the browser can't read the httpOnly session cookie (#005), and that cookie is not sent to the API's domain. Revisit this decision if the API gets data worth protecting beyond a player's own account, or a cost that grows with traffic.
+
+## 020. Free hosting: Vercel for the web app, Render's free plan for the API, Prisma Postgres for the database
+
+Date: 19.10.2026
+
+Context: the project has to run for free for as long as it sits in a portfolio, at low traffic (a few recruiters). The plan said "Railway/Render (api + db)", but nobody had checked it against current free tiers. As of October 2026, from third-party summaries to be confirmed on the official pricing pages: Railway's free plan has about $1 of credit a month after a one-time trial, which can't keep an API and its database running. Render's free Postgres expires 30 days after creation and is then deleted. Render's free web service spins down after 15 minutes without traffic and takes up to about a minute to wake. The database already runs on Prisma Postgres's free plan, which doesn't expire: 500 MB, and an operation quota that sources give as 100k–200k a month. The API reaches it over TCP through `@prisma/adapter-pg` (REFACTOR.md API-09).
+
+Decision: `apps/web` on Vercel, `apps/api` on a free Render web service (Docker), PostgreSQL on Prisma Postgres (free). The API is not kept awake with pings. A sleeping API is accepted, and the web app should show that it is waking up. Where Redis runs for BullMQ is decided before v0.4, when it is first needed.
+
+Alternatives considered:
+
+- Railway for the API and the database. Rejected: about $5 a month after the trial.
+- Render's free Postgres. Rejected: it expires after 30 days, and a portfolio project has to last months.
+- Pinging `/health` to keep the API awake. Rejected: every ping is a database operation (`SELECT 1`) against the Prisma quota, uptime pings are a grey area on free plans, and a few recruiters a day don't justify it.
+
+Consequences: no hosting cost and no bill to fear, since a free service that runs out of quota stops instead of charging. In exchange, the first request after 15 idle minutes waits up to about a minute, and an open WebSocket drops when the API sleeps, which ARCHITECTURE already handles by refetching state on reconnect. The Prisma operation quota must be watched in its dashboard (one community report describes a suspension well below the stated limit). Render free services have an ephemeral filesystem, which the API doesn't use. Open for v0.4: a free Redis host. BullMQ polls Redis constantly, which can exhaust command quotas on free plans, and Render's free Key Value doesn't persist data, while delayed jobs must survive restarts (#001).
+
+Trade-off forced by free hosting: BullMQ's workers run in the API process (no second paid service), so they sleep with it. A job due while the API sleeps, e.g. a training that ends at 14:00, runs only when the next request wakes the API, up to the next player visit. This is accepted because nothing in the game needs to happen at the exact moment, only to be correct when the player looks. It sets a rule for v0.4: a job handler computes its result from the time the action was scheduled to finish (stored with the job), never from the time the handler happens to run, and reading the player's state settles any action whose end time has passed, so the result doesn't depend on whether the worker ran yet. A WebSocket "your training is done" notification may arrive late or never, which ARCHITECTURE already allows: the socket is for notifications only. On a paid always-on instance, the same code would just run on time.

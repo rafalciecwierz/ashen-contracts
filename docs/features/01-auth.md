@@ -49,7 +49,7 @@ Error responses carry a stable `code` (`ApiErrorCode` in `@ashen-contracts/share
 
 ### Session: BFF and httpOnly cookie
 
-Resolved in `docs/DECISIONS.md` #005 (originally an open decision here, with `localStorage` as the v0.1 placeholder). The browser never calls `apps/api` and never holds the token:
+Resolved in `docs/DECISIONS.md` #005 (originally an open decision here, with `localStorage` as the v0.1 placeholder). The browser never makes HTTP requests to `apps/api` and never holds the token (the planned Socket.io connection is the one exception to the first part, see `docs/DECISIONS.md` #019):
 
 - **Client actions** (form submits, logout) call same-origin Next.js route handlers under `app/api/auth/` (`InternalApiRoutes` in `src/http/endpoints.ts`):
   - `POST /api/auth/register` — proxies to `POST /auth/register` and passes the response and status through.
