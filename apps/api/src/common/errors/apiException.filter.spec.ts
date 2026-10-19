@@ -3,8 +3,10 @@ import {
   ArgumentsHost,
   BadRequestException,
   ConflictException,
+  InternalServerErrorException,
   Logger,
   NotFoundException,
+  ServiceUnavailableException,
   UnauthorizedException,
 } from '@nestjs/common';
 import { HttpAdapterHost } from '@nestjs/core';
@@ -107,6 +109,37 @@ describe('ApiExceptionFilter', () => {
       expect(body).toEqual({ code, message });
     },
   );
+
+  it('hides the message and details of a 5xx HttpException', () => {
+    const { body, status } = replyFor(
+      new InternalServerErrorException(
+        'connect ECONNREFUSED 10.0.0.5:5432 (user "ashen")',
+      ),
+    );
+
+    expect(status).toBe(500);
+    expect(body).toEqual({
+      code: 'INTERNAL_ERROR',
+      message: 'Internal server error',
+    });
+    expect(logError).toHaveBeenCalledOnce();
+  });
+
+  it('keeps the code of a 5xx HttpException thrown with one, but not its message', () => {
+    const { body, status } = replyFor(
+      new ServiceUnavailableException({
+        code: 'INTERNAL_ERROR',
+        message: 'Invalid `prisma.player.findUnique()` invocation',
+        details: [{ field: 'db', constraint: 'up', message: 'down' }],
+      }),
+    );
+
+    expect(status).toBe(503);
+    expect(body).toEqual({
+      code: 'INTERNAL_ERROR',
+      message: 'Internal server error',
+    });
+  });
 
   it('keeps the status and exposed message of an http-errors error (body parser)', () => {
     const error = Object.assign(new SyntaxError('Unexpected token } in JSON'), {

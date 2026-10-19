@@ -22,12 +22,16 @@ const INTERNAL_ERROR_MESSAGE = 'Internal server error';
  * - An HttpException thrown with a `code` (e.g. `{ code, message }`) keeps it.
  * - One without a code (Nest's own 404 for an unknown route, a bare
  *   `new BadRequestException()`) gets a generic code from its status.
+ * - A 5xx HttpException keeps its code, but not its message or details: they
+ *   are free text, often built from the error that caused it
+ *   (`new InternalServerErrorException(err.message)`).
  * - An "http-errors" error, which is what Express middleware such as the JSON
  *   body parser throws, keeps its status, and its message only when the error
  *   marks it as safe to show (`expose`).
- * - Anything else is an unexpected 500: logged with its stack, answered with
- *   INTERNAL_ERROR and a fixed message, so internals (Prisma errors, SQL,
- *   file paths) never reach the client.
+ * - Anything else is an unexpected 500.
+ *
+ * Every 5xx is logged with its stack and answered with a fixed message, so
+ * internals (Prisma errors, SQL, file paths) never reach the client.
  */
 @Catch()
 export class ApiExceptionFilter implements ExceptionFilter {
@@ -92,6 +96,11 @@ function fromHttpException(
     typeof fields.code === 'string'
       ? (fields.code as ApiErrorCode)
       : codeForStatus(status);
+  // The code is a literal from a closed union, so it can't carry data; the
+  // message and details can.
+  if (status >= 500) {
+    return { code, message: INTERNAL_ERROR_MESSAGE };
+  }
   const message =
     typeof fields.message === 'string' ? fields.message : exception.message;
   const details = Array.isArray(fields.details)
