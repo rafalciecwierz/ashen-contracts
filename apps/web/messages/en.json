@@ -38,7 +38,13 @@
   "errors": {
     "EMAIL_ALREADY_REGISTERED": "This email is already registered.",
     "INVALID_CREDENTIALS": "Incorrect email or password.",
+    "UNAUTHORIZED": "You need to log in to do that.",
+    "SESSION_EXPIRED": "Your session has expired. Log in again.",
     "TOO_MANY_REQUESTS": "Too many attempts. Wait a few minutes and try again.",
+    "VALIDATION_FAILED": "Some fields are invalid. Check them and try again.",
+    "BAD_REQUEST": "The request could not be processed. Please try again.",
+    "NOT_FOUND": "We couldn't find what you were looking for.",
+    "INTERNAL_ERROR": "Something went wrong on our side. Please try again later.",
     "GENERIC": "Something went wrong. Please try again."
   }
 }

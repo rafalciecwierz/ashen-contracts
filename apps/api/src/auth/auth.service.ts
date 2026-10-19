@@ -10,7 +10,7 @@ import { Prisma } from '../generated/prisma/client';
 import { LoginDto, RegisterDto } from './dto';
 import { JwtService } from '@nestjs/jwt';
 import {
-  AuthErrorCode,
+  ApiErrorCode,
   LoginResponse,
   MeResponse,
   RegisterResponse,
@@ -29,12 +29,12 @@ const BCRYPT_ROUNDS = 10;
 const DUMMY_PASSWORD_HASH = bcrypt.hashSync(randomUUID(), BCRYPT_ROUNDS);
 
 function emailAlreadyRegistered(): ConflictException {
-  const code: AuthErrorCode = 'EMAIL_ALREADY_REGISTERED';
+  const code: ApiErrorCode = 'EMAIL_ALREADY_REGISTERED';
   return new ConflictException({ code, message: 'Email already registered' });
 }
 
 function invalidCredentials(): UnauthorizedException {
-  const code: AuthErrorCode = 'INVALID_CREDENTIALS';
+  const code: ApiErrorCode = 'INVALID_CREDENTIALS';
   return new UnauthorizedException({ code, message: 'Invalid credentials' });
 }
 
@@ -107,7 +107,7 @@ export class AuthService {
     });
 
     if (!player) {
-      const code: AuthErrorCode = 'INVALID_CREDENTIALS';
+      const code: ApiErrorCode = 'UNAUTHORIZED';
       throw new UnauthorizedException({
         code,
         message: 'Account no longer exists',

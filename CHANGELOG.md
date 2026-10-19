@@ -29,6 +29,7 @@ Each entry should be short — a git-log summary, not a design doc. Detailed rea
 
 ### Fixed
 
+- Every API error has the body `{ code, message, details? }`: validation errors, unknown routes, malformed JSON and unexpected 500s had no `code` (now `VALIDATION_FAILED` with per-field details, `NOT_FOUND`, `BAD_REQUEST`, and `INTERNAL_ERROR` without internals, from a global exception filter), and a missing or expired token said `INVALID_CREDENTIALS` (now `UNAUTHORIZED` or `SESSION_EXPIRED`). `AuthErrorCode` is renamed `ApiErrorCode`
 - Login takes as long for an unknown email as for a wrong password (bcrypt runs against a dummy hash), so response timing no longer reveals which emails are registered
 - Emails are trimmed and lowercased on register and login, so `Test@X.com` and `test@x.com` are the same account instead of two
 - `POST /auth/login` returns 200 instead of 201, since it creates nothing

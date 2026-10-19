@@ -1,9 +1,9 @@
-import type { AuthErrorCode } from '@ashen-contracts/shared';
+import type { ApiErrorCode } from '@ashen-contracts/shared';
 
 export class ApiError extends Error {
   constructor(
     public status: number,
-    public code: AuthErrorCode | undefined,
+    public code: ApiErrorCode | undefined,
     message: string,
   ) {
     super(message);

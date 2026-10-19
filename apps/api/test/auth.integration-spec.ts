@@ -3,10 +3,8 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication } from '@nestjs/common';
 import { Server } from 'node:http';
 import request from 'supertest';
+import type { ApiErrorResponse } from '@ashen-contracts/shared';
 import { AppModule } from './../src/app.module';
-
-// Shape of ValidationPipe's 400 response (no error `code` yet, see API-08).
-type ValidationErrorBody = { message: string[] };
 
 // These requests are rejected by the global ValidationPipe before they reach
 // AuthService, so no database is needed. A 400 here proves the pipe is
@@ -34,9 +32,17 @@ describe('Auth request validation (integration)', () => {
         .send({ password: 'password123' })
         .expect(400);
 
-      expect((res.body as ValidationErrorBody).message).toContain(
-        'email must be an email',
-      );
+      expect(res.body).toEqual({
+        code: 'VALIDATION_FAILED',
+        message: 'Validation failed',
+        details: expect.arrayContaining([
+          {
+            field: 'email',
+            constraint: 'isEmail',
+            message: 'email must be an email',
+          },
+        ]) as unknown,
+      });
     });
 
     it('rejects a body without password', async () => {
@@ -45,9 +51,9 @@ describe('Auth request validation (integration)', () => {
         .send({ email: 'player@example.com' })
         .expect(400);
 
-      expect((res.body as ValidationErrorBody).message).toEqual(
-        expect.arrayContaining([expect.stringContaining('password')]),
-      );
+      const body = res.body as ApiErrorResponse;
+      expect(body.code).toBe('VALIDATION_FAILED');
+      expect(body.details?.map((detail) => detail.field)).toContain('password');
     });
 
     it('rejects unknown fields', async () => {
@@ -60,9 +66,13 @@ describe('Auth request validation (integration)', () => {
         })
         .expect(400);
 
-      expect((res.body as ValidationErrorBody).message).toContain(
-        'property isAdmin should not exist',
-      );
+      expect((res.body as ApiErrorResponse).details).toEqual([
+        {
+          field: 'isAdmin',
+          constraint: 'whitelistValidation',
+          message: 'property isAdmin should not exist',
+        },
+      ]);
     });
   });
 });
