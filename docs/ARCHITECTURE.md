@@ -45,7 +45,7 @@ A single repo keeps `apps/web` and `apps/api` in sync on shared types (`packages
 
 - **Next.js + TypeScript**, styled with Tailwind
 - Components consumed from `packages/ui` (`import { Button } from "@ashen-contracts/ui"`) rather than duplicated locally
-- Talks to the API over REST for standard requests, and over a WebSocket connection (Socket.io client) for real-time push (e.g. "your training has finished")
+- Talks to the API over REST through its own route handlers (the BFF, `app/api/`), never from the browser directly. The planned exception is a WebSocket connection (Socket.io client) from the browser to the API for real-time push (e.g. "your training has finished"), authenticated with a short-lived token fetched through the BFF (`docs/DECISIONS.md` #019)
 
 ## Component library (`packages/ui`)
 
@@ -61,7 +61,7 @@ A single repo keeps `apps/web` and `apps/api` in sync on shared types (`packages
 
 ### Requests from the BFF and rate limiting
 
-The browser never calls the API: the Next.js route handlers in `apps/web/app/api/` do (`docs/DECISIONS.md` #005), so the API sees the BFF's address, not the player's. For rate limiting, the BFF forwards the player's IP in `X-Client-IP`, together with `X-BFF-Secret`, which carries the `BFF_SECRET` both apps share. The API trusts the forwarded IP only with a matching secret, and otherwise limits by `req.ip`, which `TRUST_PROXY_HOPS` makes the address the platform proxy saw. Login and register are limited per IP, and login also per email (`@nestjs/throttler`, in-memory counters); see `docs/DECISIONS.md` #017.
+The browser never makes HTTP requests to the API: the Next.js route handlers in `apps/web/app/api/` do (`docs/DECISIONS.md` #005), so the API sees the BFF's address, not the player's. The planned Socket.io connection is the one exception: the browser will connect to the API directly. The API is still publicly reachable, and nothing checks that a request came from the BFF. The JWT guard is its security boundary: every route needs a valid token unless it is marked `@Public()` (`docs/DECISIONS.md` #019). For rate limiting, the BFF forwards the player's IP in `X-Client-IP`, together with `X-BFF-Secret`, which carries the `BFF_SECRET` both apps share. The API trusts the forwarded IP only with a matching secret, and otherwise limits by `req.ip`, which `TRUST_PROXY_HOPS` makes the address the platform proxy saw. Login and register are limited per IP, and login also per email (`@nestjs/throttler`, in-memory counters); see `docs/DECISIONS.md` #017.
 
 ### Error responses
 
