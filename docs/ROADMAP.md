@@ -31,7 +31,7 @@ The skeleton: something real, deployed, and playable, even if rough.
 - [ ] Energy resource, server-authoritative time-based regeneration
 - [ ] Scripted opening quest ("First Blood" — bandit encounter)
 - [ ] E2E tests: Playwright in `apps/e2e`, auth flow, own CI job (plan: `docs/REFACTOR.md` WEB-11, decision: `docs/DECISIONS.md` #015)
-- [ ] Deploy: Vercel (web) + Railway/Render (api + db)
+- [ ] Deploy, free plans only: Vercel (web), Render (api), Prisma Postgres (db) (`docs/DECISIONS.md` #020)
 
 ## v0.2 — Expeditions & narrative events 🔲
 
@@ -51,7 +51,7 @@ The mechanical signature of the game.
 ## v0.4 — The stronghold 🔲
 
 - [ ] Triggering quest that unlocks the stronghold
-- [ ] Training (skill/stat progression via a queued system — first use of BullMQ)
+- [ ] Training (skill/stat progression via a queued system — first use of BullMQ; choose a free Redis host first, see `docs/DECISIONS.md` #020)
 - [ ] Blacksmith/armory (purchasable equipment)
 - [ ] Expedition-only loot distinct from purchasable gear
 

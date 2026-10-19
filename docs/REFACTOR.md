@@ -730,7 +730,9 @@ Found on the way, not changed: the guard accepts only `Bearer` with that exact c
 
 ### API-12 — Reject API requests that don't come from the BFF
 
-**Status:** ⬜ TODO
+**Status:** 🚫 DROPPED (2026-10-19)
+
+**Notes:** Dropped after discussing it with the owner; the reasoning is in `docs/DECISIONS.md` #019. A gate built on the shared secret would be defence in depth, not the security boundary: protected routes already need a JWT, and the public ones (login, register, `/health`) are rate limited per caller IP. It would add a key to rotate, exceptions for `/health` and Swagger, and a header for every curl call and test. It also conflicts with the planned browser WebSocket connection to the API, which the owner wants to keep. For a portfolio project on free hosting with no custom domain, the attacks it stops (scanners, an endpoint marked `@Public()` by mistake) don't justify that cost. The short-lived socket token issued through the BFF is still needed, but to authenticate the socket (the browser can't read the httpOnly cookie), so it belongs to the Socket.io feature, not to this task. While discussing this, the hosting plan turned out to be unchecked against current free tiers; recorded as #020 and in `docs/ARCHITECTURE.md` (Deployment).
 
 **Problem:** The API is publicly reachable on Railway/Render. Since API-06 the BFF proves itself with `X-BFF-Secret`, but the API only uses that to trust the forwarded player IP; anyone can still call every endpoint directly.
 

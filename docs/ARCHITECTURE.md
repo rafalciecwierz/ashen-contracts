@@ -89,13 +89,13 @@ Used for push notifications only (action completed, event triggered) — not for
 
 ## Deployment
 
-| Component                 | Platform                          | Notes                                                                                                                                                      |
-| ------------------------- | --------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `apps/web`                | Vercel                            | Root Directory set to `apps/web`; Vercel installs from the workspace root so `packages/ui` and `packages/shared` resolve correctly                         |
-| `apps/api`                | Railway / Render                  | Deployed via Dockerfile (multi-stage build copying required `packages/*`). Health check path: `GET /health` (200, or 503 when the database is unreachable) |
-| PostgreSQL                | Railway / Render managed instance |                                                                                                                                                            |
-| Redis                     | Railway / Render managed instance | Required by BullMQ                                                                                                                                         |
-| `packages/ui` (Storybook) | Chromatic                         | Separate public link, independent of the game deployment                                                                                                   |
+| Component                 | Platform                 | Notes                                                                                                                                                                                                                                                                     |
+| ------------------------- | ------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `apps/web`                | Vercel (free)            | Root Directory set to `apps/web`; Vercel installs from the workspace root so `packages/ui` and `packages/shared` resolve correctly                                                                                                                                        |
+| `apps/api`                | Render, free web service | Deployed via Dockerfile (multi-stage build copying required `packages/*`). Health check path: `GET /health` (200, or 503 when the database is unreachable). Spins down after 15 minutes without traffic and takes up to about a minute to wake (`docs/DECISIONS.md` #020) |
+| PostgreSQL                | Prisma Postgres (free)   | Reached over TCP through `@prisma/adapter-pg`; 500 MB and a monthly operation quota                                                                                                                                                                                       |
+| Redis                     | Not chosen yet           | Required by BullMQ from v0.4; must persist data and fit BullMQ's polling within a free plan's quota (#020)                                                                                                                                                                |
+| `packages/ui` (Storybook) | Chromatic                | Separate public link, independent of the game deployment                                                                                                                                                                                                                  |
 
 ## Local development
 
