@@ -644,7 +644,18 @@ Not in scope: register still says 409 `EMAIL_ALREADY_REGISTERED` for a taken ema
 
 ### API-08 — Consistent error contract: dedicated codes and a global exception filter
 
-**Status:** ⬜ TODO
+**Status:** ✅ DONE (2026-10-19)
+
+**Notes:** `AuthErrorCode` is renamed `ApiErrorCode` (`packages/shared/src/types/errors.ts`), which also exports `ApiErrorResponse` (`{ code, message, details? }`) and `ValidationErrorDetail`. New codes: `UNAUTHORIZED`, `SESSION_EXPIRED`, `VALIDATION_FAILED`, `INTERNAL_ERROR`, plus `BAD_REQUEST` and `NOT_FOUND`, which the task didn't name: the filter needs a code for errors thrown without one, and Nest's own 404 for an unknown route and body-parser's 400 for malformed JSON are the ones the API produces today. The mapping from status (`codeForStatus`) gives only those statuses a code (401, 404, 429, other 4xx `BAD_REQUEST`, 5xx `INTERNAL_ERROR`); the client still has the exact status, so no code per status until something needs one.
+
+- **Filter:** `ApiExceptionFilter` (`src/common/errors/apiException.filter.ts`, `@Catch()` everything), an `APP_FILTER` provider in `AppModule` for the same reason as the `APP_PIPE` (integration tests get it). An `HttpException` with a string `code` keeps its code, message and `details`; one without gets a code from its status and drops Nest's `statusCode`/`error` fields. An "http-errors" error (Express middleware, e.g. the JSON body parser) keeps its status, and its message only when `expose` is set. Anything else is a 500 `INTERNAL_ERROR` with the fixed message "Internal server error" and is logged with its stack; 4xx are not logged. After code review, a 5xx `HttpException` also loses its message and `details` (it keeps a thrower-supplied code, a literal from the union that can't carry data), because `new InternalServerErrorException(err.message)` would otherwise send the cause to the client. It replies through `HttpAdapterHost`, not Express directly, and ends the response if headers were already sent.
+- **Validation:** the `ValidationPipe` gets `exceptionFactory: validationException` (`src/common/errors/validationException.ts`): 400 `VALIDATION_FAILED`, message "Validation failed", and `details` with one entry per violated rule, `{ field, constraint, message }`, nested fields as a dotted path. A flat list with the class-validator constraint name, rather than Nest's array of English sentences in `message`, so a client can match a rule (`minLength`) without parsing text. The filter stays generic: the factory throws an ordinary `HttpException` with a code.
+- **Guard and service:** `JwtAuthGuard` returns `UNAUTHORIZED` for a missing, malformed or forged token and `SESSION_EXPIRED` for a `TokenExpiredError`; `AuthService.me` for a deleted account is `UNAUTHORIZED`. `INVALID_CREDENTIALS` now means only a wrong email or password at login. The BFF's `getCurrentUser` checks only the 401 status, so it is unaffected.
+- **Web:** `ApiError.code` is typed `ApiErrorCode`, and `messages/en.json` has a message for every new code. Because next-intl types keys against `en.json` and the forms call `tErrors(err.code ?? 'GENERIC')`, a code without a message is now a compile error (red check: deleting `SESSION_EXPIRED` from `en.json` fails `tsc` in both forms).
+
+Tests: `apiException.filter.spec.ts` (code kept, details kept, code from status for 400/401/404, http-errors exposed and not exposed, unexpected error: 500 without internals and logged, 4xx not logged, headers already sent) and `validationException.spec.ts` (one detail per constraint, dotted nested path). `test/auth.integration-spec.ts` now asserts `VALIDATION_FAILED` and the details. New `test/errorContract.integration-spec.ts` through `AppModule` with the in-memory `PrismaService`: `GET /auth/me` without a token, with a malformed one, with an expired one (`SESSION_EXPIRED`) and for a deleted account; an unknown route; malformed JSON; a Prisma failure giving a 500 that doesn't leak the error. Red check: without the `APP_FILTER` and the `exceptionFactory`, 9 of 28 integration tests fail (the guard tests pass, because the guard already threw with a code). By hand, with the built API against the compose Postgres: duplicate register 409, missing password and extra field 400 with two details, malformed JSON 400 `BAD_REQUEST`, wrong password 401 `INVALID_CREDENTIALS`, `/auth/me` with no, a malformed and an expired token, unknown route 404, and with Postgres stopped a login gave 500 `INTERNAL_ERROR` while the log showed the Prisma error (left one `api08-…@example.com` player in the local dev database). `pnpm typecheck`, `lint`, `format:check`, API `test` (48), `test:integration` (28) and `build` pass.
+
+Docs: ADR #018 (the contract and its rejected alternatives), an "Error responses" section in `docs/ARCHITECTURE.md`, the auth spec (error shape, edge cases, tests, known gaps), a CLAUDE.md convention line and the `.filter.ts` suffix, and a CHANGELOG entry. Left for other tasks: the GENERIC fallback for a code the web app doesn't know at runtime (WEB-09), the 502 from the BFF when the API is unreachable (WEB-02), the `/health` body (API-10, see its note), and the guard's unit tests, now with the expired case (API-11).
 
 **Problem:** `JwtAuthGuard` returns `INVALID_CREDENTIALS` for missing or expired tokens. `ValidationPipe` errors and unexpected 500s have no `code` field.
 
@@ -689,6 +700,8 @@ Lint, `tsc` and unit tests (10/10) pass. The `pnpm add` reported peer warnings, 
 - Delete the empty `apps/api/mocked_prisma/` directory.
 - Replace or remove the `prisma.service.spec.ts` "should be defined" test.
 
+**Note (from API-08):** the global `ApiExceptionFilter` rewrites every error body to `{ code, message, details? }`. Terminus answers an unhealthy check with a 503 `ServiceUnavailableException` whose body is `{ status, info, error, details }`, so through the filter it becomes `{ code: 'INTERNAL_ERROR', message: 'Internal server error' }` and loses which check failed. Decide whether `/health` keeps the terminus body (e.g. the filter passes it through) or gets a `SERVICE_UNAVAILABLE` code.
+
 ### API-11 — Unit tests for `JwtAuthGuard`
 
 **Status:** ⬜ TODO
@@ -699,6 +712,8 @@ Lint, `tsc` and unit tests (10/10) pass. The `pnpm add` reported peer warnings, 
 - a missing header returns 401;
 - a malformed or non-Bearer header returns 401;
 - an invalid or expired token returns 401, and a valid token sets `request.user`.
+
+**Note (from API-08):** the codes differ now: a missing or invalid token is `UNAUTHORIZED`, an expired one `SESSION_EXPIRED`. `test/errorContract.integration-spec.ts` covers them through HTTP; the unit tests should assert them too.
 
 ### API-12 — Reject API requests that don't come from the BFF
 
@@ -809,6 +824,8 @@ Lint, `tsc` and unit tests (10/10) pass. The `pnpm add` reported peer warnings, 
 **Problem:** `ApiError.code` is typed as `AuthErrorCode`. `tErrors(err.code)` breaks on any code missing from `en.json`.
 
 **Fix:** Add a mapping function with a `GENERIC` fallback for unknown codes, typed against the shared code union. Align with API-08.
+
+**Note (from API-08):** `ApiError.code` is now `ApiErrorCode`, and `en.json` has every code, so the compile-time half is done: a code without a message fails `tsc`. What is left is the runtime half: `apiPost` takes `data.code` from the response unchecked, so a code the web app doesn't know (an API deployed ahead of the web app) still reaches `tErrors`.
 
 ### WEB-10 — Unit and component testing setup for `apps/web`
 

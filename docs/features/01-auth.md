@@ -32,16 +32,16 @@ Every route requires a valid JWT by default (global `JwtAuthGuard`); public rout
 - `POST /auth/login` (public) — { email, password } → validates, returns 200 with `LoginResponse` ({ accessToken })
 - `GET /auth/me` — `Authorization: Bearer <token>` → returns `MeResponse` ({ id, email }) of the authenticated player
 
-Error responses carry a stable `code` (`AuthErrorCode` in `@ashen-contracts/shared`) next to the human-readable `message`, so the frontend translates by code instead of parsing English text. Validation errors come from the global `ValidationPipe` (an `APP_PIPE` provider in `AppModule`; `message` is an array, no `code` yet; see API-08 in `docs/REFACTOR.md`). It rejects fields a DTO does not declare and turns the body into a DTO instance.
+Error responses carry a stable `code` (`ApiErrorCode` in `@ashen-contracts/shared`) next to the human-readable `message`, so the frontend translates by code instead of parsing English text. Every error body has the shape `{ code, message, details? }` (`ApiErrorResponse`; see "Error responses" in `docs/ARCHITECTURE.md`). Validation errors come from the global `ValidationPipe` (an `APP_PIPE` provider in `AppModule`): 400 `VALIDATION_FAILED`, with one `details` entry per violated rule. It rejects fields a DTO does not declare and turns the body into a DTO instance.
 
 ## Edge cases to handle
 
 - Duplicate email on register → 409, `EMAIL_ALREADY_REGISTERED`, also when two requests register the same email at once (the unique index rejects the second `create`, Prisma `P2002`)
 - Wrong password or unknown email on login → 401, `INVALID_CREDENTIALS` (same response and the same response time for both, so it doesn't reveal whether the email exists: an unknown email is compared against a dummy bcrypt hash of the same cost)
-- Missing/expired/invalid JWT on a protected route → 401, `INVALID_CREDENTIALS`
-- Valid JWT for an account that no longer exists → 401 on `GET /auth/me`
-- Password shorter than 8 characters on register → 400 validation error before hitting the database
-- Missing `email` or `password`, or a field the DTO does not declare → 400 validation error, on register and login
+- Missing, malformed or forged JWT on a protected route → 401, `UNAUTHORIZED`; an expired one → 401, `SESSION_EXPIRED`
+- Valid JWT for an account that no longer exists → 401, `UNAUTHORIZED` on `GET /auth/me`
+- Password shorter than 8 characters on register → 400, `VALIDATION_FAILED`, before hitting the database
+- Missing `email` or `password`, or a field the DTO does not declare → 400, `VALIDATION_FAILED`, on register and login
 - Too many attempts → 429, `TOO_MANY_REQUESTS`, with a `Retry-After` header in seconds: login allows 5 per minute per player IP and 10 per 15 minutes per email, register 3 per hour per player IP. Behind the BFF the player IP comes from `X-Client-IP`, trusted only with the BFF secret (`docs/DECISIONS.md` #017); the form shows the error inline
 - Email casing and surrounding whitespace → ignored: register and login trim and lowercase the email in the DTO (`@NormalizeEmail()`), so `Test@X.com` and `test@x.com` are one account and the stored email is lowercase
 
@@ -78,7 +78,7 @@ Resolved in `docs/DECISIONS.md` #005 (originally an open decision here, with `lo
 
 ### API calls
 
-Client components call `InternalApiRoutes` through `apiPost` (`src/http/api.ts`), which turns error responses into an `ApiError` with `status` and `code`. Request/response types come from `@ashen-contracts/shared` (`RegisterResponse`, `LoginResponse`, `MeResponse`, `JwtPayload`, `AuthErrorCode`), not inline types.
+Client components call `InternalApiRoutes` through `apiPost` (`src/http/api.ts`), which turns error responses into an `ApiError` with `status` and `code`. Request/response types come from `@ashen-contracts/shared` (`RegisterResponse`, `LoginResponse`, `MeResponse`, `JwtPayload`, `ApiErrorCode`), not inline types.
 
 ## Tests to write
 
@@ -88,7 +88,8 @@ Client components call `InternalApiRoutes` through `apiPost` (`src/http/api.ts`)
 - Unit: JWT validation in `JwtAuthGuard` — not yet (API-11)
 - Integration: register → login → access a protected route end-to-end — not yet
 - Integration: duplicate email is rejected — not yet
-- Integration: a register/login body with a missing field or an unknown field returns 400 — done (`test/auth.integration-spec.ts`)
+- Integration: a register/login body with a missing field or an unknown field returns 400 `VALIDATION_FAILED` with details — done (`test/auth.integration-spec.ts`)
+- Integration: `GET /auth/me` returns `UNAUTHORIZED` without a token, with a malformed one and for a deleted account, and `SESSION_EXPIRED` with an expired one — done (`test/errorContract.integration-spec.ts`)
 - Integration: each rate limit returns 429, a forged `X-Client-IP` doesn't bypass it, and players behind the BFF are counted separately — done (`test/authThrottling.integration-spec.ts`)
 - Integration: emails that differ only in case or whitespace resolve to the same account — done (`test/emailNormalization.integration-spec.ts`, with an in-memory `PrismaService`)
 - Frontend: invalid input blocks submit with the correct inline error — not yet (WEB-10)
@@ -102,4 +103,4 @@ Where the implementation differs from the spec as first written (see `git log --
 - **Token storage:** the spec planned `localStorage`, with the client sending the JWT as a Bearer token to `NEXT_PUBLIC_API_URL`. Built instead as a BFF with an httpOnly cookie and a server-only `API_URL` (`docs/DECISIONS.md` #005), so the browser never holds the token or knows the API's address.
 - **Register does not log in:** the spec had `POST /auth/register` return a JWT. It returns `{ id, email }`, and the player logs in once after registering (`/login?registered=true`).
 - **Redirect target:** the spec redirected to `/` until character creation exists. Login redirects to a safe `?redirect=` target or `/play`, the first protected route.
-- **Known gaps:** validation errors have no `code` (API-08), and the tests marked "not yet" above are still missing (API-11, WEB-10, WEB-11).
+- **Known gaps:** the tests marked "not yet" above are still missing (API-11, WEB-10, WEB-11).

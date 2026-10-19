@@ -4,9 +4,40 @@
  * ships raw .ts with no build step, so consumers only import types from it.
  *
  * Backend: annotate the literal you throw against this type, so a typo is
- * caught at compile time instead of silently reaching the client.
- * Frontend: type ApiError.code against this (plus a fallback string) so
- * the i18n error dictionary can be checked against the same set of keys.
+ * caught at compile time instead of silently reaching the client. The global
+ * exception filter gives errors thrown without a code a generic one from their
+ * HTTP status (BAD_REQUEST, UNAUTHORIZED, NOT_FOUND, TOO_MANY_REQUESTS,
+ * INTERNAL_ERROR).
+ * Frontend: type ApiError.code against this, so the i18n error dictionary
+ * must have a message for every code.
  */
-export type AuthErrorCode =
-  'EMAIL_ALREADY_REGISTERED' | 'INVALID_CREDENTIALS' | 'TOO_MANY_REQUESTS';
+export type ApiErrorCode =
+  // Auth
+  | 'EMAIL_ALREADY_REGISTERED'
+  | 'INVALID_CREDENTIALS'
+  | 'UNAUTHORIZED'
+  | 'SESSION_EXPIRED'
+  | 'TOO_MANY_REQUESTS'
+  // Generic
+  | 'VALIDATION_FAILED'
+  | 'BAD_REQUEST'
+  | 'NOT_FOUND'
+  | 'INTERNAL_ERROR';
+
+/** One violated rule of a request field, in a VALIDATION_FAILED response. */
+export interface ValidationErrorDetail {
+  /** Dotted path of the field, e.g. `email` or `address.city`. */
+  field: string;
+  /** class-validator constraint name, e.g. `isEmail`, `minLength`, `whitelistValidation`. */
+  constraint: string;
+  /** English description, for logs and developers, not for display. */
+  message: string;
+}
+
+/** Body of every API error response. The HTTP status is not repeated in it. */
+export interface ApiErrorResponse {
+  code: ApiErrorCode;
+  message: string;
+  /** Only on VALIDATION_FAILED. */
+  details?: ValidationErrorDetail[];
+}

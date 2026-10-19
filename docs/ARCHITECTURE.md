@@ -63,6 +63,10 @@ A single repo keeps `apps/web` and `apps/api` in sync on shared types (`packages
 
 The browser never calls the API: the Next.js route handlers in `apps/web/app/api/` do (`docs/DECISIONS.md` #005), so the API sees the BFF's address, not the player's. For rate limiting, the BFF forwards the player's IP in `X-Client-IP`, together with `X-BFF-Secret`, which carries the `BFF_SECRET` both apps share. The API trusts the forwarded IP only with a matching secret, and otherwise limits by `req.ip`, which `TRUST_PROXY_HOPS` makes the address the platform proxy saw. Login and register are limited per IP, and login also per email (`@nestjs/throttler`, in-memory counters); see `docs/DECISIONS.md` #017.
 
+### Error responses
+
+Every error the API returns has the body `{ code, message, details? }` (`ApiErrorResponse` in `@ashen-contracts/shared`); the HTTP status is not repeated in it. `code` is an `ApiErrorCode`, which the web app translates (`apps/web/messages/en.json`, checked against the union at compile time); `message` is English for developers. Code throws an `HttpException` with `{ code, message }`. The global `ApiExceptionFilter` (`src/common/errors/apiException.filter.ts`, an `APP_FILTER` in `AppModule`) keeps that code, gives errors thrown without one (Nest's 404 for an unknown route, a malformed JSON body) a generic code from their status, and turns anything unexpected into a 500 `INTERNAL_ERROR`. Every 5xx, a deliberately thrown one included, is answered with a fixed message and no `details`, and the real error is logged. Validation errors are 400 `VALIDATION_FAILED`, with one `details` entry per violated rule (`field`, class-validator `constraint`, `message`). See `docs/DECISIONS.md` #018.
+
 ## Background jobs (Redis + BullMQ)
 
 Any player action with a real-world duration (training, crafting, later: building) is handled as a queued, delayed job rather than a timer trusted to survive in memory:

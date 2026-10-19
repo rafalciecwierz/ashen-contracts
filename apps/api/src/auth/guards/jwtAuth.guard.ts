@@ -5,9 +5,9 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
-import { JwtService } from '@nestjs/jwt';
+import { JwtService, TokenExpiredError } from '@nestjs/jwt';
 import type { Request } from 'express';
-import type { AuthErrorCode, JwtPayload } from '@ashen-contracts/shared';
+import type { ApiErrorCode, JwtPayload } from '@ashen-contracts/shared';
 import { IS_PUBLIC_KEY } from '../decorators';
 
 @Injectable()
@@ -28,7 +28,7 @@ export class JwtAuthGuard implements CanActivate {
     const token = extractTokenFromHeader(request);
 
     if (!token) {
-      const code: AuthErrorCode = 'INVALID_CREDENTIALS';
+      const code: ApiErrorCode = 'UNAUTHORIZED';
       throw new UnauthorizedException({ code, message: 'Missing token' });
     }
 
@@ -38,12 +38,15 @@ export class JwtAuthGuard implements CanActivate {
       // "who is making this request" later (e.g. @CurrentUser() decorator,
       // to be added when the first protected endpoint actually needs it).
       (request as Request & { user: JwtPayload }).user = payload;
-    } catch {
-      const code: AuthErrorCode = 'INVALID_CREDENTIALS';
-      throw new UnauthorizedException({
-        code,
-        message: 'Invalid or expired token',
-      });
+    } catch (error) {
+      // An expired session is told apart so the client can say "log in again"
+      // instead of a generic error; a forged or malformed token is not.
+      if (error instanceof TokenExpiredError) {
+        const code: ApiErrorCode = 'SESSION_EXPIRED';
+        throw new UnauthorizedException({ code, message: 'Token expired' });
+      }
+      const code: ApiErrorCode = 'UNAUTHORIZED';
+      throw new UnauthorizedException({ code, message: 'Invalid token' });
     }
 
     return true;

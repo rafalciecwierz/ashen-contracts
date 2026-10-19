@@ -5,7 +5,7 @@ import {
   Injectable,
 } from '@nestjs/common';
 import { ThrottlerGuard, ThrottlerLimitDetail } from '@nestjs/throttler';
-import { AuthErrorCode } from '@ashen-contracts/shared';
+import type { ApiErrorCode } from '@ashen-contracts/shared';
 
 /**
  * ThrottlerGuard with the API's error contract: a 429 carries a `code` like
@@ -21,7 +21,7 @@ export class AuthThrottlerGuard extends ThrottlerGuard {
     const { res } = this.getRequestResponse(context);
     this.setResponseHeader(res, 'Retry-After', timeToBlockExpire);
 
-    const code: AuthErrorCode = 'TOO_MANY_REQUESTS';
+    const code: ApiErrorCode = 'TOO_MANY_REQUESTS';
     throw new HttpException(
       { code, message: 'Too many attempts. Try again later.' },
       HttpStatus.TOO_MANY_REQUESTS,
