@@ -35,8 +35,7 @@ export class JwtAuthGuard implements CanActivate {
     try {
       const payload = await this.jwtService.verifyAsync<JwtPayload>(token);
       // Attach the decoded payload to the request so route handlers can read
-      // "who is making this request" later (e.g. @CurrentUser() decorator,
-      // to be added when the first protected endpoint actually needs it).
+      // who is making it (the @CurrentUser() decorator).
       (request as Request & { user: JwtPayload }).user = payload;
     } catch (error) {
       // An expired session is told apart so the client can say "log in again"

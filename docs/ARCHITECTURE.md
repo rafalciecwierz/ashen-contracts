@@ -84,18 +84,18 @@ Used for push notifications only (action completed, event triggered) — not for
 ## Testing
 
 - **Vitest** — unit tests, focused on the logic that actually carries risk: resource math, queue job handlers, skill-check resolution
-- **Vitest + supertest** — API integration tests (`apps/api/test/*.integration-spec.ts`, `pnpm --filter api test:integration`): boot the whole NestJS app and send real HTTP requests through guards, pipes and controllers to the database. NestJS templates call these "e2e"; here "e2e" is reserved for browser tests of the full system
+- **Vitest + supertest** — API integration tests (`apps/api/test/*.integration-spec.ts`, `pnpm --filter api test:integration`): boot the whole NestJS app and send real HTTP requests through guards, pipes and controllers to the database. NestJS templates call these "e2e"; here "e2e" is reserved for browser tests of the full system. Most replace `PrismaService` with an in-memory fake (`test/fakePrisma.ts`), but `GET /health` pings the real database, so they need Postgres running (`docker compose up -d` locally; a `postgres` service container in CI)
 - **Playwright** — browser end-to-end tests of the whole system in `apps/e2e`, run with `pnpm test:e2e` (planned, see `docs/DECISIONS.md` #015): the auth flow first, then the core loop (create character → run expedition → resolve event)
 
 ## Deployment
 
-| Component                 | Platform                          | Notes                                                                                                                              |
-| ------------------------- | --------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------- |
-| `apps/web`                | Vercel                            | Root Directory set to `apps/web`; Vercel installs from the workspace root so `packages/ui` and `packages/shared` resolve correctly |
-| `apps/api`                | Railway / Render                  | Deployed via Dockerfile (multi-stage build copying required `packages/*`)                                                          |
-| PostgreSQL                | Railway / Render managed instance |                                                                                                                                    |
-| Redis                     | Railway / Render managed instance | Required by BullMQ                                                                                                                 |
-| `packages/ui` (Storybook) | Chromatic                         | Separate public link, independent of the game deployment                                                                           |
+| Component                 | Platform                          | Notes                                                                                                                                                      |
+| ------------------------- | --------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `apps/web`                | Vercel                            | Root Directory set to `apps/web`; Vercel installs from the workspace root so `packages/ui` and `packages/shared` resolve correctly                         |
+| `apps/api`                | Railway / Render                  | Deployed via Dockerfile (multi-stage build copying required `packages/*`). Health check path: `GET /health` (200, or 503 when the database is unreachable) |
+| PostgreSQL                | Railway / Render managed instance |                                                                                                                                                            |
+| Redis                     | Railway / Render managed instance | Required by BullMQ                                                                                                                                         |
+| `packages/ui` (Storybook) | Chromatic                         | Separate public link, independent of the game deployment                                                                                                   |
 
 ## Local development
 

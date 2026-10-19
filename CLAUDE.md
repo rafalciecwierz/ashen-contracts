@@ -51,6 +51,7 @@ Purpose: a portfolio project to demonstrate full-stack engineering (frontend-fir
 - `pnpm install` — install all workspace dependencies (also generates the Prisma client and installs the commit hook)
 - `pnpm dev` — run web + api locally
 - `pnpm test` — unit tests in every workspace (UI story tests need `pnpm --filter @ashen-contracts/ui exec playwright install chromium` once)
+- `pnpm --filter api test:integration` — API integration tests (need Postgres from `docker compose up -d`)
 - `pnpm typecheck` — `tsc --noEmit` in every workspace
 - `pnpm lint` — ESLint in every workspace (`pnpm --filter <name> lint:fix` to auto-fix)
 - `pnpm format` / `pnpm format:check` — Prettier for the whole repo (config at the root)

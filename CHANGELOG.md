@@ -10,6 +10,7 @@ Each entry should be short — a git-log summary, not a design doc. Detailed rea
 
 ### Added
 
+- `GET /health` on the API (`@nestjs/terminus`, database ping) for the hosting platform's health check, replacing the Hello World route; API integration tests now run in CI against a Postgres service container
 - `packages/ui`: Storybook (react-vite) setup with Button, Input, and Modal (built on Radix UI `Dialog`) components
 - Shared Tailwind v4 design tokens (`packages/ui/src/styles/theme.css`) consumed by both Storybook and `apps/web`
 - `/register` screen: form with Zod validation, typed API client (`apiPost`/`ApiError`), centralized route/endpoint constants (`AppPaths`, `ApiEndpoints`)
