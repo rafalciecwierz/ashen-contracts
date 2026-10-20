@@ -26,9 +26,9 @@ export type ApiErrorCode =
 
 /** One violated rule of a request field, in a VALIDATION_FAILED response. */
 export interface ValidationErrorDetail {
-  /** Dotted path of the field, e.g. `email` or `address.city`. */
+  /** Dotted path of the field, e.g. `email` or `address.city`; empty for the body itself. */
   field: string;
-  /** class-validator constraint name, e.g. `isEmail`, `minLength`, `whitelistValidation`. */
+  /** Zod issue code, e.g. `invalid_format`, `too_small`, `unrecognized_keys`. */
   constraint: string;
   /** English description, for logs and developers, not for display. */
   message: string;

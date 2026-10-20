@@ -110,7 +110,7 @@ apps/
   api/          → NestJS backend
 packages/
   ui/           → shared component library (Storybook)
-  shared/       → shared TypeScript types/DTOs
+  shared/       → shared TypeScript types and Zod validation schemas
 docs/           → game design, roadmap, architecture decisions
 ```
 

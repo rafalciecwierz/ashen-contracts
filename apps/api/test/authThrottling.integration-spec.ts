@@ -106,8 +106,8 @@ describe('Auth rate limiting (integration)', () => {
 
   describe('POST /auth/login per email (10 per 15 minutes)', () => {
     it('returns 429 on the 11th attempt for one account from any IP', async () => {
-      // Case variants count as one account: the tracker normalizes the email
-      // like the DTO does.
+      // Case variants count as one account: the tracker parses the email with
+      // the same schema as the validation pipe.
       for (let i = 0; i < 10; i++) {
         const email = i % 2 ? 'victim@example.com' : ' Victim@Example.com';
         await login(email, viaBff(`203.0.113.${i}`)).expect(401);

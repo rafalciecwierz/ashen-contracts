@@ -1,10 +1,9 @@
-import z from 'zod';
-import { validationKey } from '@/src/i18n/validationKey';
+import type { LoginInput } from '@ashen-contracts/shared';
+import { validationKeysByField } from '@/src/i18n/validationKey';
 
-// No password min-length here, unlike registerSchema — login should attempt
-// against whatever the user typed, never leak password-strength rules at
-// the login step. The backend DTO mirrors this (just @IsString, no @MinLength).
-export const loginSchema = z.object({
-  email: z.email({ error: validationKey('invalidEmail') }),
-  password: z.string().min(1, { error: validationKey('passwordRequired') }),
+// The rules are loginSchema from @ashen-contracts/shared, the one the API
+// validates with; this file only picks the message for each field.
+export const loginErrorKeys = validationKeysByField<LoginInput>({
+  email: 'invalidEmail',
+  password: 'passwordRequired',
 });

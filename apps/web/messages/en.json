@@ -32,7 +32,7 @@
   "validation": {
     "invalidEmail": "Enter a valid email address.",
     "passwordRequired": "Enter your password.",
-    "passwordTooShort": "Password must be at least 8 characters.",
+    "passwordTooShort": "Password must be at least {min} characters.",
     "passwordsDoNotMatch": "Passwords do not match."
   },
   "errors": {

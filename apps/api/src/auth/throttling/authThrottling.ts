@@ -1,7 +1,7 @@
 import { ConfigService } from '@nestjs/config';
 import { hours, minutes, ThrottlerModuleOptions } from '@nestjs/throttler';
 import { Env } from '../../config/env.schema';
-import { normalizeEmail } from '../decorators/normalizeEmail.decorator';
+import { emailSchema } from '@ashen-contracts/shared';
 import { RequestLike, resolveClientIp } from './clientIp';
 
 // Two throttlers. `ip` counts requests per player IP and slows down one
@@ -34,12 +34,13 @@ export function authThrottlerOptions(
       {
         name: 'email',
         ...LOGIN_LIMITS.email,
-        // Guards run before the ValidationPipe, so the body is still raw here:
-        // normalize it the same way the DTO will. A body without a string
-        // email gets a 400 from the pipe; until then it shares one bucket.
+        // Guards run before the validation pipe, so the body is still raw
+        // here: parse the email with the schema the pipe will use, so both
+        // see the same normalized address. A body without a valid email gets
+        // a 400 from the pipe; until then it shares one bucket.
         getTracker: (req: { body?: { email?: unknown } }) => {
-          const email = normalizeEmail(req.body?.email);
-          return typeof email === 'string' ? email : '';
+          const email = emailSchema.safeParse(req.body?.email);
+          return email.success ? email.data : '';
         },
       },
     ],

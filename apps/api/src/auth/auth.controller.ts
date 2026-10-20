@@ -8,10 +8,13 @@ import {
 } from '@nestjs/common';
 import { SkipThrottle, Throttle } from '@nestjs/throttler';
 import { AuthService } from './auth.service';
-import { LoginDto, RegisterDto } from './dto';
 import {
   JwtPayload,
+  loginSchema,
+  LoginInput,
   LoginResponse,
+  registerSchema,
+  RegisterInput,
   RegisterResponse,
 } from '@ashen-contracts/shared';
 import { CurrentUser, Public } from './decorators';
@@ -28,7 +31,9 @@ export class AuthController {
   @UseGuards(AuthThrottlerGuard)
   @Throttle(REGISTER_LIMITS)
   @SkipThrottle({ email: true })
-  register(@Body() dto: RegisterDto): Promise<RegisterResponse> {
+  register(
+    @Body({ schema: registerSchema }) dto: RegisterInput,
+  ): Promise<RegisterResponse> {
     return this.authService.register(dto);
   }
 
@@ -37,7 +42,9 @@ export class AuthController {
   @HttpCode(200)
   @UseGuards(AuthThrottlerGuard)
   @Throttle(LOGIN_LIMITS)
-  login(@Body() dto: LoginDto): Promise<LoginResponse> {
+  login(
+    @Body({ schema: loginSchema }) dto: LoginInput,
+  ): Promise<LoginResponse> {
     return this.authService.login(dto);
   }
 

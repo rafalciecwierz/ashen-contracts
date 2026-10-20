@@ -35,7 +35,7 @@ apps/
   api/          NestJS backend (TypeScript)
 packages/
   ui/           Shared component library, documented in Storybook
-  shared/       Shared types/DTOs used by both web and api
+  shared/       Shared types and Zod validation schemas used by both web and api
 docs/           Game design, roadmap, architecture, decisions
 ```
 
@@ -67,7 +67,7 @@ The browser never makes HTTP requests to the API: the Next.js route handlers in 
 
 ### Error responses
 
-Every error the API returns has the body `{ code, message, details? }` (`ApiErrorResponse` in `@ashen-contracts/shared`); the HTTP status is not repeated in it. `code` is an `ApiErrorCode`, which the web app translates (`apps/web/messages/en.json`, checked against the union at compile time); `message` is English for developers. Code throws an `HttpException` with `{ code, message }`. The global `ApiExceptionFilter` (`src/common/errors/apiException.filter.ts`, an `APP_FILTER` in `AppModule`) keeps that code, gives errors thrown without one (Nest's 404 for an unknown route, a malformed JSON body) a generic code from their status, and turns anything unexpected into a 500 `INTERNAL_ERROR`. Every 5xx, a deliberately thrown one included, is answered with a fixed message and no `details`, and the real error is logged. Validation errors are 400 `VALIDATION_FAILED`, with one `details` entry per violated rule (`field`, class-validator `constraint`, `message`). See `docs/DECISIONS.md` #018.
+Every error the API returns has the body `{ code, message, details? }` (`ApiErrorResponse` in `@ashen-contracts/shared`); the HTTP status is not repeated in it. `code` is an `ApiErrorCode`, which the web app translates (`apps/web/messages/en.json`, checked against the union at compile time); `message` is English for developers. Code throws an `HttpException` with `{ code, message }`. The global `ApiExceptionFilter` (`src/common/errors/apiException.filter.ts`, an `APP_FILTER` in `AppModule`) keeps that code, gives errors thrown without one (Nest's 404 for an unknown route, a malformed JSON body) a generic code from their status, and turns anything unexpected into a 500 `INTERNAL_ERROR`. Every 5xx, a deliberately thrown one included, is answered with a fixed message and no `details`, and the real error is logged. Validation errors are 400 `VALIDATION_FAILED`, with one `details` entry per violated rule (`field`, Zod issue code as `constraint`, `message`). See `docs/DECISIONS.md` #018 and #022.
 
 ## Background jobs (Redis + BullMQ)
 

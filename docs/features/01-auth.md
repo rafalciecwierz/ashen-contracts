@@ -32,7 +32,7 @@ Every route requires a valid JWT by default (global `JwtAuthGuard`); public rout
 - `POST /auth/login` (public) — { email, password } → validates, returns 200 with `LoginResponse` ({ accessToken })
 - `GET /auth/me` — `Authorization: Bearer <token>` → returns `MeResponse` ({ id, email }) of the authenticated player
 
-Error responses carry a stable `code` (`ApiErrorCode` in `@ashen-contracts/shared`) next to the human-readable `message`, so the frontend translates by code instead of parsing English text. Every error body has the shape `{ code, message, details? }` (`ApiErrorResponse`; see "Error responses" in `docs/ARCHITECTURE.md`). Validation errors come from the global `ValidationPipe` (an `APP_PIPE` provider in `AppModule`): 400 `VALIDATION_FAILED`, with one `details` entry per violated rule. It rejects fields a DTO does not declare and turns the body into a DTO instance.
+Error responses carry a stable `code` (`ApiErrorCode` in `@ashen-contracts/shared`) next to the human-readable `message`, so the frontend translates by code instead of parsing English text. Every error body has the shape `{ code, message, details? }` (`ApiErrorResponse`; see "Error responses" in `docs/ARCHITECTURE.md`). Request bodies are validated against `registerSchema` and `loginSchema` (Zod, `packages/shared/src/schemas/auth.schema.ts`) by the global `StandardSchemaValidationPipe` (an `APP_PIPE` provider in `AppModule`; `docs/DECISIONS.md` #022): 400 `VALIDATION_FAILED`, with one `details` entry per violated rule. It rejects fields the schema does not declare and passes the parsed, normalized body on.
 
 ## Edge cases to handle
 
@@ -41,9 +41,9 @@ Error responses carry a stable `code` (`ApiErrorCode` in `@ashen-contracts/share
 - Missing, malformed or forged JWT on a protected route → 401, `UNAUTHORIZED`; an expired one → 401, `SESSION_EXPIRED`
 - Valid JWT for an account that no longer exists → 401, `UNAUTHORIZED` on `GET /auth/me`
 - Password shorter than 8 characters on register → 400, `VALIDATION_FAILED`, before hitting the database
-- Missing `email` or `password`, or a field the DTO does not declare → 400, `VALIDATION_FAILED`, on register and login
+- Missing `email` or `password`, an empty login password, or a field the schema does not declare → 400, `VALIDATION_FAILED`, on register and login
 - Too many attempts → 429, `TOO_MANY_REQUESTS`, with a `Retry-After` header in seconds: login allows 5 per minute per player IP and 10 per 15 minutes per email, register 3 per hour per player IP. Behind the BFF the player IP comes from `X-Client-IP`, trusted only with the BFF secret (`docs/DECISIONS.md` #017); the form shows the error inline
-- Email casing and surrounding whitespace → ignored: register and login trim and lowercase the email in the DTO (`@NormalizeEmail()`), so `Test@X.com` and `test@x.com` are one account and the stored email is lowercase
+- Email casing and surrounding whitespace → ignored: register and login trim and lowercase the email in the shared `emailSchema`, so `Test@X.com` and `test@x.com` are one account and the stored email is lowercase
 
 ## Frontend (apps/web)
 
@@ -68,7 +68,7 @@ Resolved in `docs/DECISIONS.md` #005 (originally an open decision here, with `lo
 ### States each screen must handle
 
 - Loading (submit button disabled, label changes while the request is in flight)
-- Field-level validation errors (Zod schemas next to each route) — mirror the backend's `class-validator` rules so the user gets instant feedback, not just a failed round-trip. Register requires a valid email and a password of at least 8 characters, plus a matching confirmation; login only requires a valid email and a non-empty password, so the login form never reveals password rules
+- Field-level validation errors — the forms parse with the API's own schemas from `@ashen-contracts/shared` (register adds the confirmation field), so the user gets instant feedback, not just a failed round-trip, and the rules can't drift. Each route's `*.schema.ts` maps every field to its translation key. Register requires a valid email and a password of at least 8 characters, plus a matching confirmation; login only requires a valid email and a non-empty password, so the login form never reveals password rules
 - Server error (409 duplicate email on register, 401 bad credentials on login) — translated from the error `code` and shown inline on the form, never a full-page crash
 - Success — redirect fires (after login, the cookie is already set)
 

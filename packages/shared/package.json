@@ -13,12 +13,17 @@
     }
   },
   "scripts": {
-    "build": "tsc",
-    "dev": "tsc --watch --preserveWatchOutput",
+    "build": "tsc -p tsconfig.build.json",
+    "dev": "tsc -p tsconfig.build.json --watch --preserveWatchOutput",
     "typecheck": "tsc --noEmit",
-    "postinstall": "tsc"
+    "test": "vitest run",
+    "postinstall": "tsc -p tsconfig.build.json"
+  },
+  "dependencies": {
+    "zod": "catalog:"
   },
   "devDependencies": {
-    "typescript": "catalog:"
+    "typescript": "catalog:",
+    "vitest": "^5.0.2"
   }
 }

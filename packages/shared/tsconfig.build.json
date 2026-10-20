@@ -1,0 +1,5 @@
+{
+  "extends": "./tsconfig.json",
+  // The build leaves the tests out of dist/; `typecheck` (tsconfig.json) checks them.
+  "exclude": ["src/**/*.spec.ts"]
+}

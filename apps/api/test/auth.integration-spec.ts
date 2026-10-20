@@ -6,7 +6,7 @@ import request from 'supertest';
 import type { ApiErrorResponse } from '@ashen-contracts/shared';
 import { AppModule } from './../src/app.module';
 
-// These requests are rejected by the global ValidationPipe before they reach
+// These requests are rejected by the global validation pipe before they reach
 // AuthService, so no database is needed. A 400 here proves the pipe is
 // registered in AppModule, not only in main.ts (docs/DECISIONS.md #016).
 describe('Auth request validation (integration)', () => {
@@ -38,8 +38,8 @@ describe('Auth request validation (integration)', () => {
         details: expect.arrayContaining([
           {
             field: 'email',
-            constraint: 'isEmail',
-            message: 'email must be an email',
+            constraint: 'invalid_type',
+            message: 'Invalid input: expected string, received undefined',
           },
         ]) as unknown,
       });
@@ -69,10 +69,34 @@ describe('Auth request validation (integration)', () => {
       expect((res.body as ApiErrorResponse).details).toEqual([
         {
           field: 'isAdmin',
-          constraint: 'whitelistValidation',
-          message: 'property isAdmin should not exist',
+          constraint: 'unrecognized_keys',
+          message: 'Unrecognized key: "isAdmin"',
         },
       ]);
     });
+  });
+
+  it('rejects a registration password shorter than 8 characters', async () => {
+    const res = await request(app.getHttpServer())
+      .post('/auth/register')
+      .send({ email: 'player@example.com', password: '1234567' })
+      .expect(400);
+
+    expect((res.body as ApiErrorResponse).details).toEqual([
+      {
+        field: 'password',
+        constraint: 'too_small',
+        message: 'Too small: expected string to have >=8 characters',
+      },
+    ]);
+  });
+
+  it('rejects an empty login password before checking credentials', async () => {
+    const res = await request(app.getHttpServer())
+      .post('/auth/login')
+      .send({ email: 'player@example.com', password: '' })
+      .expect(400);
+
+    expect((res.body as ApiErrorResponse).code).toBe('VALIDATION_FAILED');
   });
 });

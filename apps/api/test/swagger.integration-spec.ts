@@ -1,4 +1,4 @@
-import { afterEach, describe, it } from 'vitest';
+import { afterEach, describe, expect, it } from 'vitest';
 import { Test } from '@nestjs/testing';
 import { INestApplication } from '@nestjs/common';
 import { Server } from 'node:http';
@@ -27,6 +27,30 @@ describe('Swagger (integration)', () => {
   it('serves the API docs at /api in development', async () => {
     await createApp('development');
     await request(app.getHttpServer()).get('/api').expect(200);
+  });
+
+  it('describes request bodies from their Zod schemas', async () => {
+    await createApp('development');
+    const res = await request(app.getHttpServer()).get('/api-json').expect(200);
+
+    const doc = res.body as {
+      paths: Record<string, Record<string, { requestBody?: unknown }>>;
+    };
+    expect(doc.paths['/auth/register'].post.requestBody).toMatchObject({
+      content: {
+        'application/json': {
+          schema: {
+            type: 'object',
+            properties: {
+              email: { type: 'string', format: 'email' },
+              password: { type: 'string', minLength: 8 },
+            },
+            required: ['email', 'password'],
+            additionalProperties: false,
+          },
+        },
+      },
+    });
   });
 
   it.each(['production', 'test'] as const)(

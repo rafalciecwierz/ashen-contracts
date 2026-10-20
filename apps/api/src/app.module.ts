@@ -1,4 +1,4 @@
-import { Module, ValidationPipe } from '@nestjs/common';
+import { Module, StandardSchemaValidationPipe } from '@nestjs/common';
 import { APP_FILTER, APP_PIPE } from '@nestjs/core';
 import { ConfigModule } from '@nestjs/config';
 import { validateEnv } from './config/env.schema';
@@ -19,12 +19,11 @@ import { validationException } from './common/errors/validationException';
     // Registered here, not with app.useGlobalPipes()/useGlobalFilters() in
     // main.ts, so every app built from this module validates requests and
     // answers with the error contract, including integration tests.
+    // The pipe validates each parameter against the schema attached to it,
+    // e.g. @Body({ schema: registerSchema }), and passes the parsed value on.
     {
       provide: APP_PIPE,
-      useValue: new ValidationPipe({
-        whitelist: true,
-        forbidNonWhitelisted: true,
-        transform: true,
+      useValue: new StandardSchemaValidationPipe({
         exceptionFactory: validationException,
       }),
     },

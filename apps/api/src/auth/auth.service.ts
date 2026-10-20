@@ -7,12 +7,13 @@ import * as bcrypt from 'bcrypt';
 import { randomUUID } from 'node:crypto';
 import { PrismaService } from '../prisma/prisma.service';
 import { Prisma } from '../generated/prisma/client';
-import { LoginDto, RegisterDto } from './dto';
 import { JwtService } from '@nestjs/jwt';
 import {
   ApiErrorCode,
+  LoginInput,
   LoginResponse,
   MeResponse,
+  RegisterInput,
   RegisterResponse,
 } from '@ashen-contracts/shared';
 
@@ -45,7 +46,7 @@ export class AuthService {
     private jwt: JwtService,
   ) {}
 
-  async register(dto: RegisterDto): Promise<RegisterResponse> {
+  async register(dto: RegisterInput): Promise<RegisterResponse> {
     const existing = await this.prisma.player.findUnique({
       where: { email: dto.email },
     });
@@ -78,7 +79,7 @@ export class AuthService {
     }
   }
 
-  async login(dto: LoginDto): Promise<LoginResponse> {
+  async login(dto: LoginInput): Promise<LoginResponse> {
     const player = await this.prisma.player.findUnique({
       where: { email: dto.email },
     });
