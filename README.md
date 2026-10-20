@@ -81,7 +81,7 @@ cd ashen-contracts
 # start PostgreSQL and Redis in Docker
 docker compose up -d
 
-# install (workspace-aware; also generates the Prisma client)
+# install (workspace-aware; also builds packages/shared and generates the Prisma client)
 pnpm install
 
 # configure env variables (each file documents its variables; the defaults work locally,
@@ -110,7 +110,7 @@ apps/
   api/          → NestJS backend
 packages/
   ui/           → shared component library (Storybook)
-  shared/       → shared TypeScript types/DTOs
+  shared/       → shared TypeScript types and Zod validation schemas
 docs/           → game design, roadmap, architecture decisions
 ```
 

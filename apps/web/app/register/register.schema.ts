@@ -1,16 +1,20 @@
 import z from 'zod';
-import { validationKey } from '@/src/i18n/validationKey';
+import { registerSchema } from '@ashen-contracts/shared';
+import { validationKey, validationKeysByField } from '@/src/i18n/validationKey';
 
-// Each `error` here is a translation KEY (looked up in the "validation"
-// namespace of messages/en.json), not the final displayed text — the schema
-// lives outside any component, so it can't call useTranslations() itself.
-export const registerSchema = z
-  .object({
-    email: z.email({ error: validationKey('invalidEmail') }),
-    password: z.string().min(8, { error: validationKey('passwordTooShort') }),
-    confirmPassword: z.string(),
-  })
+// The API's rules (shared with it) plus the confirmation field, which only
+// the form has: the API never sees confirmPassword.
+export const registerFormSchema = registerSchema
+  .extend({ confirmPassword: z.string() })
   .refine((data) => data.password === data.confirmPassword, {
     error: validationKey('passwordsDoNotMatch'),
     path: ['confirmPassword'],
   });
+
+export const registerErrorKeys = validationKeysByField<
+  z.input<typeof registerFormSchema>
+>({
+  email: 'invalidEmail',
+  password: 'passwordTooShort',
+  confirmPassword: 'passwordsDoNotMatch',
+});

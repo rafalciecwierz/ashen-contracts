@@ -4,7 +4,8 @@ import { useState, type SubmitEvent } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { Input, Button } from '@ashen-contracts/ui';
-import { loginSchema } from '../login.schema';
+import { loginSchema } from '@ashen-contracts/shared';
+import { loginErrorKeys } from '../login.schema';
 import type { LoginFieldErrors } from '../login.types';
 import type { ValidationMessageKey } from '@/src/i18n/validationKey';
 import { AppPaths } from '@/src/routes/routes';
@@ -33,7 +34,10 @@ export function LoginForm() {
   const [loading, setLoading] = useState(false);
 
   function validate(): boolean {
-    const result = loginSchema.safeParse({ email, password });
+    const result = loginSchema.safeParse(
+      { email, password },
+      { error: loginErrorKeys },
+    );
     if (result.success) {
       setFieldErrors({});
       return true;

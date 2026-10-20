@@ -5,6 +5,8 @@ packages:
 # Shared dependency versions, referenced as "catalog:" in each package.json
 catalog:
   typescript: ~6.0.3
+  # One Zod for the apps and packages/shared: schemas built in shared are extended in the web app
+  zod: ^4.6.5
 
 allowBuilds:
   '@nestjs/core': true

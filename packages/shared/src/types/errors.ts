@@ -1,7 +1,7 @@
 /**
- * Stable error codes the API can return. Kept as a type-only union (no
- * runtime object), like everything else in packages/shared: the package
- * ships raw .ts with no build step, so consumers only import types from it.
+ * Stable error codes the API can return. A type-only union (no runtime
+ * object): nothing needs to list the codes at runtime, and a union costs
+ * nothing in either app's bundle.
  *
  * Backend: annotate the literal you throw against this type, so a typo is
  * caught at compile time instead of silently reaching the client. The global
@@ -26,9 +26,9 @@ export type ApiErrorCode =
 
 /** One violated rule of a request field, in a VALIDATION_FAILED response. */
 export interface ValidationErrorDetail {
-  /** Dotted path of the field, e.g. `email` or `address.city`. */
+  /** Dotted path of the field, e.g. `email` or `address.city`; empty for the body itself. */
   field: string;
-  /** class-validator constraint name, e.g. `isEmail`, `minLength`, `whitelistValidation`. */
+  /** Zod issue code, e.g. `invalid_format`, `too_small`, `unrecognized_keys`. */
   constraint: string;
   /** English description, for logs and developers, not for display. */
   message: string;

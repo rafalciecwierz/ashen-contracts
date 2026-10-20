@@ -16,7 +16,7 @@ Status legend: ⬜ TODO · 🔶 IN PROGRESS · ✅ DONE · 🚫 DROPPED
 1. **Critical:** CRIT-01 → CRIT-05
 2. **Safety net:** REPO-01 (CI), REPO-02 (docker-compose), REPO-03
 3. **Docs and AI context in sync:** AI-01, DOC-01, DOC-02, AI-02
-4. **API hardening:** API-01 → API-13
+4. **API hardening:** API-01 → API-14
 5. **Frontend:** WEB-01 → WEB-13, UI-01 → UI-06
 6. Everything else, then continue with the v0.1 roadmap (character creation)
 
@@ -753,11 +753,29 @@ Found on the way, not changed: the guard accepts only `Bearer` with that exact c
 - Count only failed attempts for the per-email limit: `@nestjs/throttler` has no option for that, so it needs a counter in `AuthService.login` on `INVALID_CREDENTIALS`, not a throttler.
 - Record the decision in a new ADR (it changes #017's consequences). A new device during an attack can still be locked out; CAPTCHA or an email link would fix that, but need new infrastructure and are out of scope.
 
+### API-14 — Turn on `strictPropertyInitialization` in `apps/api`
+
+**Status:** ⬜ TODO
+
+**Problem:** `docs/DECISIONS.md` #016 turned the flag off because DTO classes have fields that only the `ValidationPipe` fills. Since SHARED-01 (#022) there are no DTO classes: request bodies are Zod schemas, typed with `z.infer`. The flag is off with nothing left that needs it, so a class field that is never initialized compiles silently.
+
+**Fix:** Remove `"strictPropertyInitialization": false` and its comment from `apps/api/tsconfig.json`, fix whatever `tsc` reports, and record it as a new ADR that supersedes #016 (#016 gets a `Superseded by` line). Update the strict-mode bullet in CLAUDE.md.
+
+**Done when:** `apps/api/tsconfig.json` has full `strict` with no exceptions, and `pnpm typecheck` passes.
+
 ## SHARED — `packages/shared`
 
 ### SHARED-01 — Single source of truth for validation rules
 
-**Status:** ⬜ TODO
+**Status:** ✅ DONE (2026-10-20)
+
+**Notes:** Done in two commits, both with ADRs; the target (shared Zod schemas), not the minimum (shared constants), after explaining both to the owner.
+
+- **Build step** (#021): `packages/shared` compiles with `tsc` to ES modules in `dist/`, which both apps import. The API runs `node dist/main` and Node won't run TypeScript from a dependency, so runtime code needs JavaScript; the CommonJS API loads it through `require(esm)`. `postinstall` builds it on a fresh install, `pnpm dev` watches it, and the root `test`, `lint` and `typecheck` rebuild it first, because `pnpm install` with an unchanged lockfile skips `postinstall`. Relative imports in the package end in `.js` (explained in #021).
+- **Schemas** (#022): `packages/shared/src/schemas/auth.schema.ts` holds `emailSchema` (trim and lowercase, then the email check), `registerSchema`, `loginSchema`, `PASSWORD_MIN_LENGTH` and the input types, with Vitest tests in the package. The API uses NestJS 12's built-in Standard Schema support: `@Body({ schema })` and a global `StandardSchemaValidationPipe` with the existing `exceptionFactory` rewritten for Zod issues. `nestjs-zod`, which the task named, declares peers only up to NestJS 11, and Nest 12 does the same natively, Swagger included (`.meta({ example })` replaces `@ApiProperty`). The DTOs, `@NormalizeEmail()` and `class-validator`/`class-transformer` are gone; the per-email throttler parses the email with `emailSchema`. The web app's forms parse with the shared schemas and a per-field error map of translation keys (`validationKeysByField` in `src/i18n/validationKey.ts`); register adds `confirmPassword` with `.extend()`. `passwordTooShort` in `en.json` now takes `{min}` from `PASSWORD_MIN_LENGTH`, so the last copy of the number is gone too. Zod has one version through the pnpm catalog.
+- **Deviations:** `details[].constraint` in validation errors (#018) is now a Zod issue code, and an error about the whole body has `field: ''`. Login now rejects an empty password with 400 before checking credentials (it was 401), because `loginSchema` requires a non-empty one, as the login form always did. The DOC-02 note about `import type` in `api.ts` was already resolved.
+- **Verified:** `pnpm lint`, `typecheck`, `format:check`, `test` (shared 15, API 59, UI 14) and `build`; API integration tests against the docker-compose Postgres (32, with new cases for a short register password, an empty login password and Swagger documenting the register body from the schema); in the browser through `pnpm dev`: invalid register input shows the three translated messages (with 8 from the constant), then register, an empty-password login error and a login through the BFF to `/play`, with no console errors.
+- **Left for other tasks:** turning on `strictPropertyInitialization`, now that no DTO classes need it off (new API-14). `next-intl` doesn't check at compile time that `{min}` is passed when the key is a union (`ValidationMessageKey`), so a form that shows `passwordTooShort` without it fails to format the message at runtime; WEB-05 (shared form logic) is the place to handle message values once. The web app still doesn't read `details` from the API (WEB-09 is about codes only).
 
 **Problem:** The frontend validates with Zod and the backend with class-validator. Rules such as the minimum password length of 8 are duplicated by hand.
 

@@ -35,11 +35,13 @@ apps/
   api/          NestJS backend (TypeScript)
 packages/
   ui/           Shared component library, documented in Storybook
-  shared/       Shared types/DTOs used by both web and api
+  shared/       Shared types and Zod validation schemas used by both web and api
 docs/           Game design, roadmap, architecture, decisions
 ```
 
 A single repo keeps `apps/web` and `apps/api` in sync on shared types (`packages/shared`) without manual duplication or publishing an internal npm package — see `docs/DECISIONS.md` #002 for the full reasoning.
+
+`packages/shared` is compiled: `tsc` emits ES modules and `.d.ts` files into its `dist/`, and both apps import that build, never its source. The API runs plain `node dist/main` in production, and Node won't run TypeScript from a dependency, so runtime code in the package (constants, validation schemas) has to be JavaScript. The API is CommonJS and loads the ES modules through Node's `require(esm)`, as it does NestJS 12. `pnpm install` builds the package (its `postinstall`), `pnpm dev` rebuilds it on change, and the root `test`, `lint` and `typecheck` scripts rebuild it first, so a pulled change can't leave a stale `dist/` behind them. See `docs/DECISIONS.md` #021.
 
 ## Frontend (`apps/web`)
 
@@ -65,7 +67,7 @@ The browser never makes HTTP requests to the API: the Next.js route handlers in 
 
 ### Error responses
 
-Every error the API returns has the body `{ code, message, details? }` (`ApiErrorResponse` in `@ashen-contracts/shared`); the HTTP status is not repeated in it. `code` is an `ApiErrorCode`, which the web app translates (`apps/web/messages/en.json`, checked against the union at compile time); `message` is English for developers. Code throws an `HttpException` with `{ code, message }`. The global `ApiExceptionFilter` (`src/common/errors/apiException.filter.ts`, an `APP_FILTER` in `AppModule`) keeps that code, gives errors thrown without one (Nest's 404 for an unknown route, a malformed JSON body) a generic code from their status, and turns anything unexpected into a 500 `INTERNAL_ERROR`. Every 5xx, a deliberately thrown one included, is answered with a fixed message and no `details`, and the real error is logged. Validation errors are 400 `VALIDATION_FAILED`, with one `details` entry per violated rule (`field`, class-validator `constraint`, `message`). See `docs/DECISIONS.md` #018.
+Every error the API returns has the body `{ code, message, details? }` (`ApiErrorResponse` in `@ashen-contracts/shared`); the HTTP status is not repeated in it. `code` is an `ApiErrorCode`, which the web app translates (`apps/web/messages/en.json`, checked against the union at compile time); `message` is English for developers. Code throws an `HttpException` with `{ code, message }`. The global `ApiExceptionFilter` (`src/common/errors/apiException.filter.ts`, an `APP_FILTER` in `AppModule`) keeps that code, gives errors thrown without one (Nest's 404 for an unknown route, a malformed JSON body) a generic code from their status, and turns anything unexpected into a 500 `INTERNAL_ERROR`. Every 5xx, a deliberately thrown one included, is answered with a fixed message and no `details`, and the real error is logged. Validation errors are 400 `VALIDATION_FAILED`, with one `details` entry per violated rule (`field`, Zod issue code as `constraint`, `message`). See `docs/DECISIONS.md` #018 and #022.
 
 ## Background jobs (Redis + BullMQ)
 

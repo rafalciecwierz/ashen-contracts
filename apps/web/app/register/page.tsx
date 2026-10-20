@@ -3,11 +3,14 @@
 import { SubmitEvent, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Input, Button } from '@ashen-contracts/ui';
-import type { RegisterResponse } from '@ashen-contracts/shared';
+import {
+  PASSWORD_MIN_LENGTH,
+  type RegisterResponse,
+} from '@ashen-contracts/shared';
 import { ApiError, apiPost } from '@/src/http/api';
 import { RegisterFieldErrors } from './register.types';
 import type { ValidationMessageKey } from '@/src/i18n/validationKey';
-import { registerSchema } from './register.schema';
+import { registerErrorKeys, registerFormSchema } from './register.schema';
 import { AppPaths } from '@/src/routes/routes';
 import { useTranslations } from 'next-intl';
 import { InternalApiRoutes } from '@/src/http';
@@ -26,11 +29,10 @@ export default function RegisterPage() {
   const [loading, setLoading] = useState(false);
 
   function validate(): boolean {
-    const result = registerSchema.safeParse({
-      email,
-      password,
-      confirmPassword,
-    });
+    const result = registerFormSchema.safeParse(
+      { email, password, confirmPassword },
+      { error: registerErrorKeys },
+    );
     if (result.success) {
       setFieldErrors({});
       return true;
@@ -92,7 +94,9 @@ export default function RegisterPage() {
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           error={
-            fieldErrors.password ? tValidation(fieldErrors.password) : undefined
+            fieldErrors.password
+              ? tValidation(fieldErrors.password, { min: PASSWORD_MIN_LENGTH })
+              : undefined
           }
         />
         <Input

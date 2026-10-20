@@ -1,28 +1,23 @@
 import { describe, expect, it } from 'vitest';
-import { ValidationError } from '@nestjs/common';
+import { z } from 'zod';
 import { validationException } from './validationException';
+
+function issuesOf(schema: z.ZodType, value: unknown) {
+  const result = schema.safeParse(value);
+  if (result.success) throw new Error('expected the value to be invalid');
+  return result.error.issues;
+}
 
 describe('validationException', () => {
   it('returns a 400 with VALIDATION_FAILED and one detail per violated rule', () => {
-    const errors: ValidationError[] = [
-      {
-        property: 'password',
-        constraints: {
-          isString: 'password must be a string',
-          minLength: 'password must be longer than or equal to 8 characters',
-        },
-        children: [],
-      },
-      {
-        property: 'isAdmin',
-        constraints: {
-          whitelistValidation: 'property isAdmin should not exist',
-        },
-        children: [],
-      },
-    ];
+    const schema = z.strictObject({
+      email: z.email(),
+      password: z.string().min(8),
+    });
 
-    const exception = validationException(errors);
+    const exception = validationException(
+      issuesOf(schema, { email: 'x', password: 'short' }),
+    );
 
     expect(exception.getStatus()).toBe(400);
     expect(exception.getResponse()).toEqual({
@@ -30,48 +25,71 @@ describe('validationException', () => {
       message: 'Validation failed',
       details: [
         {
-          field: 'password',
-          constraint: 'isString',
-          message: 'password must be a string',
+          field: 'email',
+          constraint: 'invalid_format',
+          message: 'Invalid email address',
         },
         {
           field: 'password',
-          constraint: 'minLength',
-          message: 'password must be longer than or equal to 8 characters',
+          constraint: 'too_small',
+          message: 'Too small: expected string to have >=8 characters',
         },
+      ],
+    });
+  });
+
+  it('gives every unknown key its own detail', () => {
+    const schema = z.strictObject({ email: z.string() });
+
+    const response = validationException(
+      issuesOf(schema, { email: 'a@b.co', isAdmin: true, role: 'admin' }),
+    ).getResponse();
+
+    expect(response).toMatchObject({
+      details: [
         {
           field: 'isAdmin',
-          constraint: 'whitelistValidation',
-          message: 'property isAdmin should not exist',
+          constraint: 'unrecognized_keys',
+          message: 'Unrecognized key: "isAdmin"',
+        },
+        {
+          field: 'role',
+          constraint: 'unrecognized_keys',
+          message: 'Unrecognized key: "role"',
         },
       ],
     });
   });
 
   it('gives nested fields a dotted path', () => {
-    const errors: ValidationError[] = [
-      {
-        property: 'address',
-        children: [
-          {
-            property: 'city',
-            constraints: { isNotEmpty: 'city should not be empty' },
-            children: [],
-          },
-        ],
-      },
-    ];
+    const schema = z.object({ address: z.object({ city: z.string().min(1) }) });
 
-    const response = validationException(errors).getResponse();
+    const response = validationException(
+      issuesOf(schema, { address: { city: '' } }),
+    ).getResponse();
 
     expect(response).toMatchObject({
-      details: [
-        {
-          field: 'address.city',
-          constraint: 'isNotEmpty',
-          message: 'city should not be empty',
-        },
-      ],
+      details: [{ field: 'address.city', constraint: 'too_small' }],
+    });
+  });
+
+  it('uses an empty field for the body itself', () => {
+    const response = validationException(
+      issuesOf(z.object({}), []),
+    ).getResponse();
+
+    expect(response).toMatchObject({
+      details: [{ field: '', constraint: 'invalid_type' }],
+    });
+  });
+
+  it('falls back to "invalid" for an issue without a code', () => {
+    const response = validationException([
+      { message: 'Not valid', path: ['name'] },
+    ]).getResponse();
+
+    expect(response).toMatchObject({
+      details: [{ field: 'name', constraint: 'invalid', message: 'Not valid' }],
     });
   });
 });

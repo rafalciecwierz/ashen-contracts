@@ -25,7 +25,8 @@ Purpose: a portfolio project to demonstrate full-stack engineering (frontend-fir
 - Any action with a real-world duration (building, research) goes through the job queue (BullMQ), not `setInterval`/naive polling.
 - Write tests for: resource regeneration math, queue/job behavior, action validation (enough resources? valid state?).
 - Import generated/external code (Prisma client, etc.) with explicit relative paths (`../generated/prisma/client` — the Prisma client is generated into `apps/api/src/generated/prisma`), never bare `src/...` specifiers. `apps/api` has no `baseUrl` (deprecated in TypeScript 6), so those no longer compile; they used to work under `nest start` but not in Vitest.
-- **`apps/api` is TypeScript strict, except `strictPropertyInitialization`** (as `nest new --strict` generates in NestJS 12): DTO fields stay plain (`email: string;`), with no `!`. Every required field needs a `class-validator` decorator that rejects a missing value, because the global `ValidationPipe` is what guarantees it. The pipe is an `APP_PIPE` provider in `AppModule` (so integration tests get it too) with `whitelist` and `forbidNonWhitelisted`: a body field the DTO doesn't declare is a 400. See `docs/DECISIONS.md` #016.
+- **`apps/api` is TypeScript strict, except `strictPropertyInitialization`** (as `nest new --strict` generates in NestJS 12; `docs/DECISIONS.md` #016). There are no DTO classes left that need it off; turning it on is `docs/REFACTOR.md` API-14.
+- **Request validation:** rules are Zod schemas in `packages/shared/src/schemas/` (with their `z.infer` input types), written once for the web app's forms and the API. Request bodies are `z.strictObject` (an undeclared field is a 400) and carry no messages. The API attaches a schema to the parameter, `@Body({ schema: registerSchema }) dto: RegisterInput`; the global `StandardSchemaValidationPipe` (an `APP_PIPE` in `AppModule`, so integration tests get it too) validates it and passes the parsed value on. A parameter without a schema is not validated. Forms parse with the same schema plus a per-field error map of translation keys (`validationKeysByField`). No `class-validator`. See `docs/DECISIONS.md` #022.
 - **Errors (apps/api):** throw an `HttpException` with `{ code, message }`, the code typed as `ApiErrorCode` (`packages/shared`); add a new code there and its message to `apps/web/messages/en.json`. The global `ApiExceptionFilter` guarantees the `{ code, message, details? }` body for everything else. See `docs/ARCHITECTURE.md` "Error responses".
 - **Environment variables (apps/api):** read them through `ConfigService<Env, true>` (`config.get('X', { infer: true })`), never `process.env`. Each one is declared in `src/config/env.schema.ts` (Zod, validated at startup) and documented in `apps/api/.env.example`. Integration tests get dummy values from `vitest.config.integration.mts`.
 - **NestJS 12 is ESM-only; `apps/api` stays CommonJS** and loads it through Node's `require(esm)`. API tests run on Vitest (`pnpm --filter api test`), not Jest. Spec files import test APIs explicitly (`import { describe, it, expect, vi } from 'vitest'`; no globals). Don't add an SWC plugin, because Vite's transformer already emits decorator metadata. See `docs/DECISIONS.md` #006.
@@ -48,8 +49,9 @@ Purpose: a portfolio project to demonstrate full-stack engineering (frontend-fir
 ## Common commands
 
 - `docker compose up -d` — start PostgreSQL and Redis (first setup: see README "Getting started")
-- `pnpm install` — install all workspace dependencies (also generates the Prisma client and installs the commit hook)
-- `pnpm dev` — run web + api locally
+- `pnpm install` — install all workspace dependencies (also builds `packages/shared`, generates the Prisma client and installs the commit hook)
+- `pnpm dev` — run web + api locally, and rebuild `packages/shared` on change
+- `pnpm build:shared` — rebuild `packages/shared` into `dist/` (the apps load the build, not its source; `test`, `lint` and `typecheck` run this first)
 - `pnpm test` — unit tests in every workspace (UI story tests need `pnpm --filter @ashen-contracts/ui exec playwright install chromium` once)
 - `pnpm --filter api test:integration` — API integration tests (need Postgres from `docker compose up -d`)
 - `pnpm typecheck` — `tsc --noEmit` in every workspace
