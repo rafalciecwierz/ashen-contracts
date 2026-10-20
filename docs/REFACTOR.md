@@ -740,7 +740,9 @@ Found on the way, not changed: the guard accepts only `Bearer` with that exact c
 
 ### API-13 — Stop the per-email login limit from locking owners out
 
-**Status:** ⬜ TODO
+**Status:** 🚫 DROPPED (2026-10-20)
+
+**Notes:** Dropped after discussing it with the owner, by the same measure as API-12 (`docs/DECISIONS.md` #019): for a portfolio project with no data worth protecting beyond a player's own account, the fix costs more than the risk. The attack gains nothing but annoyance: it never gets into the account, and it has to be repeated every 15 minutes from several IPs against one chosen email. The fix would add a signed device token with its own key to rotate in env (the cost that sank API-12), a second httpOnly cookie that the BFF stores and forwards, a hand-written failed-attempt counter in `AuthService` because `@nestjs/throttler` can't count only failures, and a new ADR, more work than API-12 would have been. Nothing in #019 or #020 blocks it technically (the token would only travel BFF → API), and Render's spin-down (#020) doesn't help, since resetting the in-memory counters needs 15 idle minutes that an attack never leaves. The lockout stays the accepted risk in #017, whose consequences now point here instead of promising a fix. Revisit if the game gets real players, or a player reports being locked out. A non-malicious case found on the way: a shared demo account with a password (one option in GAME-03) would hit the limit by itself, because successful logins count too; noted in GAME-03.
 
 **Problem:** API-06's `email` throttler (10 logins per 15 minutes) is keyed only on the email in the request body, so it cannot tell the owner from an attacker. Ten requests with a player's email and any password, spread over IPs to stay under the per-IP limit, make every login for that email return 429 for 15 minutes, the correct password included. Repeating it every 15 minutes locks the account out indefinitely. Successful logins also count towards the 10. Accepted for now in `docs/DECISIONS.md` #017; found in code review.
 
@@ -969,6 +971,8 @@ Found on the way, not changed: the guard accepts only `Bearer` with that exact c
 **Problem:** Recruiters will not register to try a portfolio project.
 
 **Fix:** Add a "Play as guest" button that creates a temporary player (or logs into a seeded demo account) with a pre-made character. Write a spec in `docs/features/`.
+
+**Note (from API-13):** a seeded demo account that every visitor logs into with the same email would hit the per-email login limit (10 per 15 minutes, `docs/DECISIONS.md` #017) on its own, because successful logins count too: ten recruiters within 15 minutes lock the demo. Prefer a temporary player per visitor, or a guest endpoint outside the per-email limit.
 
 ### GAME-04 — Time acceleration for demos
 
