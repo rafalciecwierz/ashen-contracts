@@ -41,6 +41,8 @@ docs/           Game design, roadmap, architecture, decisions
 
 A single repo keeps `apps/web` and `apps/api` in sync on shared types (`packages/shared`) without manual duplication or publishing an internal npm package — see `docs/DECISIONS.md` #002 for the full reasoning.
 
+`packages/shared` is compiled: `tsc` emits ES modules and `.d.ts` files into its `dist/`, and both apps import that build, never its source. The API runs plain `node dist/main` in production, and Node won't run TypeScript from a dependency, so runtime code in the package (constants, validation schemas) has to be JavaScript. The API is CommonJS and loads the ES modules through Node's `require(esm)`, as it does NestJS 12. `pnpm install` builds the package (its `postinstall`), `pnpm dev` rebuilds it on change, and the root `test`, `lint` and `typecheck` scripts rebuild it first, so a pulled change can't leave a stale `dist/` behind them. See `docs/DECISIONS.md` #021.
+
 ## Frontend (`apps/web`)
 
 - **Next.js + TypeScript**, styled with Tailwind

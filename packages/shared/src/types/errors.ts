@@ -1,7 +1,7 @@
 /**
- * Stable error codes the API can return. Kept as a type-only union (no
- * runtime object), like everything else in packages/shared: the package
- * ships raw .ts with no build step, so consumers only import types from it.
+ * Stable error codes the API can return. A type-only union (no runtime
+ * object): nothing needs to list the codes at runtime, and a union costs
+ * nothing in either app's bundle.
  *
  * Backend: annotate the literal you throw against this type, so a typo is
  * caught at compile time instead of silently reaching the client. The global

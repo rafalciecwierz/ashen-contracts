@@ -48,8 +48,9 @@ Purpose: a portfolio project to demonstrate full-stack engineering (frontend-fir
 ## Common commands
 
 - `docker compose up -d` — start PostgreSQL and Redis (first setup: see README "Getting started")
-- `pnpm install` — install all workspace dependencies (also generates the Prisma client and installs the commit hook)
-- `pnpm dev` — run web + api locally
+- `pnpm install` — install all workspace dependencies (also builds `packages/shared`, generates the Prisma client and installs the commit hook)
+- `pnpm dev` — run web + api locally, and rebuild `packages/shared` on change
+- `pnpm build:shared` — rebuild `packages/shared` into `dist/` (the apps load the build, not its source; `test`, `lint` and `typecheck` run this first)
 - `pnpm test` — unit tests in every workspace (UI story tests need `pnpm --filter @ashen-contracts/ui exec playwright install chromium` once)
 - `pnpm --filter api test:integration` — API integration tests (need Postgres from `docker compose up -d`)
 - `pnpm typecheck` — `tsc --noEmit` in every workspace

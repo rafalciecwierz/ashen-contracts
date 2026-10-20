@@ -1,2 +1,2 @@
-export * from './types/auth';
-export * from './types/errors';
+export * from './types/auth.js';
+export * from './types/errors.js';
