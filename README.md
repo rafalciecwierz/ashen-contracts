@@ -65,7 +65,7 @@ Much of the code here is written with an AI coding agent ([Claude Code](https://
 
 - **Every commit.** By my own rule, not a technical lock, the agent doesn't commit. I read the diff, make my own code enhancements, decide what goes in and write the commit message. One backlog task means one commit, and each task's notes record what changed, what differs from the plan and how it was verified.
 - **Decisions.** The agent proposes options and argues for one, but each ADR is a decision I made.
-- **The gate.** CI ([`ci.yml`](./.github/workflows/ci.yml): lint, format, typecheck, tests, build, commit messages) checks agent-written and hand-written code the same way. An AI review ([`claude-review.yml`](./.github/workflows/claude-review.yml)) comments on each PR against CLAUDE.md and the ADRs, but it can only read and comment. Merging is my call.
+- **The gate.** CI ([`ci.yml`](./.github/workflows/ci.yml): lint, format, typecheck, tests, build, commit messages; [`pr-title.yml`](./.github/workflows/pr-title.yml): the PR title, which becomes the squash commit) checks agent-written and hand-written code the same way. An AI review ([`claude-review.yml`](./.github/workflows/claude-review.yml)) comments on each PR against CLAUDE.md and the ADRs, but it can only read and comment. Merging is my call.
 
 ## Screenshots
 
