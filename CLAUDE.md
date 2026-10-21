@@ -13,7 +13,7 @@ Purpose: a portfolio project to demonstrate full-stack engineering (frontend-fir
 - Frontend: Next.js 16 (App Router) + TypeScript + Tailwind v4, next-intl, Zod; shared components in Storybook (`packages/ui`, built on Radix UI)
 - Backend: NestJS 12 + Prisma 7 + PostgreSQL
 - Testing: Vitest everywhere: API unit tests, API integration tests via supertest, and Storybook interaction tests in `packages/ui` (browser mode, Playwright)
-- Tooling: pnpm workspaces, TypeScript 6 (one version via the pnpm catalog), ESLint 9 + Prettier, commitlint, GitHub Actions CI (`ci.yml`; plus an AI review that only comments on PRs, `claude-review.yml`, which needs an `ANTHROPIC_API_KEY` or `CLAUDE_CODE_OAUTH_TOKEN` repo secret)
+- Tooling: pnpm workspaces, TypeScript 6 (one version via the pnpm catalog), ESLint 9 + Prettier, commitlint, GitHub Actions CI (`ci.yml`, and `pr-title.yml` for PR titles; plus an AI review that only comments on PRs, `claude-review.yml`, which needs an `ANTHROPIC_API_KEY` or `CLAUDE_CODE_OAUTH_TOKEN` repo secret)
 - Agent MCP servers (`.mcp.json`, approved per user on first use): Next.js DevTools (runtime errors, routes and logs of a running `pnpm dev`) and Playwright (headless browser for checking UI changes; needs `pnpm dlx @playwright/mcp@0.0.83 install-browser chrome-for-testing` once)
 - Local infra: `docker-compose.yml` runs PostgreSQL and Redis
 - Planned, not installed yet: BullMQ on Redis (timed actions, v0.4), Socket.io (real-time), Playwright e2e tests in `apps/e2e` (`docs/DECISIONS.md` #015)
@@ -39,6 +39,8 @@ Purpose: a portfolio project to demonstrate full-stack engineering (frontend-fir
 ## Commit messages
 
 [Conventional Commits](https://www.conventionalcommits.org/): `type(scope): subject`, header ≤ 100 characters. The scope and a `[TASK-ID]` suffix are optional. Enforced by commitlint (`commitlint.config.mjs`), both in a local `commit-msg` hook and in CI.
+
+PRs are squash-merged, so the PR title becomes the commit header on `main` (GitHub turns a branch name like `refactor/shared-01` into a title that fails). Write it like a commit message; CI lints it with the ` (#123)` suffix GitHub appends, which counts towards the 100 characters (`pr-title.yml`).
 
 - Types: `feat` and `fix` map to the CHANGELOG's Added and Fixed sections, `refactor` and `perf` to Changed. `docs`, `test`, `chore`, `ci`, `build`, `style` and `revert` usually don't need a CHANGELOG entry.
 - Scope (optional): the workspace, i.e. `api`, `web`, `ui` or `shared`. Leave it out for repo-wide changes.

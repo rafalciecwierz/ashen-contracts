@@ -1,0 +1,47 @@
+name: PR title
+
+# A squash merge puts the PR title on main as the commit header: always for a
+# PR with several commits, and for every PR once the repo's squash setting is
+# "Pull request title". ci.yml lints each commit of the PR, not this title.
+# A separate workflow, so that editing the title re-runs this check alone,
+# not the whole CI job.
+on:
+  pull_request:
+    types: [opened, edited, reopened, synchronize]
+
+concurrency:
+  group: pr-title-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  commitlint:
+    name: Lint PR title
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - uses: actions/checkout@v7
+
+      # Installs the pnpm version pinned in the root package.json `packageManager` field.
+      - uses: pnpm/action-setup@v6
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+
+      # The root package only: commitlint and its config, not the apps.
+      - name: Install commitlint
+        run: pnpm install --frozen-lockfile --filter ashen-contracts
+
+      # Linted with the " (#123)" suffix GitHub appends, so the length limit
+      # applies to the header that lands on main. The title comes in through
+      # env, not inline ${{ }}, so nothing is interpolated into the script.
+      - name: Lint PR title
+        env:
+          PR_TITLE: ${{ github.event.pull_request.title }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: printf '%s (#%s)\n' "$PR_TITLE" "$PR_NUMBER" | pnpm exec commitlint --verbose
