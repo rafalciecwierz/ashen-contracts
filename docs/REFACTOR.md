@@ -803,7 +803,15 @@ Found on the way, not changed: the guard accepts only `Bearer` with that exact c
 
 ### WEB-02 — Robust BFF route handlers
 
-**Status:** ⬜ TODO
+**Status:** ✅ DONE (2026-10-22)
+
+**Notes:** `src/http/proxyToApi.ts` forwards a route handler's request (method, body, `bffHeaders`) to `API_URL` + path and passes the API's status and JSON body through; an optional `onSuccess` replaces the success response, which login uses to set the cookie. Register and login are now one call each.
+
+- **Body parsing:** the body is forwarded as text, not parsed. A BFF that parses only to re-serialize can't add anything, and the API already answers invalid JSON with 400 `BAD_REQUEST` in the standard body (#018), so there's one place that decides what a bad body is.
+- **Failures:** a network error (or a body cut off mid-read) and a response that isn't JSON both return 502 `{ code: 'INTERNAL_ERROR', message }`, as the task says, and log the cause with `console.error` (for the non-JSON case, the status and the first 200 characters). 502 Bad Gateway is the status for "the upstream server failed", which is what happened; the form shows the translated `INTERNAL_ERROR` message.
+- **`API_URL`:** `src/config/serverEnv.ts` validates it with Zod (`z.url()`), once, on first use, and caches the result; `getCurrentUser` reads it from there too. Validating at import time would break `next build` in CI, which imports the route handlers without the variable set. Startup validation, the `https://` rule for production and `BFF_SECRET` are left to WEB-12, which extends this module.
+- **Not done:** no timeout on the call to the API. On Render's free plan (#020) a cold start takes tens of seconds, so picking a timeout is a decision of its own; noted for WEB-12's deployment context. The success body isn't validated either (login trusts `accessToken` to be a string), as nowhere else in the web app validates API responses.
+- **Verified:** `pnpm typecheck`, `lint`, `test`, `format:check`, `build`. Against the running API (docker-compose Postgres, dummy secrets) through `next dev`: register 201, duplicate 409 `EMAIL_ALREADY_REGISTERED`, login 200 with the httpOnly cookie, wrong password 401, invalid JSON 400 `BAD_REQUEST`, empty body 400 `VALIDATION_FAILED` with details; API stopped: 502 "could not be reached"; a plain HTTP server answering HTML on the API's port: 502 "invalid response", both logged; `API_URL=not-a-url`: the handler throws `Invalid environment ... API_URL` instead of fetching `undefined/auth/login`. In the browser (Playwright), logging in with the API down shows "Something went wrong on our side. Please try again later." under the form.
 
 **Problem:** In `api/auth/login` and `api/auth/register`, invalid JSON in the request body, an unreachable backend, or a non-JSON backend response all end in an unhandled 500. `API_URL` is never validated, which yields requests to `"undefined/auth/login"`. The two handlers duplicate each other.
 
@@ -815,7 +823,7 @@ Found on the way, not changed: the guard accepts only `Bearer` with that exact c
 
 **Status:** ⬜ TODO
 
-**Fix:** Add `import 'server-only'` to `session.ts`, `getCurrentUser.ts` and the `ApiEndpoints` module. Wrap `getCurrentUser` in React `cache()` so it runs once per request.
+**Fix:** Add `import 'server-only'` to `session.ts`, `getCurrentUser.ts` and the `ApiEndpoints` module. Since WEB-02, also `src/config/serverEnv.ts`, `src/http/proxyToApi.ts` and `bffHeaders.ts`. Wrap `getCurrentUser` in React `cache()` so it runs once per request.
 
 ### WEB-04 — Server/client split for `/register`
 
@@ -901,6 +909,8 @@ Found on the way, not changed: the guard accepts only `Bearer` with that exact c
 **Status:** ⬜ TODO
 
 **Problem:** `apps/web` reads `API_URL` and `BFF_SECRET` straight from `process.env`, with no validation. Since API-06 the BFF sends `X-BFF-Secret` to `API_URL`, so an `http://` URL in production would send the secret in clear text.
+
+**Note (from WEB-02):** `src/config/serverEnv.ts` now exists, with `API_URL` (`z.url()`) validated on first use, not at startup, because `next build` in CI runs without the variable. This task extends it: `BFF_SECRET` (still read in `bffHeaders.ts`), the `https://` rule, and a startup check (e.g. `instrumentation.ts`) that doesn't run during the build. Also decide whether `proxyToApi` needs a timeout, given Render's slow cold starts (#020).
 
 **Fix:** A Zod schema for the web app's server-side env (like `apps/api/src/config/env.schema.ts`), checked at startup: `API_URL` a URL that must be `https://` when `NODE_ENV` is `production`, and `BFF_SECRET` at least 32 characters. Read the variables through it instead of `process.env`.
 
