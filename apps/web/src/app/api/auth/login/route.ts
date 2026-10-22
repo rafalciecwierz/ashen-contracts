@@ -1,26 +1,13 @@
+import type { LoginResponse } from '@ashen-contracts/shared';
 import { ApiEndpoints } from '@/http';
-import { bffHeaders } from '@/http/bffHeaders';
+import { proxyToApi } from '@/http/proxyToApi';
 import { setSessionCookie } from '@/http/session';
 import { NextRequest, NextResponse } from 'next/server';
 
-const API_URL = process.env.API_URL;
-
 export async function POST(request: NextRequest) {
-  const body = await request.json();
-
-  const res = await fetch(`${API_URL}${ApiEndpoints.auth.login}`, {
-    method: 'POST',
-    headers: bffHeaders(request),
-    body: JSON.stringify(body),
+  return proxyToApi(request, ApiEndpoints.auth.login, async (data) => {
+    // The token goes into the httpOnly cookie, never to the browser's JS.
+    await setSessionCookie((data as LoginResponse).accessToken);
+    return NextResponse.json({ success: true });
   });
-
-  const data = await res.json();
-
-  if (!res.ok) {
-    return NextResponse.json(data, { status: res.status });
-  }
-
-  await setSessionCookie(data.accessToken);
-
-  return NextResponse.json({ success: true });
 }

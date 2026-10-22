@@ -1,8 +1,7 @@
 import type { MeResponse } from '@ashen-contracts/shared';
+import { getServerEnv } from '@/config/serverEnv';
 import { ApiEndpoints } from './endpoints';
 import { getSessionToken } from './session';
-
-const API_URL = process.env.API_URL;
 
 /**
  * Server-only (reads the httpOnly cookie via next/headers). Returns the
@@ -16,7 +15,7 @@ export async function getCurrentUser(): Promise<MeResponse | null> {
   const token = await getSessionToken();
   if (!token) return null;
 
-  const res = await fetch(`${API_URL}${ApiEndpoints.auth.me}`, {
+  const res = await fetch(`${getServerEnv().API_URL}${ApiEndpoints.auth.me}`, {
     headers: { Authorization: `Bearer ${token}` },
     cache: 'no-store',
   });
