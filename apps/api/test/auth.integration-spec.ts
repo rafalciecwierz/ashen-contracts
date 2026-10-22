@@ -8,7 +8,7 @@ import { AppModule } from './../src/app.module';
 
 // These requests are rejected by the global validation pipe before they reach
 // AuthService, so no database is needed. A 400 here proves the pipe is
-// registered in AppModule, not only in main.ts (docs/DECISIONS.md #016).
+// registered in AppModule, not only in main.ts (docs/DECISIONS.md #022).
 describe('Auth request validation (integration)', () => {
   let app: INestApplication<Server>;
 

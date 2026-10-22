@@ -251,6 +251,8 @@ Consequences: `pnpm test:e2e` needs `docker compose up -d` first and takes longe
 
 Date: 17.10.2026
 
+Status: **Superseded by #023.** Its only reason, DTO classes filled by the `ValidationPipe`, went away when #022 replaced them with Zod schemas.
+
 Context: `apps/api` came from an older NestJS starter with `strictNullChecks`, `noImplicitAny` and `strictBindCallApply` turned off, while `apps/web`, `packages/ui` and `packages/shared` all use `"strict": true`. Without `strictNullChecks`, a Prisma `findUnique` result is typed `Player`, not `Player | null`, so a missing null check compiles and fails at runtime. Turning on full strict mode (REFACTOR.md API-01) produced four errors, all TS2564 ("Property 'email' has no initializer and is not definitely assigned in the constructor") on the fields of `LoginDto` and `RegisterDto`. Nobody calls a DTO's constructor: the global `ValidationPipe` copies the request body into the class and returns 400 before the controller runs if a decorated field is missing or invalid. Neither of the usual fixes for TS2564 works for a DTO: a default value hides a missing field from `class-validator`, and Nest calls the constructor without arguments.
 
 Decision: `apps/api/tsconfig.json` sets `"strict": true` and `"strictPropertyInitialization": false`, with a comment pointing here. This is the configuration the NestJS 12 CLI generates: since [nestjs/schematics `d303b735`](https://github.com/nestjs/schematics/commit/d303b735) (March 2026), the application template has `"strict": <%= strict %>` and always `"strictPropertyInitialization": false`, so `nest new --strict` produces exactly these two lines. DTO fields stay plain (`email: string;`), as in the NestJS docs. Every required DTO field must have a `class-validator` decorator that rejects a missing value, and an optional one is typed `field?: T` with `@IsOptional()`.
@@ -369,3 +371,17 @@ Alternatives considered:
 - Translation keys as messages in the shared schemas. Rejected: the API would answer with the web app's i18n keys. Wording is the web app's concern, so it supplies the error map.
 
 Consequences: a rule is written once, and the form and the API run the same email check; the web app's "at least {min} characters" message takes `PASSWORD_MIN_LENGTH`. Changes to #018's contract: `details[].constraint` is now a Zod issue code (`invalid_type`, `invalid_format`, `too_small`, `unrecognized_keys`, ...) instead of a `class-validator` name, `message` is Zod's English, an unknown field still gets one detail with its own `field`, and an error about the body itself has `field: ''`. The web app doesn't read `details` yet. Validation is opt-in per parameter, as it was with a DTO class: a parameter with no `schema` isn't validated, so a new endpoint must attach one. Login now rejects an empty password with 400 before checking credentials (it was a 401). With no DTO classes left, #016's reason for `strictPropertyInitialization: false` is gone; turning it on is REFACTOR.md API-14. A form's error map gives one message per field, which fits forms that show one error per field. Verified with unit tests for the shared schemas and the exception factory, API integration tests (validation details, unknown fields, the email-normalized throttler, a Swagger test that the register body is documented from the schema), and by hand in the browser: invalid register input shows the three translated messages, then register and login go through the BFF to `/play`.
+
+## 023. Full TypeScript strict mode in `apps/api`, `strictPropertyInitialization` included
+
+Date: 22.10.2026
+
+Context: #016 kept `strict` but turned `strictPropertyInitialization` off, because the fields of `LoginDto` and `RegisterDto` are filled by the `ValidationPipe`, never by a constructor, and they were the only classes with uninitialized fields. Since #022 there are no DTO classes: request bodies are Zod schemas, typed with `z.infer`. With the flag off and nothing that needs it, a class field that is never assigned (`class Foo { bar: Bar }`) compiles and is `undefined` at runtime, which #016 left to review.
+
+Decision: `apps/api/tsconfig.json` sets `"strict": true` with no exceptions, so it differs from the `nest new --strict` template by one removed line. Turning the flag on produced no errors: services take their dependencies through constructor parameters, and nothing else in `src/` or `test/` has class fields.
+
+Alternatives considered:
+
+- Keep the flag off, matching the NestJS CLI template. Rejected: the template turns it off for DTO classes, which this project no longer has, so the exception would protect nothing and only hide uninitialized fields.
+
+Consequences: a field set outside the constructor (for example in `onModuleInit`) needs an initializer, a constructor assignment, or an explicit `!` that says why; the compiler, not review, catches the rest. If DTO classes ever come back (a library that needs them), they would need `!` on every field, or this decision revisited. Verified with `pnpm typecheck` (no errors) and a throwaway class with an uninitialized field, which failed with TS2564.
