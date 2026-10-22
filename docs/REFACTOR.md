@@ -755,7 +755,9 @@ Found on the way, not changed: the guard accepts only `Bearer` with that exact c
 
 ### API-14 — Turn on `strictPropertyInitialization` in `apps/api`
 
-**Status:** ⬜ TODO
+**Status:** ✅ DONE (2026-10-22)
+
+**Notes:** Removed `"strictPropertyInitialization": false` and its comment (which still named the old `ValidationPipe`) from `apps/api/tsconfig.json`; `tsconfig.build.json` extends it, so the build gets the same setting. `tsc` reported nothing to fix: services take dependencies through constructor parameters and no other class has fields. New ADR #023 supersedes #016, which got a `Status: Superseded by #023` line. Also updated the strict-mode bullet in CLAUDE.md, the unreleased CHANGELOG line about strict mode, and a comment in `test/auth.integration-spec.ts` that pointed to #016 for the global pipe (now #022). Verified with `pnpm typecheck`, `lint`, `test` and `format:check`, and with a throwaway `class Probe { value: string }` in `src/`, which failed with TS2564 and was deleted.
 
 **Problem:** `docs/DECISIONS.md` #016 turned the flag off because DTO classes have fields that only the `ValidationPipe` fills. Since SHARED-01 (#022) there are no DTO classes: request bodies are Zod schemas, typed with `z.infer`. The flag is off with nothing left that needs it, so a class field that is never initialized compiles silently.
 
