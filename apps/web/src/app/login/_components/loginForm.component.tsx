@@ -7,10 +7,10 @@ import { Input, Button } from '@ashen-contracts/ui';
 import { loginSchema } from '@ashen-contracts/shared';
 import { loginErrorKeys } from '../login.schema';
 import type { LoginFieldErrors } from '../login.types';
-import type { ValidationMessageKey } from '@/src/i18n/validationKey';
-import { AppPaths } from '@/src/routes/routes';
-import { InternalApiRoutes, ApiError, apiPost } from '@/src/http';
-import { getSafeRedirect } from '@/src/routes/routeHelpers';
+import type { ValidationMessageKey } from '@/i18n/validationKey';
+import { AppPaths } from '@/routes/routes';
+import { InternalApiRoutes, ApiError, apiPost } from '@/http';
+import { getSafeRedirect } from '@/routes/routeHelpers';
 
 export function LoginForm() {
   const router = useRouter();

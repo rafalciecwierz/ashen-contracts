@@ -791,7 +791,9 @@ Found on the way, not changed: the guard accepts only `Bearer` with that exact c
 
 ### WEB-01 — Move `app/` into `src/app/`
 
-**Status:** ⬜ TODO
+**Status:** ✅ DONE (2026-10-22)
+
+**Notes:** `git mv app src/app` (git sees renames, so history follows), `@/*` now maps to `./src/*`, and the 27 `@/src/...` imports became `@/...`. The `@source` path in `globals.css` needed one more `../`, since the file is a level deeper; no other relative import leaves `app/`, and next-intl finds `src/i18n/request.ts` on its own. Deviation: the task's "CLAUDE.md already assumes `src/app/`" was out of date, since CLAUDE.md documented the old layout. The reason left is consistency: all code in `src/`, configuration at the workspace root, and an alias that can't reach `package.json` or `next.config.ts`. Updated the paths in CLAUDE.md (where code lives, now with the `src/`-only rule), ARCHITECTURE, `docs/features/01-auth.md`, the `implement-feature` skill, the web README and the unreleased CHANGELOG entry about the BFF; older ADRs keep the paths they were written with. Verified with `pnpm typecheck`, `lint`, `test`, `format:check` and `pnpm --filter web build` (all routes listed, and `max-h-[85vh]`, used only by the Modal in `packages/ui`, is in the built CSS, so `@source` resolves), and with `next dev`: `/`, `/login` and `/register` return 200, `/play` redirects to `/login?redirect=%2Fplay`.
 
 **Problem:** `apps/web` mixes a root `app/` with `src/`, which produces imports like `@/src/http`. CLAUDE.md already assumes `src/app/`.
 

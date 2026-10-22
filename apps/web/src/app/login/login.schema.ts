@@ -1,5 +1,5 @@
 import type { LoginInput } from '@ashen-contracts/shared';
-import { validationKeysByField } from '@/src/i18n/validationKey';
+import { validationKeysByField } from '@/i18n/validationKey';
 
 // The rules are loginSchema from @ashen-contracts/shared, the one the API
 // validates with; this file only picks the message for each field.

@@ -51,7 +51,7 @@ Error responses carry a stable `code` (`ApiErrorCode` in `@ashen-contracts/share
 
 Resolved in `docs/DECISIONS.md` #005 (originally an open decision here, with `localStorage` as the v0.1 placeholder). The browser never makes HTTP requests to `apps/api` and never holds the token (the planned Socket.io connection is the one exception to the first part, see `docs/DECISIONS.md` #019):
 
-- **Client actions** (form submits, logout) call same-origin Next.js route handlers under `app/api/auth/` (`InternalApiRoutes` in `src/http/endpoints.ts`):
+- **Client actions** (form submits, logout) call same-origin Next.js route handlers under `src/app/api/auth/` (`InternalApiRoutes` in `src/http/endpoints.ts`):
   - `POST /api/auth/register` — proxies to `POST /auth/register` and passes the response and status through.
   - `POST /api/auth/login` — proxies to `POST /auth/login`; on success sets the token as the session cookie and returns `{ success: true }`, never the token.
   - `POST /api/auth/logout` — deletes the session cookie. POST, not GET, because it changes state. Stateless JWT: the token itself stays valid until it expires.

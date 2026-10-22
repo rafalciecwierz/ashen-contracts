@@ -1,4 +1,4 @@
-import type { ValidationMessageKey } from '@/src/i18n/validationKey';
+import type { ValidationMessageKey } from '@/i18n/validationKey';
 
 export interface LoginFieldErrors {
   email?: ValidationMessageKey;

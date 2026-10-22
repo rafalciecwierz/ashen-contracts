@@ -19,7 +19,7 @@ Each entry should be short — a git-log summary, not a design doc. Detailed rea
 - CORS enabled on the API for local frontend development
 - Unit tests for `AuthService` and `AuthController`
 - `/login` screen: form with Zod validation, copy that varies by context (`?registered=true` vs. default "unauthorized" framing), `?redirect=` support for sending users back where they came from
-- BFF pattern: Next.js Route Handlers (`apps/web/app/api/auth/**`, exposed to the browser as `InternalApiRoutes`) proxy auth requests to `apps/api` server-side; the JWT is set as an `httpOnly` cookie by Next.js itself and never reaches client-side JavaScript (see `docs/DECISIONS.md` #005)
+- BFF pattern: Next.js Route Handlers (`apps/web/src/app/api/auth/**`, exposed to the browser as `InternalApiRoutes`) proxy auth requests to `apps/api` server-side; the JWT is set as an `httpOnly` cookie by Next.js itself and never reaches client-side JavaScript (see `docs/DECISIONS.md` #005)
 - JWT Guard applied globally, opt-out via `@Public()` decorator
 - Rate limiting on login and register (`@nestjs/throttler`): per player IP, and per email for login. The BFF forwards the player's IP with a shared `BFF_SECRET`, so players behind the BFF don't share one limit (see `docs/DECISIONS.md` #017)
 
