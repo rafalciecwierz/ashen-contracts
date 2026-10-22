@@ -821,7 +821,14 @@ Found on the way, not changed: the guard accepts only `Bearer` with that exact c
 
 ### WEB-03 — Enforce server-only modules and deduplicate `getCurrentUser`
 
-**Status:** ⬜ TODO
+**Status:** ✅ DONE (2026-10-22)
+
+**Notes:** Added the `server-only` package (Next.js handles the import itself, but documents installing it, and tools outside Next.js, such as Vitest in WEB-10, need it to resolve) and `import 'server-only'` to `session.ts`, `getCurrentUser.ts`, `bffHeaders.ts`, `proxyToApi.ts`, `config/serverEnv.ts` and the `ApiEndpoints` module.
+
+- **Deviation, a needed split:** `ApiEndpoints` and `InternalApiRoutes` shared `src/http/endpoints.ts`, and the `@/http` barrel re-exported both, while client components (the forms, `PlayNavbar`) import `InternalApiRoutes` and `apiPost` from it. Marking that file server-only would have broken them, so it became `apiEndpoints.ts` (server-only, renamed with `git mv`) and `internalApiRoutes.ts`.
+- **Extension agreed with the owner:** with only client modules left in the barrel, the rule "server modules are imported by path" lived only in a comment. `src/http/` is now split into `server/` (`apiEndpoints`, `bffHeaders`, `getCurrentUser`, `proxyToApi`, `session`, each with `import 'server-only'`) and `client/` (`api`, `internalApiRoutes`), each with an `index.ts`; the old `src/http/index.ts` is gone. Imports read `@/http/server` or `@/http/client`, so a server import in a `'use client'` file shows in review, and the build still fails on it (the barrel re-exports `server-only` modules). Files inside a folder import each other by relative path, not through their own barrel, to avoid cycles. Recorded as a convention in CLAUDE.md.
+- **`cache()`:** `getCurrentUser` is `cache(async () => ...)`. Next.js 16 already memoizes a `GET` `fetch` with the same URL and options within a render pass, so the API call was not duplicated even before. `cache()` still earns its place: it covers the whole function (cookie read, the 401-to-`null` mapping), and it keeps working if the `fetch` changes, e.g. an `AbortSignal` for a timeout (WEB-12) opts the `fetch` out of memoization. Today only one component per request calls it (`/play` layout or `/login` page).
+- **Verified:** `pnpm typecheck`, `lint`, `test`, `format:check`, `build`. Temporarily importing `ApiEndpoints` in `loginForm.component.tsx` failed `next build` (repeated after the split, through the `@/http/server` barrel) with "You're importing a module that depends on `server-only`" and the import trace. With a temporary log in `getCurrentUser` and a second call from the `/play` page, a logged-in `/play` request (API on the docker-compose Postgres, dummy secrets) ran the function once with `cache()` and twice without it; the page rendered the player's email. The temporary code is reverted.
 
 **Fix:** Add `import 'server-only'` to `session.ts`, `getCurrentUser.ts` and the `ApiEndpoints` module. Since WEB-02, also `src/config/serverEnv.ts`, `src/http/proxyToApi.ts` and `bffHeaders.ts`. Wrap `getCurrentUser` in React `cache()` so it runs once per request.
 

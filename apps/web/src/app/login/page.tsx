@@ -1,7 +1,7 @@
 import { Suspense } from 'react';
 import { redirect } from 'next/navigation';
 import { AppPaths } from '@/routes/routes';
-import { getCurrentUser } from '@/http/getCurrentUser';
+import { getCurrentUser } from '@/http/server';
 import { getSafeRedirect } from '@/routes/routeHelpers';
 import { LoginForm } from './_components/loginForm.component';
 

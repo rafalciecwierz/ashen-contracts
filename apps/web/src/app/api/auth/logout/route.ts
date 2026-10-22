@@ -1,4 +1,4 @@
-import { clearSessionCookie } from '@/http/session';
+import { clearSessionCookie } from '@/http/server';
 import { NextResponse } from 'next/server';
 
 // POST on purpose, not GET: logging out changes state, and GET requests can be

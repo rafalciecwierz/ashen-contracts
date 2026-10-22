@@ -1,5 +1,4 @@
-import { ApiEndpoints } from '@/http';
-import { proxyToApi } from '@/http/proxyToApi';
+import { ApiEndpoints, proxyToApi } from '@/http/server';
 import { NextRequest } from 'next/server';
 
 export async function POST(request: NextRequest) {

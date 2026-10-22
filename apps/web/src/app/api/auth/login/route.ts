@@ -1,7 +1,5 @@
 import type { LoginResponse } from '@ashen-contracts/shared';
-import { ApiEndpoints } from '@/http';
-import { proxyToApi } from '@/http/proxyToApi';
-import { setSessionCookie } from '@/http/session';
+import { ApiEndpoints, proxyToApi, setSessionCookie } from '@/http/server';
 import { NextRequest, NextResponse } from 'next/server';
 
 export async function POST(request: NextRequest) {

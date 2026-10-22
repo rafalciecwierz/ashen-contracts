@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react';
 import { redirect } from 'next/navigation';
-import { getCurrentUser } from '@/http/getCurrentUser';
+import { getCurrentUser } from '@/http/server';
 import { AppPaths } from '@/routes/routes';
 import { PlayNavbar } from './_components';
 import { buildPath } from '@/routes/routeHelpers';
