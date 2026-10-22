@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { Navbar, UserMenu } from '@ashen-contracts/ui';
-import { InternalApiRoutes, apiPost } from '@/http';
+import { InternalApiRoutes, apiPost } from '@/http/client';
 import { AppPaths } from '@/routes/routes';
 
 interface PlayNavbarProps {

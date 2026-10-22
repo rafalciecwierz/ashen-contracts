@@ -7,13 +7,12 @@ import {
   PASSWORD_MIN_LENGTH,
   type RegisterResponse,
 } from '@ashen-contracts/shared';
-import { ApiError, apiPost } from '@/http/api';
+import { ApiError, apiPost, InternalApiRoutes } from '@/http/client';
 import { RegisterFieldErrors } from './register.types';
 import type { ValidationMessageKey } from '@/i18n/validationKey';
 import { registerErrorKeys, registerFormSchema } from './register.schema';
 import { AppPaths } from '@/routes/routes';
 import { useTranslations } from 'next-intl';
-import { InternalApiRoutes } from '@/http';
 import { buildPath } from '@/routes/routeHelpers';
 
 export default function RegisterPage() {

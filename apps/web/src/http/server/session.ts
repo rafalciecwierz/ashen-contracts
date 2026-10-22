@@ -1,3 +1,4 @@
+import 'server-only';
 import { cookies } from 'next/headers';
 
 const SESSION_COOKIE = 'ashen_contracts_session';

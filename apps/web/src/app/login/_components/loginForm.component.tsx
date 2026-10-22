@@ -9,7 +9,7 @@ import { loginErrorKeys } from '../login.schema';
 import type { LoginFieldErrors } from '../login.types';
 import type { ValidationMessageKey } from '@/i18n/validationKey';
 import { AppPaths } from '@/routes/routes';
-import { InternalApiRoutes, ApiError, apiPost } from '@/http';
+import { InternalApiRoutes, ApiError, apiPost } from '@/http/client';
 import { getSafeRedirect } from '@/routes/routeHelpers';
 
 export function LoginForm() {

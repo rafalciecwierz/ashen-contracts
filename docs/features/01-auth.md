@@ -51,14 +51,14 @@ Error responses carry a stable `code` (`ApiErrorCode` in `@ashen-contracts/share
 
 Resolved in `docs/DECISIONS.md` #005 (originally an open decision here, with `localStorage` as the v0.1 placeholder). The browser never makes HTTP requests to `apps/api` and never holds the token (the planned Socket.io connection is the one exception to the first part, see `docs/DECISIONS.md` #019):
 
-- **Client actions** (form submits, logout) call same-origin Next.js route handlers under `src/app/api/auth/` (`InternalApiRoutes` in `src/http/endpoints.ts`):
+- **Client actions** (form submits, logout) call same-origin Next.js route handlers under `src/app/api/auth/` (`InternalApiRoutes` in `src/http/client/internalApiRoutes.ts`):
   - `POST /api/auth/register` — proxies to `POST /auth/register` and passes the response and status through.
   - `POST /api/auth/login` — proxies to `POST /auth/login`; on success sets the token as the session cookie and returns `{ success: true }`, never the token.
-  - Both go through `proxyToApi()` (`src/http/proxyToApi.ts`): the body is forwarded unparsed, so invalid JSON gets the API's 400 `BAD_REQUEST`, and an unreachable API or a response that isn't JSON becomes a 502 `INTERNAL_ERROR` with the cause in the server log.
+  - Both go through `proxyToApi()` (`src/http/server/proxyToApi.ts`): the body is forwarded unparsed, so invalid JSON gets the API's 400 `BAD_REQUEST`, and an unreachable API or a response that isn't JSON becomes a 502 `INTERNAL_ERROR` with the cause in the server log.
   - `POST /api/auth/logout` — deletes the session cookie. POST, not GET, because it changes state. Stateless JWT: the token itself stays valid until it expires.
-- **Reading the session on page load** happens in Server Components: `getCurrentUser()` (`src/http/getCurrentUser.ts`) reads the cookie and calls `GET /auth/me`. It returns `null` on a missing cookie or a 401, and throws on any other failure, so a backend outage doesn't look like a logout.
-- **Cookie** (`src/http/session.ts`): `ashen_contracts_session`, `httpOnly`, `sameSite=lax`, `path=/`, `maxAge` 7 days, `secure` in production.
-- **Backend address:** `API_URL` (server-only env variable, `apps/web/.env.example`), read through `getServerEnv()` (`src/config/serverEnv.ts`), which checks on first use that it is a URL. There is no `NEXT_PUBLIC_` variant; backend paths live in `ApiEndpoints` and are only used server-side.
+- **Reading the session on page load** happens in Server Components: `getCurrentUser()` (`src/http/server/getCurrentUser.ts`) reads the cookie and calls `GET /auth/me`. It returns `null` on a missing cookie or a 401, and throws on any other failure, so a backend outage doesn't look like a logout. It is wrapped in React `cache()`, so a layout and a page that both call it share one call per request.
+- **Cookie** (`src/http/server/session.ts`): `ashen_contracts_session`, `httpOnly`, `sameSite=lax`, `path=/`, `maxAge` 7 days, `secure` in production.
+- **Backend address:** `API_URL` (server-only env variable, `apps/web/.env.example`), read through `getServerEnv()` (`src/config/serverEnv.ts`), which checks on first use that it is a URL. There is no `NEXT_PUBLIC_` variant; backend paths live in `ApiEndpoints` (`src/http/server/apiEndpoints.ts`), which imports `server-only`, so a client component that imports it fails the build.
 
 ### Screens
 
@@ -79,7 +79,7 @@ Resolved in `docs/DECISIONS.md` #005 (originally an open decision here, with `lo
 
 ### API calls
 
-Client components call `InternalApiRoutes` through `apiPost` (`src/http/api.ts`), which turns error responses into an `ApiError` with `status` and `code`. Request/response types come from `@ashen-contracts/shared` (`RegisterResponse`, `LoginResponse`, `MeResponse`, `JwtPayload`, `ApiErrorCode`), not inline types.
+Client components call `InternalApiRoutes` through `apiPost` (`src/http/client/api.ts`), which turns error responses into an `ApiError` with `status` and `code`. Request/response types come from `@ashen-contracts/shared` (`RegisterResponse`, `LoginResponse`, `MeResponse`, `JwtPayload`, `ApiErrorCode`), not inline types.
 
 ## Tests to write
 

@@ -1,3 +1,4 @@
+import 'server-only';
 import type { ApiErrorResponse } from '@ashen-contracts/shared';
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerEnv } from '@/config/serverEnv';
