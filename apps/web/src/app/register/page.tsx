@@ -7,14 +7,14 @@ import {
   PASSWORD_MIN_LENGTH,
   type RegisterResponse,
 } from '@ashen-contracts/shared';
-import { ApiError, apiPost } from '@/src/http/api';
+import { ApiError, apiPost } from '@/http/api';
 import { RegisterFieldErrors } from './register.types';
-import type { ValidationMessageKey } from '@/src/i18n/validationKey';
+import type { ValidationMessageKey } from '@/i18n/validationKey';
 import { registerErrorKeys, registerFormSchema } from './register.schema';
-import { AppPaths } from '@/src/routes/routes';
+import { AppPaths } from '@/routes/routes';
 import { useTranslations } from 'next-intl';
-import { InternalApiRoutes } from '@/src/http';
-import { buildPath } from '@/src/routes/routeHelpers';
+import { InternalApiRoutes } from '@/http';
+import { buildPath } from '@/routes/routeHelpers';
 
 export default function RegisterPage() {
   const router = useRouter();

@@ -35,7 +35,7 @@ Settle the decisions with the user through the `grilling` skill. Then **write th
 
 **API slice:** request schemas (Zod), response types and error codes in `packages/shared`; Prisma schema change and migration (`pnpm --filter api migrate`); module, controller (schemas attached with `@Body({ schema })`) and service in `apps/api`; unit tests next to the code and integration tests in `apps/api/test/`.
 
-**Web slice:** BFF route handlers in `app/api/`, the route and its components (placement rule in CLAUDE.md: `_components/` first, `packages/ui` only for generic UI, with a story), Zod schemas, i18n messages, error codes translated by code.
+**Web slice:** BFF route handlers in `src/app/api/`, the route and its components (placement rule in CLAUDE.md: `_components/` first, `packages/ui` only for generic UI, with a story), Zod schemas, i18n messages, error codes translated by code.
 
 For every slice:
 

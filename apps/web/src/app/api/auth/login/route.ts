@@ -1,6 +1,6 @@
-import { ApiEndpoints } from '@/src/http';
-import { bffHeaders } from '@/src/http/bffHeaders';
-import { setSessionCookie } from '@/src/http/session';
+import { ApiEndpoints } from '@/http';
+import { bffHeaders } from '@/http/bffHeaders';
+import { setSessionCookie } from '@/http/session';
 import { NextRequest, NextResponse } from 'next/server';
 
 const API_URL = process.env.API_URL;

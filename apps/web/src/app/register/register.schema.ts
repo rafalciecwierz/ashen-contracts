@@ -1,6 +1,6 @@
 import z from 'zod';
 import { registerSchema } from '@ashen-contracts/shared';
-import { validationKey, validationKeysByField } from '@/src/i18n/validationKey';
+import { validationKey, validationKeysByField } from '@/i18n/validationKey';
 
 // The API's rules (shared with it) plus the confirmation field, which only
 // the form has: the API never sees confirmPassword.

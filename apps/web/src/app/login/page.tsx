@@ -1,8 +1,8 @@
 import { Suspense } from 'react';
 import { redirect } from 'next/navigation';
-import { AppPaths } from '@/src/routes/routes';
-import { getCurrentUser } from '@/src/http/getCurrentUser';
-import { getSafeRedirect } from '@/src/routes/routeHelpers';
+import { AppPaths } from '@/routes/routes';
+import { getCurrentUser } from '@/http/getCurrentUser';
+import { getSafeRedirect } from '@/routes/routeHelpers';
 import { LoginForm } from './_components/loginForm.component';
 
 export default async function LoginPage({

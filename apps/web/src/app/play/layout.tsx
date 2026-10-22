@@ -1,9 +1,9 @@
 import type { ReactNode } from 'react';
 import { redirect } from 'next/navigation';
-import { getCurrentUser } from '@/src/http/getCurrentUser';
-import { AppPaths } from '@/src/routes/routes';
+import { getCurrentUser } from '@/http/getCurrentUser';
+import { AppPaths } from '@/routes/routes';
 import { PlayNavbar } from './_components';
-import { buildPath } from '@/src/routes/routeHelpers';
+import { buildPath } from '@/routes/routeHelpers';
 
 export default async function PlayLayout({
   children,
