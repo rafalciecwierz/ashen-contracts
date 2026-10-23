@@ -62,7 +62,7 @@ Resolved in `docs/DECISIONS.md` #005 (originally an open decision here, with `lo
 
 ### Screens
 
-- `/register` — email, password, confirm-password fields. On success: redirect to `/login?registered=true`, which greets the new player. (Character creation will change this target once it exists.)
+- `/register` — email, password, confirm-password fields. On success: redirect to `/login?registered=true`, which greets the new player. (Character creation will change this target once it exists.) An already logged-in player is redirected to `/play`.
 - `/login` — email, password fields. On success: redirect to the `?redirect=` target if it is a safe in-app path (`getSafeRedirect`), otherwise to `/play`. An already logged-in player is redirected away from the form.
 - `/play` — protected: its layout calls `getCurrentUser()` and redirects to `/login?redirect=/play` without a session. The navbar's user menu has the logout action.
 
