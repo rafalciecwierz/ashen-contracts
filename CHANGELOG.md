@@ -28,6 +28,7 @@ Each entry should be short — a git-log summary, not a design doc. Detailed rea
 - API configuration goes through `@nestjs/config` with a Zod schema: the API refuses to start if `NODE_ENV`, `DATABASE_URL` or `JWT_SECRET` is missing or invalid. `NODE_ENV` is now required, and Swagger is served only when it is `development`
 - `apps/api` compiles in full TypeScript strict mode, `strictPropertyInitialization` included (see `docs/DECISIONS.md` #016 and #023)
 - Validation rules are Zod schemas in `packages/shared`, used by both the web app's forms and the API (NestJS 12's built-in Standard Schema validation), replacing `class-validator` DTOs. `details[].constraint` of a validation error is now a Zod issue code, and an empty login password is a 400 (see `docs/DECISIONS.md` #022)
+- `/register` is a Server Component that redirects an already logged-in player to `/play`, like `/login`; the form is a client component of its own
 
 ### Fixed
 

@@ -834,7 +834,15 @@ Found on the way, not changed: the guard accepts only `Bearer` with that exact c
 
 ### WEB-04 — Server/client split for `/register`
 
-**Status:** ⬜ TODO
+**Status:** ✅ DONE (2026-10-23)
+
+**Notes:** The old client page became `register/_components/registerForm.component.tsx` (`git mv`, so history follows), exporting `RegisterForm`; only its two relative imports and the function name changed. The new `register/page.tsx` is an async Server Component that calls `getCurrentUser()` and redirects a logged-in player to `/play`, the same check `/login` and the `/play` layout use.
+
+- **Redirect target:** always `/play`. Unlike `/login`, nothing links to `/register` with `?redirect=`, so there is no target to honour; the login step after registration still handles one.
+- **No `Suspense`:** the register form doesn't call `useSearchParams()`, so it needs no boundary, unlike `LoginForm`.
+- **Side effects:** reading the cookie makes `/register` dynamic (ƒ in the build output) instead of prerendered. A visitor without a cookie costs no API call (`getCurrentUser` returns `null` before fetching); with a cookie it is one `GET /auth/me`, and if the API is down that throws to the error page, as `/login` already does.
+- **Left for other tasks:** the duplicated form logic (WEB-05, after WEB-06); the "Create Next App" page title (WEB-07).
+- **Verified:** `pnpm typecheck`, `lint`, `format:check` and `pnpm --filter web build`. Against the built API (docker-compose Postgres, dummy secrets) through `next dev`: `/register` without a cookie returns 200 with the form; after registering and logging in through the BFF, it returns 307 to `/play`; with a garbage session cookie (the API answers 401) it returns 200 with the form. In the browser (Playwright): mismatched passwords show "Passwords do not match.", a valid submit goes to `/login?registered=true`, logging in goes to `/play`, opening `/register` then lands on `/play`, and the console shows no errors.
 
 **Problem:** `/register` is a full client page and does not redirect logged-in users, unlike `/login`.
 
