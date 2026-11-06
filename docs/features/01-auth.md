@@ -51,11 +51,11 @@ Error responses carry a stable `code` (`ApiErrorCode` in `@ashen-contracts/share
 
 Resolved in `docs/DECISIONS.md` #005 (originally an open decision here, with `localStorage` as the v0.1 placeholder). The browser never makes HTTP requests to `apps/api` and never holds the token (the planned Socket.io connection is the one exception to the first part, see `docs/DECISIONS.md` #019):
 
-- **Client actions** (form submits, logout) call same-origin Next.js route handlers under `src/app/api/auth/` (`InternalApiRoutes` in `src/http/client/internalApiRoutes.ts`):
-  - `POST /api/auth/register` — proxies to `POST /auth/register` and passes the response and status through.
-  - `POST /api/auth/login` — proxies to `POST /auth/login`; on success sets the token as the session cookie and returns `{ success: true }`, never the token.
-  - Both go through `proxyToApi()` (`src/http/server/proxyToApi.ts`): the body is forwarded unparsed, so invalid JSON gets the API's 400 `BAD_REQUEST`, and an unreachable API or a response that isn't JSON becomes a 502 `INTERNAL_ERROR` with the cause in the server log.
-  - `POST /api/auth/logout` — deletes the session cookie. POST, not GET, because it changes state. Stateless JWT: the token itself stays valid until it expires.
+- **Client actions** (form submits, logout) are Server Actions (`docs/DECISIONS.md` #024), next to the route that uses them:
+  - `register` (`src/app/register/register.actions.ts`) — sends the email and password to `POST /auth/register`; on success redirects to `/login?registered=true`.
+  - `login` (`src/app/login/login.actions.ts`) — sends the credentials to `POST /auth/login`; on success sets the token as the session cookie and redirects to the form's `redirect` field (checked with `getSafeRedirect`) or `/play`. The token never reaches the browser.
+  - Both call the API through `postToApi()` (`src/http/server/postToApi.ts`), and on failure return `{ error: code }` to the form. An unreachable API or a response that isn't JSON becomes `INTERNAL_ERROR`, with the cause in the server log.
+  - `logout` (`src/app/play/play.actions.ts`) — deletes the session cookie and redirects to `/login`, replacing the history entry. A Server Action is always a POST, and Next.js rejects one whose `Origin` doesn't match the host. Stateless JWT: the token itself stays valid until it expires.
 - **Reading the session on page load** happens in Server Components: `getCurrentUser()` (`src/http/server/getCurrentUser.ts`) reads the cookie and calls `GET /auth/me`. It returns `null` on a missing cookie or a 401, and throws on any other failure, so a backend outage doesn't look like a logout. It is wrapped in React `cache()`, so a layout and a page that both call it share one call per request.
 - **Cookie** (`src/http/server/session.ts`): `ashen_contracts_session`, `httpOnly`, `sameSite=lax`, `path=/`, `maxAge` 7 days, `secure` in production.
 - **Backend address:** `API_URL` (server-only env variable, `apps/web/.env.example`), read through `getServerEnv()` (`src/config/serverEnv.ts`), which checks on first use that it is a URL. There is no `NEXT_PUBLIC_` variant; backend paths live in `ApiEndpoints` (`src/http/server/apiEndpoints.ts`), which imports `server-only`, so a client component that imports it fails the build.
@@ -68,7 +68,7 @@ Resolved in `docs/DECISIONS.md` #005 (originally an open decision here, with `lo
 
 ### States each screen must handle
 
-- Loading (submit button disabled, label changes while the request is in flight)
+- Loading (submit button disabled, label changes while the request is in flight; `pending` from `useActionState`)
 - Field-level validation errors — the forms parse with the API's own schemas from `@ashen-contracts/shared` (register adds the confirmation field), so the user gets instant feedback, not just a failed round-trip, and the rules can't drift. Each route's `*.schema.ts` maps every field to its translation key. Register requires a valid email and a password of at least 8 characters, plus a matching confirmation; login only requires a valid email and a non-empty password, so the login form never reveals password rules
 - Server error (409 duplicate email on register, 401 bad credentials on login) — translated from the error `code` and shown inline on the form, never a full-page crash
 - Success — redirect fires (after login, the cookie is already set)
@@ -79,7 +79,7 @@ Resolved in `docs/DECISIONS.md` #005 (originally an open decision here, with `lo
 
 ### API calls
 
-Client components call `InternalApiRoutes` through `apiPost` (`src/http/client/api.ts`), which turns error responses into an `ApiError` with `status` and `code`. Request/response types come from `@ashen-contracts/shared` (`RegisterResponse`, `LoginResponse`, `MeResponse`, `JwtPayload`, `ApiErrorCode`), not inline types.
+The forms bind their Server Action with `useActionState`, so they post without JavaScript too (then only the API validates). Request/response types come from `@ashen-contracts/shared` (`RegisterResponse`, `LoginResponse`, `MeResponse`, `JwtPayload`, `ApiErrorCode`), not inline types.
 
 ## Tests to write
 
@@ -104,4 +104,5 @@ Where the implementation differs from the spec as first written (see `git log --
 - **Token storage:** the spec planned `localStorage`, with the client sending the JWT as a Bearer token to `NEXT_PUBLIC_API_URL`. Built instead as a BFF with an httpOnly cookie and a server-only `API_URL` (`docs/DECISIONS.md` #005), so the browser never holds the token or knows the API's address.
 - **Register does not log in:** the spec had `POST /auth/register` return a JWT. It returns `{ id, email }`, and the player logs in once after registering (`/login?registered=true`).
 - **Redirect target:** the spec redirected to `/` until character creation exists. Login redirects to a safe `?redirect=` target or `/play`, the first protected route.
+- **Route Handlers replaced by Server Actions:** the BFF first exposed `POST /api/auth/register`, `/login` and `/logout` as Route Handlers, called with `apiPost`. Since REFACTOR.md WEB-06 they are Server Actions (`docs/DECISIONS.md` #024).
 - **Known gaps:** the tests marked "not yet" above are still missing (WEB-10, WEB-11).

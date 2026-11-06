@@ -856,9 +856,20 @@ Found on the way, not changed: the guard accepts only `Bearer` with that exact c
 
 **Fix:** Either use `react-hook-form` with `zodResolver`, or write a small shared `useZodForm` hook. Do this after WEB-06, because Server Actions change the approach.
 
+**Note (from WEB-06):** the forms now use Server Actions with `useActionState` (`docs/DECISIONS.md` #024): the loading and server-error state is gone, and what is still duplicated is the field state, `validate()` with its Zod issue mapping, and the error display. Two things to decide here: whether the actions validate with the same schemas and return field errors (so a form without JavaScript gets the form-only rules, like `confirmPassword`, and per-field messages instead of `VALIDATION_FAILED`), and whether the action returns the submitted values, since without JavaScript the fields come back empty after an error. A stale server error also stays visible when client validation then fails.
+
 ### WEB-06 — Decide between Server Actions and Route Handlers (ADR)
 
-**Status:** ⬜ TODO
+**Status:** ✅ DONE (2026-11-06)
+
+**Notes:** Server Actions won; the decision and the rejected options are `docs/DECISIONS.md` #024, and #005 is marked as partly superseded (the BFF and the cookie stay).
+
+- **Code:** `login`, `register` and `logout` are Server Actions in `login.actions.ts`, `register.actions.ts` and `play.actions.ts`, next to their routes (a new `.actions.ts` suffix, in CLAUDE.md). The forms bind them with `useActionState` and keep their client-side `validate()`, which now runs in `onSubmit` and calls `preventDefault()` on invalid input; `pending` and the returned `{ error }` replace the hand-written loading and server-error state. `LoginForm` sends the `?redirect=` target in a hidden field, and the action checks it again with `getSafeRedirect`, since a Server Action's `FormData` is client input. `logout` redirects with `RedirectType.replace`, as `router.replace` did.
+- **BFF helper:** `proxyToApi.ts` became `postToApi.ts` (`git mv`): the same `bffHeaders`, logging and `INTERNAL_ERROR` for an unreachable API or a body that isn't JSON, but it takes a body and returns `{ ok, data | error }`, since an action returns state, not a response. `bffHeaders()` reads `X-Forwarded-For` through `headers()` from `next/headers` instead of a `NextRequest`. The three Route Handlers, `apiPost`, `ApiError`, `InternalApiRoutes` and the whole `src/http/client/` folder are deleted.
+- **Found on the way:** the old login route was open to login CSRF. A `text/plain` cross-site post (`Origin: https://evil.example`, body `{"email":…,"password":"abc=defgh"}`, which a plain HTML form can produce) got 200 and the session cookie. Server Actions reject it (Origin check), so the switch closes it; recorded in #024.
+- **Docs:** #024, ARCHITECTURE (frontend, BFF requests, error responses), `docs/features/01-auth.md` (session section, states, API calls, a deviation), CLAUDE.md (where code lives, server/client split, file naming), the `implement-feature` skill's web slice, and `apps/web/.env.example` comments.
+- **Left for other tasks:** the forms' duplicated state, validation and error display is still WEB-05, now on top of `useActionState`; without JavaScript only the API validates, and the fields come back empty after an error, both for WEB-05 to decide. Logout failure handling stays in WEB-08 (the `router.refresh()` part is covered: the action's redirect re-renders the server tree). The runtime check of unknown error codes (WEB-09) now belongs in `postToApi`. No timeout on the API call yet (WEB-12).
+- **Verified:** `pnpm typecheck`, `lint`, `test`, `format:check`, `build`. Against the built API (docker-compose Postgres, dummy secrets) in `next dev` with Playwright: invalid input shows the field errors and sends no action request; a duplicate email shows "This email is already registered." and keeps the field values; registering lands on `/login?registered=true`; a wrong password shows "Incorrect email or password."; logging in from `/login?redirect=/play` lands on `/play` with the httpOnly cookie; logout clears it and Back doesn't return to `/play`; the API's rate limit shows "Too many attempts…". No console errors. On `next start` with JavaScript turned off: register, a wrong password (translated error rendered by the server) and login with the redirect all work. Replaying the captured login action with curl: `Origin: https://evil.example` returns 500 ("Invalid Server Actions request" in the log) and no cookie, the app's own origin returns 303 with the cookie, and `redirect=//evil.example` or `https://evil.example` still lands on `/play`. The old `/api/auth/login` returns 404.
 
 **Fix:** Compare the current Route Handler BFF with Server Actions plus `useActionState`. With Server Actions, the action sets the cookie, the client-side `apiPost` is no longer needed, and forms work without JS. Write an ADR (next free number) with the decision, and implement it if Server Actions win.
 
@@ -879,6 +890,8 @@ Found on the way, not changed: the guard accepts only `Bearer` with that exact c
 
 **Fix:** Remove the duplicate "Unnamed Hero" (it appears both as text and in UserMenu). Handle logout failures, and call `router.refresh()` after logout so server components re-evaluate.
 
+**Note (from WEB-06):** logout is now a Server Action (`src/app/play/play.actions.ts`) whose `redirect()` re-renders the server tree, so `router.refresh()` is no longer needed. Failure handling is still open: `onSelect: () => void logout()` ignores a failed call (e.g. the network is down).
+
 ### WEB-09 — Type-safe error code translation
 
 **Status:** ⬜ TODO
@@ -887,7 +900,7 @@ Found on the way, not changed: the guard accepts only `Bearer` with that exact c
 
 **Fix:** Add a mapping function with a `GENERIC` fallback for unknown codes, typed against the shared code union. Align with API-08.
 
-**Note (from API-08):** `ApiError.code` is now `ApiErrorCode`, and `en.json` has every code, so the compile-time half is done: a code without a message fails `tsc`. What is left is the runtime half: `apiPost` takes `data.code` from the response unchecked, so a code the web app doesn't know (an API deployed ahead of the web app) still reaches `tErrors`.
+**Note (from API-08):** `ApiError.code` is now `ApiErrorCode`, and `en.json` has every code, so the compile-time half is done: a code without a message fails `tsc`. What is left is the runtime half: `apiPost` takes `data.code` from the response unchecked (since WEB-06 that is `postToApi` in `src/http/server/postToApi.ts`, and the actions return the code to the forms), so a code the web app doesn't know (an API deployed ahead of the web app) still reaches `tErrors`.
 
 ### WEB-10 — Unit and component testing setup for `apps/web`
 
@@ -897,6 +910,8 @@ Found on the way, not changed: the guard accepts only `Bearer` with that exact c
 
 - Add Vitest (consistent with `packages/ui`) with React Testing Library, and a `test` script.
 - Cover `routeHelpers` (especially the `getSafeRedirect` attack cases), the Zod schemas, and both forms: inline errors, server error rendering, and redirect on success.
+
+**Note (from WEB-06):** the forms call Server Actions (`*.actions.ts`) through `useActionState`. The actions are plain async functions, testable with `next/headers` and `postToApi` mocked (`redirect()` throws, so assert on that); the forms can be tested with the action mocked.
 
 ### WEB-11 — E2E tests with Playwright
 
@@ -925,7 +940,7 @@ Found on the way, not changed: the guard accepts only `Bearer` with that exact c
 
 **Problem:** `apps/web` reads `API_URL` and `BFF_SECRET` straight from `process.env`, with no validation. Since API-06 the BFF sends `X-BFF-Secret` to `API_URL`, so an `http://` URL in production would send the secret in clear text.
 
-**Note (from WEB-02):** `src/config/serverEnv.ts` now exists, with `API_URL` (`z.url()`) validated on first use, not at startup, because `next build` in CI runs without the variable. This task extends it: `BFF_SECRET` (still read in `bffHeaders.ts`), the `https://` rule, and a startup check (e.g. `instrumentation.ts`) that doesn't run during the build. Also decide whether `proxyToApi` needs a timeout, given Render's slow cold starts (#020).
+**Note (from WEB-02):** `src/config/serverEnv.ts` now exists, with `API_URL` (`z.url()`) validated on first use, not at startup, because `next build` in CI runs without the variable. This task extends it: `BFF_SECRET` (still read in `bffHeaders.ts`), the `https://` rule, and a startup check (e.g. `instrumentation.ts`) that doesn't run during the build. Also decide whether `postToApi` (formerly `proxyToApi`, WEB-06) needs a timeout, given Render's slow cold starts (#020).
 
 **Fix:** A Zod schema for the web app's server-side env (like `apps/api/src/config/env.schema.ts`), checked at startup: `API_URL` a URL that must be `https://` when `NODE_ENV` is `production`, and `BFF_SECRET` at least 32 characters. Read the variables through it instead of `process.env`.
 
@@ -935,7 +950,7 @@ Found on the way, not changed: the guard accepts only `Bearer` with that exact c
 
 **Problem:** Since API-06 the API limits login and register; every rejected attempt still costs a round trip from the BFF to the API.
 
-**Fix:** Only once the deployment is known: a limiter in the route handlers (or `proxy.ts`) as an extra layer, never instead of the API's (the API is public). On Vercel it needs a shared store (e.g. Upstash Redis), because serverless instances don't share memory. See `docs/DECISIONS.md` #017.
+**Fix:** Only once the deployment is known: a limiter in the Server Actions (since WEB-06 there are no route handlers; or `proxy.ts`) as an extra layer, never instead of the API's (the API is public). On Vercel it needs a shared store (e.g. Upstash Redis), because serverless instances don't share memory. See `docs/DECISIONS.md` #017.
 
 ---
 
