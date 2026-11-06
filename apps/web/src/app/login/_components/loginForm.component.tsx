@@ -1,19 +1,17 @@
 'use client';
 
-import { useState, type SubmitEvent } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useActionState, useState, type SubmitEvent } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { Input, Button } from '@ashen-contracts/ui';
 import { loginSchema } from '@ashen-contracts/shared';
 import { loginErrorKeys } from '../login.schema';
+import { login } from '../login.actions';
 import type { LoginFieldErrors } from '../login.types';
 import type { ValidationMessageKey } from '@/i18n/validationKey';
-import { AppPaths } from '@/routes/routes';
-import { InternalApiRoutes, ApiError, apiPost } from '@/http/client';
 import { getSafeRedirect } from '@/routes/routeHelpers';
 
 export function LoginForm() {
-  const router = useRouter();
   const searchParams = useSearchParams();
 
   // Two things this form's copy/behavior depends on:
@@ -30,8 +28,7 @@ export function LoginForm() {
   const [email, setEmail] = useState<string>('');
   const [password, setPassword] = useState<string>('');
   const [fieldErrors, setFieldErrors] = useState<LoginFieldErrors>({});
-  const [serverError, setServerError] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false);
+  const [state, formAction, pending] = useActionState(login, { error: null });
 
   function validate(): boolean {
     const result = loginSchema.safeParse(
@@ -52,27 +49,10 @@ export function LoginForm() {
     return false;
   }
 
-  async function handleSubmit(
-    event: SubmitEvent<HTMLFormElement>,
-  ): Promise<void> {
-    event.preventDefault();
-    setServerError(null);
-
-    if (!validate()) return;
-
-    setLoading(true);
-    try {
-      await apiPost(InternalApiRoutes.auth.login, { email, password });
-      router.push(safeRedirect ?? AppPaths.play);
-    } catch (err) {
-      setServerError(
-        err instanceof ApiError
-          ? tErrors(err.code ?? 'GENERIC')
-          : tErrors('GENERIC'),
-      );
-    } finally {
-      setLoading(false);
-    }
+  // Runs before the action; preventDefault() stops the submit. Without
+  // JavaScript the form posts straight to the action, and the API validates.
+  function handleSubmit(event: SubmitEvent<HTMLFormElement>): void {
+    if (!validate()) event.preventDefault();
   }
 
   return (
@@ -88,11 +68,14 @@ export function LoginForm() {
         </div>
 
         <form
+          action={formAction}
           onSubmit={handleSubmit}
           className="bg-surface border border-surface-raised rounded-lg p-6 flex flex-col gap-4"
         >
+          <input type="hidden" name="redirect" value={safeRedirect ?? ''} />
           <Input
             label={t('emailLabel')}
+            name="email"
             type="email"
             autoComplete="email"
             value={email}
@@ -103,6 +86,7 @@ export function LoginForm() {
           />
           <Input
             label={t('passwordLabel')}
+            name="password"
             type="password"
             autoComplete="current-password"
             value={password}
@@ -114,10 +98,12 @@ export function LoginForm() {
             }
           />
 
-          {serverError && <p className="text-sm text-error">{serverError}</p>}
+          {state.error && (
+            <p className="text-sm text-error">{tErrors(state.error)}</p>
+          )}
 
-          <Button type="submit" disabled={loading}>
-            {loading ? t('submitting') : t('submit')}
+          <Button type="submit" disabled={pending}>
+            {pending ? t('submitting') : t('submit')}
           </Button>
         </form>
       </div>

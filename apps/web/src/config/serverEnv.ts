@@ -12,8 +12,8 @@ let serverEnv: ServerEnv | undefined;
 
 /**
  * The server-side environment, validated on first use and then cached.
- * Not at import time: `next build` imports the route handlers to collect page
- * data, and CI builds without these variables.
+ * Not at import time: `next build` imports the routes and their Server Actions
+ * to collect page data, and CI builds without these variables.
  */
 export function getServerEnv(): ServerEnv {
   if (!serverEnv) {

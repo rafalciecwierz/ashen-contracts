@@ -1,22 +1,15 @@
 'use client';
 
-import { SubmitEvent, useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useActionState, useState, type SubmitEvent } from 'react';
 import { Input, Button } from '@ashen-contracts/ui';
-import {
-  PASSWORD_MIN_LENGTH,
-  type RegisterResponse,
-} from '@ashen-contracts/shared';
-import { ApiError, apiPost, InternalApiRoutes } from '@/http/client';
+import { PASSWORD_MIN_LENGTH } from '@ashen-contracts/shared';
+import { register } from '../register.actions';
 import { RegisterFieldErrors } from '../register.types';
 import type { ValidationMessageKey } from '@/i18n/validationKey';
 import { registerErrorKeys, registerFormSchema } from '../register.schema';
-import { AppPaths } from '@/routes/routes';
 import { useTranslations } from 'next-intl';
-import { buildPath } from '@/routes/routeHelpers';
 
 export function RegisterForm() {
-  const router = useRouter();
   const t = useTranslations('auth.register');
   const tErrors = useTranslations('errors');
   const tValidation = useTranslations('validation');
@@ -24,8 +17,9 @@ export function RegisterForm() {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [fieldErrors, setFieldErrors] = useState<RegisterFieldErrors>({});
-  const [serverError, setServerError] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false);
+  const [state, formAction, pending] = useActionState(register, {
+    error: null,
+  });
 
   function validate(): boolean {
     const result = registerFormSchema.safeParse(
@@ -46,33 +40,16 @@ export function RegisterForm() {
     return false;
   }
 
-  async function handleSubmit(event: SubmitEvent<HTMLFormElement>) {
-    event.preventDefault();
-    setServerError(null);
-
-    if (!validate()) return;
-
-    setLoading(true);
-    try {
-      await apiPost<RegisterResponse>(InternalApiRoutes.auth.register, {
-        email,
-        password,
-      });
-      router.push(buildPath(AppPaths.login, { registered: 'true' }));
-    } catch (err) {
-      setServerError(
-        err instanceof ApiError
-          ? tErrors(err.code ?? 'GENERIC')
-          : tErrors('GENERIC'),
-      );
-    } finally {
-      setLoading(false);
-    }
+  // Runs before the action; preventDefault() stops the submit. Without
+  // JavaScript the form posts straight to the action, and the API validates.
+  function handleSubmit(event: SubmitEvent<HTMLFormElement>): void {
+    if (!validate()) event.preventDefault();
   }
 
   return (
     <main className="min-h-screen flex items-center justify-center bg-bg px-4">
       <form
+        action={formAction}
         onSubmit={handleSubmit}
         className="w-full max-w-sm bg-surface border border-surface-raised rounded-lg p-6 flex flex-col gap-4"
       >
@@ -80,6 +57,7 @@ export function RegisterForm() {
 
         <Input
           label={t('emailLabel')}
+          name="email"
           type="email"
           autoComplete="email"
           value={email}
@@ -88,6 +66,7 @@ export function RegisterForm() {
         />
         <Input
           label={t('passwordLabel')}
+          name="password"
           type="password"
           autoComplete="new-password"
           value={password}
@@ -111,10 +90,12 @@ export function RegisterForm() {
           }
         />
 
-        {serverError && <p className="text-sm text-error">{serverError}</p>}
+        {state.error && (
+          <p className="text-sm text-error">{tErrors(state.error)}</p>
+        )}
 
-        <Button type="submit" disabled={loading}>
-          {loading ? t('submitting') : t('submit')}
+        <Button type="submit" disabled={pending}>
+          {pending ? t('submitting') : t('submit')}
         </Button>
       </form>
     </main>

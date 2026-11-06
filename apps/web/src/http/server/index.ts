@@ -5,5 +5,5 @@
 export * from './apiEndpoints';
 export * from './bffHeaders';
 export * from './getCurrentUser';
-export * from './proxyToApi';
+export * from './postToApi';
 export * from './session';
