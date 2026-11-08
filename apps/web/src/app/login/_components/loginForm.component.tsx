@@ -1,14 +1,11 @@
 'use client';
 
-import { useActionState, useState, type SubmitEvent } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { Input, Button } from '@ashen-contracts/ui';
-import { loginSchema } from '@ashen-contracts/shared';
-import { loginErrorKeys } from '../login.schema';
+import { loginForm } from '../login.schema';
 import { login } from '../login.actions';
-import type { LoginFieldErrors } from '../login.types';
-import type { ValidationMessageKey } from '@/i18n/validationKey';
+import { useFormAction } from '@/forms/useFormAction';
 import { getSafeRedirect } from '@/routes/routeHelpers';
 
 export function LoginForm() {
@@ -22,38 +19,8 @@ export function LoginForm() {
   const safeRedirect = getSafeRedirect(searchParams.get('redirect'));
 
   const t = useTranslations('auth.login');
-  const tValidation = useTranslations('validation');
-  const tErrors = useTranslations('errors');
-
-  const [email, setEmail] = useState<string>('');
-  const [password, setPassword] = useState<string>('');
-  const [fieldErrors, setFieldErrors] = useState<LoginFieldErrors>({});
-  const [state, formAction, pending] = useActionState(login, { error: null });
-
-  function validate(): boolean {
-    const result = loginSchema.safeParse(
-      { email, password },
-      { error: loginErrorKeys },
-    );
-    if (result.success) {
-      setFieldErrors({});
-      return true;
-    }
-
-    const errors: LoginFieldErrors = {};
-    for (const issue of result.error.issues) {
-      const field = issue.path[0] as keyof LoginFieldErrors;
-      if (!errors[field]) errors[field] = issue.message as ValidationMessageKey;
-    }
-    setFieldErrors(errors);
-    return false;
-  }
-
-  // Runs before the action; preventDefault() stops the submit. Without
-  // JavaScript the form posts straight to the action, and the API validates.
-  function handleSubmit(event: SubmitEvent<HTMLFormElement>): void {
-    if (!validate()) event.preventDefault();
-  }
+  const { formAction, onSubmit, isPending, values, fieldError, error } =
+    useFormAction(login, loginForm);
 
   return (
     <main className="min-h-screen flex items-center justify-center bg-bg px-4">
@@ -69,7 +36,7 @@ export function LoginForm() {
 
         <form
           action={formAction}
-          onSubmit={handleSubmit}
+          onSubmit={onSubmit}
           className="bg-surface border border-surface-raised rounded-lg p-6 flex flex-col gap-4"
         >
           <input type="hidden" name="redirect" value={safeRedirect ?? ''} />
@@ -78,32 +45,21 @@ export function LoginForm() {
             name="email"
             type="email"
             autoComplete="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            error={
-              fieldErrors.email ? tValidation(fieldErrors.email) : undefined
-            }
+            defaultValue={values.email}
+            error={fieldError('email')}
           />
           <Input
             label={t('passwordLabel')}
             name="password"
             type="password"
             autoComplete="current-password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            error={
-              fieldErrors.password
-                ? tValidation(fieldErrors.password)
-                : undefined
-            }
+            error={fieldError('password')}
           />
 
-          {state.error && (
-            <p className="text-sm text-error">{tErrors(state.error)}</p>
-          )}
+          {error && <p className="text-sm text-error">{error}</p>}
 
-          <Button type="submit" disabled={pending}>
-            {pending ? t('submitting') : t('submit')}
+          <Button type="submit" disabled={isPending}>
+            {isPending ? t('submitting') : t('submit')}
           </Button>
         </form>
       </div>

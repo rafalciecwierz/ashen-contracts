@@ -1,9 +1,7 @@
-import type { LoginInput } from '@ashen-contracts/shared';
-import { validationKeysByField } from '@/i18n/validationKey';
+import { loginSchema } from '@ashen-contracts/shared';
+import { defineForm } from '@/forms/parseForm';
 
-// The rules are loginSchema from @ashen-contracts/shared, the one the API
-// validates with; this file only picks the message for each field.
-export const loginErrorKeys = validationKeysByField<LoginInput>({
+export const loginForm = defineForm(loginSchema, {
   email: 'invalidEmail',
   password: 'passwordRequired',
 });
