@@ -1,4 +1,4 @@
-import type { z } from 'zod';
+import { PASSWORD_MIN_LENGTH } from '@ashen-contracts/shared';
 import type messages from '../../messages/en.json';
 
 export type ValidationMessageKey = keyof (typeof messages)['validation'];
@@ -7,23 +7,20 @@ export type ValidationMessageKey = keyof (typeof messages)['validation'];
  * Marks a Zod `error` as a key of the "validation" namespace in en.json, so a
  * typo or a missing translation fails at compile time:
  *   z.string().min(1, { error: validationKey('passwordRequired') })
- * Forms read `issue.message` back as a ValidationMessageKey and pass it to
- * useTranslations('validation').
+ * Forms read `issue.message` back as a ValidationMessageKey (parseForm) and
+ * translate it with useFormAction's fieldError.
  */
 export function validationKey(key: ValidationMessageKey): ValidationMessageKey {
   return key;
 }
 
 /**
- * A Zod error map for a form whose schema comes from @ashen-contracts/shared.
- * Shared schemas carry no messages (the API answers in English), so the form
- * names one translation key per field: a form shows one error per field.
- * Every field of `T` needs a key. Pass it to `safeParse(data, { error })`;
- * a message the schema sets itself, e.g. a refine with validationKey(), wins
- * over it.
+ * Values for the validation messages that have placeholders, in one place, so
+ * no form can show `passwordTooShort` without its `{min}`. next-intl doesn't
+ * check at compile time that a message gets its values.
  */
-export function validationKeysByField<T extends object>(
-  keys: Record<keyof T & string, ValidationMessageKey>,
-): z.core.$ZodErrorMap {
-  return (issue) => keys[issue.path?.[0] as keyof T & string];
-}
+export const validationMessageValues: Partial<
+  Record<ValidationMessageKey, Record<string, string | number>>
+> = {
+  passwordTooShort: { min: PASSWORD_MIN_LENGTH },
+};

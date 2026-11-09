@@ -850,7 +850,18 @@ Found on the way, not changed: the guard accepts only `Bearer` with that exact c
 
 ### WEB-05 — Remove duplicated form logic
 
-**Status:** ⬜ TODO
+**Status:** ✅ DONE (2026-11-07)
+
+**Notes:** A small form module in `src/forms/` instead of either option in the task text, because both assume validation only in the browser, and since WEB-06 the forms are Server Actions that also post without JavaScript.
+
+- **`parseForm(form, formData)`** (`parseForm.ts`) is the old `validate()` once: it reads the form's fields from a `FormData` as strings, parses with the schema and a per-field error map, and keeps the first translation key per field. It runs in the browser and in the action. The fields it reads are the keys of the form's message map, so a hidden `redirect` field doesn't trip the shared `z.strictObject` schema. `defineForm(schema, messageKeys)` pairs a schema with its keys (`loginForm`, `registerForm` in the routes' `.schema.ts`) and replaces `validationKeysByField`.
+- **`useFormAction(action, form)`** (`useFormAction.ts`) wraps `useActionState`: `onSubmit` runs `parseForm` and cancels an invalid submit, and the hook returns `formAction`, `isPending` (the name React's docs give the third value of `useActionState`), `values`, `fieldError(field)` (translated) and `error` (the API's code, translated). Errors from a cancelled submit replace the action's state, which fixes the stale server error that WEB-06 noted.
+- **Actions validate too** (the first open question from WEB-06): `login` and `register` run `parseForm` before calling the API and return field errors, so a browser without JavaScript gets per-field messages and the `confirmPassword` check instead of `VALIDATION_FAILED`, and an invalid form costs no API call. The API still validates. `register` sends only `email` and `password`.
+- **Values shown again** (the second question): the action state is `FormState<T>` (`form.types.ts`: `values`, `fieldErrors`, `error`), and both actions return the email, not the passwords, which would otherwise end up in the HTML. The inputs are uncontrolled (`name`, `defaultValue={values.email}`), so the per-field `useState` is gone. Behaviour change: with JavaScript, the password fields are now empty after a server error too, because React resets an action's form; keeping them would mean controlled inputs again, and an empty password after "Incorrect email or password." is the common pattern.
+- **Message values once** (from SHARED-01): `validationMessageValues` in `src/i18n/validationKey.ts` holds the values of messages with placeholders (`passwordTooShort: { min: PASSWORD_MIN_LENGTH }`), and `fieldError` always passes them, so no form can show the message without `{min}`.
+- **Not done:** no tests for `parseForm` or the hook, since `apps/web` has no test runner yet. Setting one up is WEB-10, so the AI review's request for tests (PR #27) went there, with the cases it named, and WEB-10 is the next task. No new ADR: the helper is small and easy to replace, and the real decision (Server Actions) is #024. #022 and #024 got an `Update` line instead, since #022 named the removed `validationKeysByField` and #024 said that without JavaScript only the API validates.
+- **Docs:** CLAUDE.md (request validation, where code lives), `docs/features/01-auth.md` (states, API calls).
+- **Verified:** `pnpm typecheck`, `lint`, `test`, `format:check`, `build`. Against the built API (docker-compose Postgres, dummy secrets) with Playwright, in `next dev`: a short password and a mismatched confirmation show both messages with no action request; a duplicate email shows the server error, keeps the email and empties the password; a client error after that replaces the server error; register, a wrong password and login with `?redirect=/play` work. On `next start` with JavaScript off: the register action itself returns "Password must be at least 8 characters." and "Passwords do not match." with the email kept, then registering, a wrong password (email kept) and login to `/play` work. The dev server's action log shows the `FormData` as `{}`, so no password is logged.
 
 **Problem:** The login and register forms repeat the same code for state, `validate()` with Zod issue mapping, and submit/loading/error handling.
 
@@ -910,6 +921,8 @@ Found on the way, not changed: the guard accepts only `Bearer` with that exact c
 
 - Add Vitest (consistent with `packages/ui`) with React Testing Library, and a `test` script.
 - Cover `routeHelpers` (especially the `getSafeRedirect` attack cases), the Zod schemas, and both forms: inline errors, server error rendering, and redirect on success.
+
+**Note (from WEB-05):** `src/forms/parseForm.ts` is a pure function (a `FormData` in, data or field errors out) and the first thing to cover: since WEB-05 it is the validation gate of the `login` and `register` actions, and the AI review of PR #27 asked for its tests. Cases that could break silently: a field outside the form's message keys (the hidden `redirect`) must not trip the strict shared schema; a message the schema sets itself (the `passwordsDoNotMatch` refine) must win over the field's key; a non-string entry (a `File`) must become `''`; only the first error per field is kept. Then the actions, with `postToApi` mocked (an invalid form never reaches it, `register` doesn't send `confirmPassword`, passwords never come back in `values`). `useFormAction` can be tested with a stub action. Planned as the next task after WEB-05, ahead of WEB-07 to WEB-09.
 
 **Note (from WEB-06):** the forms call Server Actions (`*.actions.ts`) through `useActionState`. The actions are plain async functions, testable with `next/headers` and `postToApi` mocked (`redirect()` throws, so assert on that); the forms can be tested with the action mocked.
 

@@ -68,9 +68,9 @@ Resolved in `docs/DECISIONS.md` #005 (originally an open decision here, with `lo
 
 ### States each screen must handle
 
-- Loading (submit button disabled, label changes while the request is in flight; `pending` from `useActionState`)
-- Field-level validation errors — the forms parse with the API's own schemas from `@ashen-contracts/shared` (register adds the confirmation field), so the user gets instant feedback, not just a failed round-trip, and the rules can't drift. Each route's `*.schema.ts` maps every field to its translation key. Register requires a valid email and a password of at least 8 characters, plus a matching confirmation; login only requires a valid email and a non-empty password, so the login form never reveals password rules
-- Server error (409 duplicate email on register, 401 bad credentials on login) — translated from the error `code` and shown inline on the form, never a full-page crash
+- Loading (submit button disabled, label changes while the request is in flight; `isPending` from `useFormAction`)
+- Field-level validation errors — the forms parse with the API's own schemas from `@ashen-contracts/shared` (register adds the confirmation field), so the user gets instant feedback, not just a failed round-trip, and the rules can't drift. Each route's `*.schema.ts` maps every field to its translation key (`defineForm`). `parseForm` runs in `onSubmit` and again in the Server Action, so a browser without JavaScript gets the same messages, the confirmation check included. Register requires a valid email and a password of at least 8 characters, plus a matching confirmation; login only requires a valid email and a non-empty password, so the login form never reveals password rules
+- Server error (409 duplicate email on register, 401 bad credentials on login) — translated from the error `code` and shown inline on the form, never a full-page crash. After any error the email is shown again and the password fields are empty: the action never sends a password back into the page
 - Success — redirect fires (after login, the cookie is already set)
 
 ### Components (packages/ui)
@@ -79,7 +79,7 @@ Resolved in `docs/DECISIONS.md` #005 (originally an open decision here, with `lo
 
 ### API calls
 
-The forms bind their Server Action with `useActionState`, so they post without JavaScript too (then only the API validates). Request/response types come from `@ashen-contracts/shared` (`RegisterResponse`, `LoginResponse`, `MeResponse`, `JwtPayload`, `ApiErrorCode`), not inline types.
+The forms bind their Server Action with `useFormAction` (`src/forms/useFormAction.ts`, on top of `useActionState`), so they post without JavaScript too. Request/response types come from `@ashen-contracts/shared` (`RegisterResponse`, `LoginResponse`, `MeResponse`, `JwtPayload`, `ApiErrorCode`), not inline types.
 
 ## Tests to write
 

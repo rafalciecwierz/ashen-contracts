@@ -1,13 +1,5 @@
-import type { ApiErrorCode } from '@ashen-contracts/shared';
-import type { ValidationMessageKey } from '@/i18n/validationKey';
+import type { z } from 'zod';
+import type { FormState } from '@/forms/form.types';
+import type { registerForm } from './register.schema';
 
-export interface RegisterFieldErrors {
-  email?: ValidationMessageKey;
-  password?: ValidationMessageKey;
-  confirmPassword?: ValidationMessageKey;
-}
-
-/** What the register action returns to the form when it doesn't redirect. */
-export interface RegisterFormState {
-  error: ApiErrorCode | null;
-}
+export type RegisterFormState = FormState<z.input<typeof registerForm.schema>>;
