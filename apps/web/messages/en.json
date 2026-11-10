@@ -1,4 +1,14 @@
 {
+  "meta": {
+    "title": "Ashen Contracts",
+    "description": "A dark-fantasy idle RPG: run a stronghold, take monster-hunting contracts and grow your power over time."
+  },
+  "home": {
+    "title": "Ashen Contracts",
+    "tagline": "The fires have burned low and the roads belong to monsters. Raise your stronghold, sign the contracts no one else will take, and start your adventure.",
+    "start": "Start your adventure",
+    "login": "Log in"
+  },
   "nav": {
     "login": "Log in",
     "register": "Create account",

@@ -886,7 +886,17 @@ Found on the way, not changed: the guard accepts only `Bearer` with that exact c
 
 ### WEB-07 — Remove create-next-app leftovers and fix the fonts
 
-**Status:** ⬜ TODO
+**Status:** ✅ DONE (2026-11-10)
+
+**Notes:** Changes:
+
+- **Metadata:** `layout.tsx` uses `generateMetadata()` with a new `meta` namespace in `en.json` (title, description), not a hardcoded object, so copy stays in one place like the rest of the UI. The title is a template (`%s · Ashen Contracts`) for pages that set their own later.
+- **Landing page:** `page.tsx` is a server component with a title, a tagline and two links, to `/register` ("Start your adventure", replacing the Polish string) and `/login`, all from a new `home` namespace. The links are styled `next/link`s with the `Button` variants' classes, because `Button` renders a `<button>` and a link inside a button is invalid HTML; a link variant of `Button` belongs to UI-02.
+- **Fonts:** Cinzel and Inter load through `next/font/google` as CSS variables (`--font-cinzel`, `--font-inter`) on `<html>`. `next/font` registers the families under generated names, so the `theme.css` tokens (`'Cinzel', serif`) can't match them by name; `globals.css` overrides `--font-heading` and `--font-body` in a `@theme inline` block to point at the variables. `theme.css` stays app-agnostic: Storybook loading the same fonts is UI-05. Geist and Geist Mono are gone; `font-mono` falls back to Tailwind's default stack.
+- **`globals.css`:** removed the template's light/dark `--background`/`--foreground`, their `@theme` mapping and the `body { font-family: Arial }` rule. The body now gets `bg-bg text-ink font-body`, so every page is on the dark theme and Inter by default.
+- **Beyond the task text, other template leftovers:** deleted the five unused SVGs in `public/` (`file`, `globe`, `next`, `vercel`, `window`; nothing referenced them) and replaced the create-next-app `apps/web/README.md` with a pointer to the root README, ARCHITECTURE and CLAUDE.md. Kept `favicon.ico` (still the Next.js default) because there is no project icon yet.
+
+Verified with `pnpm lint`, `pnpm typecheck`, `pnpm --filter web build` and `pnpm format:check`. The built CSS has `.font-heading{font-family:var(--font-cinzel), serif}` and `.font-body{font-family:var(--font-inter), …}`. In the running app (Playwright), `/` has the new `<title>` and meta description, the heading computes to `Cinzel, "Cinzel Fallback", serif` and the text to Inter, `document.fonts` reports both loaded, and the console has no warnings.
 
 **Fix:**
 
