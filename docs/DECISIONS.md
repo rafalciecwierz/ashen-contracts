@@ -302,6 +302,8 @@ Alternatives considered:
 
 Consequences: a client can always read `code`, and a 500 never shows internals (Prisma errors, SQL, file paths); the real cause is only in the server log. `INVALID_CREDENTIALS` now only means a wrong email or password at login. A missing or forged token is `UNAUTHORIZED`, and an expired one is `SESSION_EXPIRED`. The cost: the filter also rewrites bodies from libraries that have their own. The planned `@nestjs/terminus` health check would lose its per-check 503 body (noted in REFACTOR.md API-10). A new code needs a change to the shared union and to `en.json`. The web app still trusts the code it gets at runtime, so a code it doesn't know is REFACTOR.md WEB-09. Verified by unit tests for the filter and the validation factory, and by integration tests through `AppModule` (validation, token cases, unknown route, malformed JSON, a Prisma failure). Without the filter and the factory, 9 of them fail. Also checked by hand with the built API, including a 500 with Postgres stopped.
 
+Update (REFACTOR.md WEB-09): `ApiErrorCode` is now derived from a runtime list, `API_ERROR_CODES`, with an `isApiErrorCode()` guard, because an API deployed ahead of the web app can send a code the web app doesn't know. The BFF's `postToApi()` checks the code and passes on `GENERIC` (translated as "Something went wrong") for an unknown one, logging the response body.
+
 ## 019. The API stays publicly reachable; no gate that admits only the BFF
 
 Date: 19.10.2026

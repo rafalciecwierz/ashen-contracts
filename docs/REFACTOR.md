@@ -923,7 +923,16 @@ Verified with `pnpm lint`, `pnpm typecheck`, `pnpm --filter web build` and `pnpm
 
 ### WEB-09 — Type-safe error code translation
 
-**Status:** ⬜ TODO
+**Status:** ✅ DONE (2026-11-11)
+
+**Notes:** The runtime half, done at the point where API responses enter the web app (`postToApi`), so every type after it is true at runtime:
+
+- **Shared:** `ApiErrorCode` is now derived from a runtime list, `API_ERROR_CODES` (`as const`), with an `isApiErrorCode()` guard (`packages/shared/src/types/errors.ts`). This reverses the earlier "type-only union, nothing needs the codes at runtime" comment: the check needs them. It costs nine strings in the bundle, and only the server (`postToApi`) uses them. New `errors.spec.ts` covers every listed code and rejects an unknown code, a lowercase one, `''`, `undefined`, `null`, a number and an object.
+- **Mapping function:** `toErrorCode(code: unknown): ErrorCode` in `apps/web/src/i18n/errorCode.ts`, where `ErrorCode = ApiErrorCode | 'GENERIC'`. `GENERIC` was already in `en.json`, but nothing used it. `FormState.error` is now an `ErrorCode`. The compile-time half still holds: next-intl types `tErrors(error)`, so a code without a message fails `tsc`. Red check: deleting `GENERIC` from `en.json` fails `useFormAction.ts`.
+- **`postToApi`:** on an error response it reads `code` from the body (any JSON, not only an object) and returns `toErrorCode(code)`. An unknown or missing code is logged with the status and the first 200 characters of the body. **Deviation:** the failure is now `{ code }` only, not the whole `ApiErrorResponse`. The actions only ever read `code`, the English `message` is for developers (it goes to the log for an unknown code), and passing an unchecked `message`/`details` along would bring back the unchecked cast this task removes. If a form later needs `details` (per-field `VALIDATION_FAILED`), it should be parsed there. `INTERNAL_ERROR` from an unreachable API lost its two English messages for the same reason. They were never shown, and the log keeps the cause.
+- **Not done:** the success body (`data as TData`) is still unchecked. Parsing it with the shared schemas is a separate change, so it is noted under WEB-10. No unit test for `postToApi` or `toErrorCode`, because `apps/web` has no test runner yet (WEB-10).
+- **Docs:** CLAUDE.md (errors, where code lives), ARCHITECTURE "Error responses", an `Update` line on `docs/DECISIONS.md` #018.
+- **Verified:** `pnpm typecheck`, `lint`, `format:check`, shared `test` (31) and API `test` (59). In the running app (`pnpm dev`, docker-compose Postgres, Playwright): a duplicate register shows "This email is already registered.". Then, with the API's code temporarily changed to `EMAIL_TAKEN_V2` (reverted), the same register showed "Something went wrong. Please try again." and kept the email. The dev server log had `BFF: …/auth/register answered 409 with an unknown error code: {"code":"EMAIL_TAKEN_V2",…}`. This left two `web09-…@example.com` players in the local dev database.
 
 **Problem:** `ApiError.code` is typed as `AuthErrorCode`. `tErrors(err.code)` breaks on any code missing from `en.json`.
 
@@ -941,6 +950,8 @@ Verified with `pnpm lint`, `pnpm typecheck`, `pnpm --filter web build` and `pnpm
 - Cover `routeHelpers` (especially the `getSafeRedirect` attack cases), the Zod schemas, and both forms: inline errors, server error rendering, and redirect on success.
 
 **Note (from WEB-05):** `src/forms/parseForm.ts` is a pure function (a `FormData` in, data or field errors out) and the first thing to cover: since WEB-05 it is the validation gate of the `login` and `register` actions, and the AI review of PR #27 asked for its tests. Cases that could break silently: a field outside the form's message keys (the hidden `redirect`) must not trip the strict shared schema; a message the schema sets itself (the `passwordsDoNotMatch` refine) must win over the field's key; a non-string entry (a `File`) must become `''`; only the first error per field is kept. Then the actions, with `postToApi` mocked (an invalid form never reaches it, `register` doesn't send `confirmPassword`, passwords never come back in `values`). `useFormAction` can be tested with a stub action. Planned as the next task after WEB-05, ahead of WEB-07 to WEB-09.
+
+**Note (from WEB-09):** cover `toErrorCode` (`src/i18n/errorCode.ts`) and `postToApi`'s error path with `fetch` mocked: a known code passes through, an unknown or missing code and a non-object JSON body give `GENERIC`, a body that isn't JSON or a rejected `fetch` give `INTERNAL_ERROR`. `postToApi` still casts the success body (`data as TData`); parsing it with a schema is a candidate follow-up.
 
 **Note (from WEB-06):** the forms call Server Actions (`*.actions.ts`) through `useActionState`. The actions are plain async functions, testable with `next/headers` and `postToApi` mocked (`redirect()` throws, so assert on that); the forms can be tested with the action mocked.
 
