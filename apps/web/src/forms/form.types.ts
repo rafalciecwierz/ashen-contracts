@@ -1,5 +1,5 @@
-import type { ApiErrorCode } from '@ashen-contracts/shared';
 import type { z } from 'zod';
+import type { ErrorCode } from '@/i18n/errorCode';
 import type { ValidationMessageKey } from '@/i18n/validationKey';
 
 /** One translation key per field of `T`: a form shows one error per field. */
@@ -24,12 +24,13 @@ export interface FormDefinition<TSchema extends z.ZodType> {
 /**
  * What a form's Server Action returns when it doesn't redirect. `values` are
  * the fields to show again (never passwords), which a form without JavaScript
- * would otherwise lose; `error` is the API's code for a form-level message.
+ * would otherwise lose; `error` is the code of a form-level message (the
+ * API's, or GENERIC for one the web app doesn't know).
  */
 export interface FormState<T> {
   values: Partial<Record<keyof T & string, string>>;
   fieldErrors: FieldErrors<T>;
-  error: ApiErrorCode | null;
+  error: ErrorCode | null;
 }
 
 export type FormAction<T> = (
