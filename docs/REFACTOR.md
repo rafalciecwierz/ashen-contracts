@@ -907,7 +907,15 @@ Verified with `pnpm lint`, `pnpm typecheck`, `pnpm --filter web build` and `pnpm
 
 ### WEB-08 — PlayNavbar fixes
 
-**Status:** ⬜ TODO
+**Status:** ✅ DONE (2026-11-10)
+
+**Notes:** Changes in `playNavbar.component.tsx`:
+
+- **Duplicate name:** removed the plain "Unnamed Hero" text. The name stays in `UserMenu`, where it is the avatar's label and initial and the menu's heading.
+- **Logout failures:** the menu item now calls `logout()` inside `startTransition` (`useTransition`), as the Next.js docs recommend for calling a Server Action from an event handler, not `void logout()`. In Next.js 16 the action's promise **rejects even on success**: `redirect()` comes back as a redirect error (`server-action-reducer.js`). So the `catch` calls `unstable_rethrow(error)` first, which lets Next.js finish the redirect, and treats anything else (the fetch failed, the server answered 500) as a failed logout: it logs the error and shows "Couldn't log out. Check your connection and try again." (`nav.logoutFailed`) as a `role="alert"` next to the menu. The player stays on `/play`, which is right, because the cookie may still be set. A second click while a logout is pending does nothing.
+- **`router.refresh()`:** not needed, as WEB-06 noted: the action's `redirect()` re-renders the server tree.
+- **Not done:** no automated test, because `apps/web` has no test runner yet (WEB-10). The cases are the ones verified below. The logout item still can't be disabled while pending, because `UserMenuItem` has no `disabled` field. The guard in `onLogout` covers that, and UI-01 already changes `UserMenuItem`. Without JavaScript the menu doesn't open at all (Radix), so logout needs JavaScript. That is unchanged.
+- **Verified:** `pnpm typecheck`, `lint` and `format:check`. Against the running `pnpm dev` with docker-compose Postgres, using Playwright: on `/play`, the banner has the avatar and no separate name text. With the action's POST aborted (`internetdisconnected`), logout shows the alert and stays on `/play`. The console has only the forced `Failed to fetch`. After removing the block, logout lands on `/login`, the session cookie is gone, Back doesn't return to `/play`, and no console error is logged, so the rethrown redirect is handled.
 
 **Fix:** Remove the duplicate "Unnamed Hero" (it appears both as text and in UserMenu). Handle logout failures, and call `router.refresh()` after logout so server components re-evaluate.
 
@@ -984,6 +992,8 @@ Verified with `pnpm lint`, `pnpm typecheck`, `pnpm --filter web build` and `pnpm
 **Status:** ⬜ TODO
 
 **Fix:** Import `Avatar` directly from its file, not from the `'..'` barrel. Give `UserMenuItem` an `id` and use it as the React key instead of `label`.
+
+**Note (from WEB-08):** consider a `disabled` field on `UserMenuItem` too (Radix `DropdownMenu.Item` supports it), so `PlayNavbar` can disable "Log out" while the action is pending instead of ignoring repeat clicks in `onLogout`.
 
 ### UI-02 — `cn()` helper and safer Button defaults
 
