@@ -87,7 +87,7 @@ describe('login', () => {
     ).rejects.toThrow('redirect: /play/map');
   });
 
-  it.each(['//evil.com', 'https://evil.com', '/\t/evil.com'])(
+  it.each(['//evil.com', 'https://evil.com', '/\t/evil.com', '/.//evil.com'])(
     'ignores the unsafe redirect target %j',
     async (target) => {
       postToApi.mockResolvedValue({ ok: true, data: { accessToken: 'jwt' } });

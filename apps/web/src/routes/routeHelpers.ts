@@ -36,5 +36,6 @@ export function getSafeRedirect(
     return null;
   }
   if (url.origin !== REDIRECT_BASE) return null;
-  return `${url.pathname}${url.search}${url.hash}`;
+  const path = `${url.pathname}${url.search}${url.hash}`;
+  return path.startsWith('//') ? null : path;
 }
