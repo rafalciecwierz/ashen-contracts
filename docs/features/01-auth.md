@@ -93,9 +93,9 @@ The forms bind their Server Action with `useFormAction` (`src/forms/useFormActio
 - Integration: `GET /auth/me` returns `UNAUTHORIZED` without a token, with a malformed one and for a deleted account, and `SESSION_EXPIRED` with an expired one — done (`test/errorContract.integration-spec.ts`)
 - Integration: each rate limit returns 429, a forged `X-Client-IP` doesn't bypass it, and players behind the BFF are counted separately — done (`test/authThrottling.integration-spec.ts`)
 - Integration: emails that differ only in case or whitespace resolve to the same account — done (`test/emailNormalization.integration-spec.ts`, with an in-memory `PrismaService`)
-- Frontend: invalid input blocks submit with the correct inline error — not yet (WEB-10)
-- Frontend: successful register/login redirects, and login sets the session cookie — not yet (WEB-10, WEB-11)
-- Frontend: a server error (409/401) renders inline without crashing the page — not yet (WEB-10)
+- Frontend: invalid input blocks submit with the correct inline error — done (`loginForm.spec.tsx`, `registerForm.spec.tsx`; the form rules in `login.schema.spec.ts`, `register.schema.spec.ts`, `parseForm.spec.ts`)
+- Frontend: successful register/login redirects (only to a safe target), and login sets the session cookie — done as unit tests of the actions (`login.actions.spec.ts`, `register.actions.spec.ts`, `routeHelpers.spec.ts`); in a real browser not yet (WEB-11)
+- Frontend: a server error (409/401) renders inline without crashing the page — done (`loginForm.spec.tsx`, `registerForm.spec.tsx`; the codes in `postToApi.spec.ts`, `errorCode.spec.ts`)
 
 ## Deviations from spec
 
@@ -105,4 +105,4 @@ Where the implementation differs from the spec as first written (see `git log --
 - **Register does not log in:** the spec had `POST /auth/register` return a JWT. It returns `{ id, email }`, and the player logs in once after registering (`/login?registered=true`).
 - **Redirect target:** the spec redirected to `/` until character creation exists. Login redirects to a safe `?redirect=` target or `/play`, the first protected route.
 - **Route Handlers replaced by Server Actions:** the BFF first exposed `POST /api/auth/register`, `/login` and `/logout` as Route Handlers, called with `apiPost`. Since REFACTOR.md WEB-06 they are Server Actions (`docs/DECISIONS.md` #024).
-- **Known gaps:** the tests marked "not yet" above are still missing (WEB-10, WEB-11).
+- **Known gaps:** the tests marked "not yet" above are still missing (WEB-11).

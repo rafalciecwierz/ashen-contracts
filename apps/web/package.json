@@ -8,7 +8,9 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "typecheck": "next typegen && tsc --noEmit"
+    "typecheck": "next typegen && tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest"
   },
   "dependencies": {
     "@ashen-contracts/shared": "workspace:*",
@@ -22,13 +24,19 @@
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
+    "@testing-library/dom": "^10.4.2",
+    "@testing-library/jest-dom": "^7.0.1",
+    "@testing-library/react": "^16.3.3",
+    "@testing-library/user-event": "^14.6.9",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "eslint": "^9.39.5",
     "eslint-config-next": "16.3.5",
     "eslint-config-prettier": "^10.1.8",
+    "jsdom": "^31.0.0",
     "tailwindcss": "^4",
-    "typescript": "catalog:"
+    "typescript": "catalog:",
+    "vitest": "^5.0.2"
   }
 }

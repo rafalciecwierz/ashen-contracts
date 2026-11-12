@@ -86,6 +86,7 @@ Used for push notifications only (action completed, event triggered) — not for
 ## Testing
 
 - **Vitest** — unit tests, focused on the logic that actually carries risk: resource math, queue job handlers, skill-check resolution
+- **Vitest + React Testing Library** — web unit and component tests (`apps/web/src/**/*.spec.{ts,tsx}`, jsdom): pure helpers (`getSafeRedirect`, `parseForm`, `toErrorCode`), `postToApi` with `fetch` mocked, Server Actions with `postToApi` and `next/navigation` mocked, and the forms rendered with their action mocked. `server-only` is mocked in `test/setup.ts`, since only Next.js resolves it to a no-op. Whole pages against a real server are Playwright's job (below)
 - **Vitest + supertest** — API integration tests (`apps/api/test/*.integration-spec.ts`, `pnpm --filter api test:integration`): boot the whole NestJS app and send real HTTP requests through guards, pipes and controllers to the database. NestJS templates call these "e2e"; here "e2e" is reserved for browser tests of the full system. Most replace `PrismaService` with an in-memory fake (`test/fakePrisma.ts`), but `GET /health` pings the real database, so they need Postgres running (`docker compose up -d` locally; a `postgres` service container in CI)
 - **Playwright** — browser end-to-end tests of the whole system in `apps/e2e`, run with `pnpm test:e2e` (planned, see `docs/DECISIONS.md` #015): the auth flow first, then the core loop (create character → run expedition → resolve event)
 
