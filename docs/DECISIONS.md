@@ -249,6 +249,8 @@ Alternatives considered:
 
 Consequences: `pnpm test:e2e` needs `docker compose up -d` first and takes longer than unit tests, because it builds both apps. The CI job adds a few minutes, in parallel with the existing one. The detailed setup plan is REFACTOR.md WEB-11, and the docs still naming Cypress are fixed by DOC-02.
 
+Update (REFACTOR.md WEB-11): built as decided, with three changes found while setting it up. The database is migrated in the API server's `webServer` command, not in a global setup, because Playwright starts its web servers before global setup runs (`prisma migrate deploy` creates the database when it is missing). The API is compiled into `apps/api/dist-e2e/` instead of `dist/`, because `nest build` empties `dist/`, which `nest start --watch` in a running `pnpm dev` runs from. And each test sends its own `X-Forwarded-For` address, so the API's per-IP limits on register and login (#017) don't add up across tests; the BFF forwards it as `X-Client-IP`, as Vercel's header would be in production.
+
 ## 016. TypeScript strict mode in `apps/api`, with `strictPropertyInitialization` off
 
 Date: 17.10.2026

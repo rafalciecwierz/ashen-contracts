@@ -13,5 +13,7 @@
     "skipLibCheck": true,
     "strict": true,
     "noFallthroughCasesInSwitch": false
-  }
+  },
+  // dist/ is left out as the outDir; dist-e2e/ is the e2e tests' build (apps/e2e).
+  "exclude": ["node_modules", "dist", "dist-e2e"]
 }

@@ -7,6 +7,11 @@ catalog:
   typescript: ~6.0.3
   # One Zod for the apps and packages/shared: schemas built in shared are extended in the web app
   zod: ^4.6.5
+  # One Playwright for the Storybook browser tests (packages/ui) and the e2e tests (apps/e2e),
+  # so both use the same downloaded browser build. Tilde: a minor version brings a new browser
+  # build (`playwright install` again), so bump it on purpose
+  '@playwright/test': ~1.63.0
+  playwright: ~1.63.0
 
 allowBuilds:
   '@nestjs/core': true

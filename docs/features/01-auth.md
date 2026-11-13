@@ -87,14 +87,14 @@ The forms bind their Server Action with `useFormAction` (`src/forms/useFormActio
 - Unit: register/login/me service behavior, including duplicate email and wrong credentials — done (`auth.service.spec.ts`)
 - Unit: an unknown email on login still runs bcrypt, and gets the same error as a wrong password — done (`auth.service.spec.ts`)
 - Unit: JWT validation in `JwtAuthGuard` (`@Public()` bypass, missing or non-Bearer header, invalid, forged and expired tokens, `request.user` on success) — done (`jwtAuth.guard.spec.ts`)
-- Integration: register → login → access a protected route end-to-end — not yet
-- Integration: duplicate email is rejected — not yet
+- Integration: register → login → access a protected route end-to-end — done in the browser e2e tests (`apps/e2e/tests/auth.spec.ts`), through the web app; no API integration test
+- Integration: duplicate email is rejected — done in the browser e2e tests (the inline error); no API integration test
 - Integration: a register/login body with a missing field or an unknown field returns 400 `VALIDATION_FAILED` with details — done (`test/auth.integration-spec.ts`)
 - Integration: `GET /auth/me` returns `UNAUTHORIZED` without a token, with a malformed one and for a deleted account, and `SESSION_EXPIRED` with an expired one — done (`test/errorContract.integration-spec.ts`)
 - Integration: each rate limit returns 429, a forged `X-Client-IP` doesn't bypass it, and players behind the BFF are counted separately — done (`test/authThrottling.integration-spec.ts`)
 - Integration: emails that differ only in case or whitespace resolve to the same account — done (`test/emailNormalization.integration-spec.ts`, with an in-memory `PrismaService`)
 - Frontend: invalid input blocks submit with the correct inline error — done (`loginForm.spec.tsx`, `registerForm.spec.tsx`; the form rules in `login.schema.spec.ts`, `register.schema.spec.ts`, `parseForm.spec.ts`)
-- Frontend: successful register/login redirects (only to a safe target), and login sets the session cookie — done as unit tests of the actions (`login.actions.spec.ts`, `register.actions.spec.ts`, `routeHelpers.spec.ts`); in a real browser not yet (WEB-11)
+- Frontend: successful register/login redirects (only to a safe target), and login sets the session cookie — done as unit tests of the actions (`login.actions.spec.ts`, `register.actions.spec.ts`, `routeHelpers.spec.ts`), and in a real browser (`apps/e2e/tests/auth.spec.ts`: register → login → `/play` → logout, and `/play` → `/login?redirect=/play` → back to `/play`)
 - Frontend: a server error (409/401) renders inline without crashing the page — done (`loginForm.spec.tsx`, `registerForm.spec.tsx`; the codes in `postToApi.spec.ts`, `errorCode.spec.ts`)
 
 ## Deviations from spec
@@ -105,4 +105,4 @@ Where the implementation differs from the spec as first written (see `git log --
 - **Register does not log in:** the spec had `POST /auth/register` return a JWT. It returns `{ id, email }`, and the player logs in once after registering (`/login?registered=true`).
 - **Redirect target:** the spec redirected to `/` until character creation exists. Login redirects to a safe `?redirect=` target or `/play`, the first protected route.
 - **Route Handlers replaced by Server Actions:** the BFF first exposed `POST /api/auth/register`, `/login` and `/logout` as Route Handlers, called with `apiPost`. Since REFACTOR.md WEB-06 they are Server Actions (`docs/DECISIONS.md` #024).
-- **Known gaps:** the tests marked "not yet" above are still missing (WEB-11).
+- **Known gaps:** none of the planned tests is missing since WEB-11. The register → login and duplicate-email flows are covered end to end in the browser rather than as API integration tests.
