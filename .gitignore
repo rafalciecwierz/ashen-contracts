@@ -9,6 +9,8 @@ node_modules/
 
 # Build output
 dist/
+# API build for the e2e tests (apps/e2e/playwright.config.ts)
+dist-e2e/
 build/
 .next/
 out/
@@ -33,3 +35,7 @@ storybook-static
 
 # Agent tooling: snapshots, screenshots and console logs written by the Playwright MCP server (.mcp.json)
 .playwright-mcp/
+
+# Playwright e2e output (apps/e2e)
+playwright-report/
+test-results/

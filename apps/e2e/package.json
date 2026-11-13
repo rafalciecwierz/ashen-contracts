@@ -1,0 +1,26 @@
+{
+  "name": "e2e",
+  "version": "0.0.0",
+  "private": true,
+  "license": "MIT",
+  "description": "Browser end-to-end tests of the whole system: web app, API and PostgreSQL (docs/DECISIONS.md #015).",
+  "scripts": {
+    "test:e2e": "playwright test",
+    "test:e2e:ui": "playwright test --ui",
+    "test:e2e:report": "playwright show-report",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.39.5",
+    "@playwright/test": "catalog:",
+    "@types/node": "^24.19.2",
+    "eslint": "^9.39.5",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-playwright": "^2.12.1",
+    "globals": "^17.13.0",
+    "typescript": "catalog:",
+    "typescript-eslint": "^8.71.2"
+  }
+}

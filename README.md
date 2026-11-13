@@ -98,6 +98,15 @@ pnpm --filter api migrate
 pnpm dev
 ```
 
+Browser e2e tests (`apps/e2e`, Playwright) build both apps and run them on ports 3100 and 3101 against their own database, so they work next to `pnpm dev`:
+
+```bash
+pnpm --filter e2e exec playwright install chromium   # once
+pnpm test:e2e                                        # needs `docker compose up -d`
+pnpm test:e2e:ui                                     # the same in Playwright's UI, step by step
+pnpm test:e2e:report                                 # open the last HTML report
+```
+
 Requires Node.js 24 (see `.nvmrc`; 22.22.3+ also works), pnpm, and Docker. To use your own PostgreSQL instead, point `DATABASE_URL` in `apps/api/.env` at it.
 
 `docker compose down` stops the containers and keeps the data; `docker compose down -v` also wipes it.
@@ -108,6 +117,7 @@ Requires Node.js 24 (see `.nvmrc`; 22.22.3+ also works), pnpm, and Docker. To us
 apps/
   web/          → Next.js frontend
   api/          → NestJS backend
+  e2e/          → Playwright browser tests of the whole system
 packages/
   ui/           → shared component library (Storybook)
   shared/       → shared TypeScript types and Zod validation schemas
