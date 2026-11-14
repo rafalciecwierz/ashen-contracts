@@ -2,6 +2,7 @@ import 'server-only';
 import { isApiErrorCode } from '@ashen-contracts/shared';
 import { getServerEnv } from '@/config/serverEnv';
 import { toErrorCode, type ErrorCode } from '@/i18n/errorCode';
+import { API_TIMEOUT_MS } from './apiTimeout';
 import { bffHeaders } from './bffHeaders';
 
 export type ApiResult<TData> =
@@ -11,10 +12,10 @@ export type ApiResult<TData> =
  * Sends a Server Action's request to the API: POSTs `body` as JSON to
  * `API_URL` + path, with `bffHeaders`. Never throws for a failed call:
  * the action gets the API's error code, so it can return it to its form.
- * When the API can't be reached, or answers with something that isn't JSON
- * (a platform error page), the code is `INTERNAL_ERROR`; when the error body
- * has no code this build knows (an API deployed ahead of the web app), it is
- * `GENERIC`. The cause goes to the server log either way.
+ * When the API can't be reached, doesn't answer within `API_TIMEOUT_MS`, or
+ * answers with something that isn't JSON (a platform error page), the code
+ * is `INTERNAL_ERROR`; when the error body has no code this build knows (an
+ * API deployed ahead of the web app), it is `GENERIC`. The cause goes to the server log either way.
  */
 export async function postToApi<TData>(
   path: string,
@@ -29,6 +30,7 @@ export async function postToApi<TData>(
       method: 'POST',
       headers: await bffHeaders(),
       body: JSON.stringify(body),
+      signal: AbortSignal.timeout(API_TIMEOUT_MS),
     });
     text = await res.text();
   } catch (error) {
