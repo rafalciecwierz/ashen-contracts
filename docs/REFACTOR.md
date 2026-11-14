@@ -1001,13 +1001,22 @@ Verified locally with `docker compose up -d`: `pnpm test:e2e` from a cold start 
 
 ### WEB-12 — Validate the web app's environment
 
-**Status:** ⬜ TODO
+**Status:** ✅ DONE (2026-11-14)
 
 **Problem:** `apps/web` reads `API_URL` and `BFF_SECRET` straight from `process.env`, with no validation. Since API-06 the BFF sends `X-BFF-Secret` to `API_URL`, so an `http://` URL in production would send the secret in clear text.
 
 **Note (from WEB-02):** `src/config/serverEnv.ts` now exists, with `API_URL` (`z.url()`) validated on first use, not at startup, because `next build` in CI runs without the variable. This task extends it: `BFF_SECRET` (still read in `bffHeaders.ts`), the `https://` rule, and a startup check (e.g. `instrumentation.ts`) that doesn't run during the build. Also decide whether `postToApi` (formerly `proxyToApi`, WEB-06) needs a timeout, given Render's slow cold starts (#020).
 
 **Fix:** A Zod schema for the web app's server-side env (like `apps/api/src/config/env.schema.ts`), checked at startup: `API_URL` a URL that must be `https://` when `NODE_ENV` is `production`, and `BFF_SECRET` at least 32 characters. Read the variables through it instead of `process.env`.
+
+**Notes:**
+
+- **Schema:** `src/config/serverEnv.ts` now declares every server-side variable: `NODE_ENV` (required enum, as in the API; Next.js always sets it), `API_URL` (`z.url()` limited to `http`/`https`) and `BFF_SECRET` (`min(32)`, the API's rule). `bffHeaders.ts` and `session.ts` (the cookie's `Secure` flag) read through `getServerEnv()`; no `process.env` is left in `src/` apart from `NEXT_RUNTIME` in `instrumentation.ts`. A pure `parseServerEnv()` is exported for the unit tests (`serverEnv.spec.ts`).
+- **Deviation, the `https://` rule:** in production `http://` is still accepted for `localhost`, `127.0.0.1` and `[::1]`. The e2e tests run a production build against the API on `http://localhost:3101`, and loopback traffic never leaves the machine, so the secret isn't exposed. The rule is an object-level `refine` with Zod's `when` option: Zod runs object refinements even when a field already failed, and this one needs a parseable URL (the unit test for an invalid URL caught that).
+- **Startup check:** `src/instrumentation.ts` calls `getServerEnv()` in `register()`, Node.js runtime only. It doesn't run during `next build` (verified: a build with no variables and no `.env.local` succeeds), so lazy validation stays for the build and the check covers `next dev`/`next start`. Next.js doesn't exit when `register()` throws: it logs "Failed to prepare server" with every Zod issue and answers each request with a 500. Accepted: on Vercel there is no long-running process to stop anyway, and the log names the problem.
+- **Timeout (decided: yes):** `postToApi` and `getCurrentUser` pass `AbortSignal.timeout(API_TIMEOUT_MS)`, 90 s (`src/http/server/apiTimeout.ts`, not exported from the barrel). Render's free API takes up to about a minute to wake (#020), so a shorter limit would fail the first request after every idle spell; without one, Node's fetch waits up to 5 minutes for headers, Vercel's function limit on the free plan, so a hung API would end in a platform error instead of the form's `INTERNAL_ERROR` message. `getCurrentUser` covers the same API, so it gets the same limit; its timeout signal opts its `fetch` out of Next.js's memoization, which `cache()` already covers (comment updated).
+- **Verified:** `pnpm lint`, `pnpm typecheck`, `pnpm test` (97 web tests, new `serverEnv.spec.ts`), `pnpm format:check`, `pnpm test:e2e` (production build on `http://localhost`, 3 passed), plus `next start` by hand with no variables, an `http://` non-loopback URL and a 31-character secret (each logged its Zod issue and answered 500) and with valid values (200).
+- **Docs:** CLAUDE.md (server env goes through `getServerEnv()`, declared in the schema and `.env.example`) and `apps/web/.env.example` (the rules).
 
 ### WEB-13 — Optional: a rate limiter in the BFF
 

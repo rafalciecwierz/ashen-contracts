@@ -35,6 +35,7 @@ describe('postToApi', () => {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: '{"email":"a@b.co"}',
+      signal: expect.any(AbortSignal),
     });
   });
 

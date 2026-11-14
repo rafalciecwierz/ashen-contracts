@@ -1,5 +1,6 @@
 import 'server-only';
 import { headers } from 'next/headers';
+import { getServerEnv } from '@/config/serverEnv';
 
 /**
  * Headers for a Server Action's request to the API. The API sees every request
@@ -9,14 +10,9 @@ import { headers } from 'next/headers';
  * never puts it in the browser bundle.
  */
 export async function bffHeaders(): Promise<Record<string, string>> {
-  const secret = process.env.BFF_SECRET;
-  if (!secret) {
-    throw new Error('BFF_SECRET is not set (see apps/web/.env.example)');
-  }
-
   const result: Record<string, string> = {
     'Content-Type': 'application/json',
-    'X-BFF-Secret': secret,
+    'X-BFF-Secret': getServerEnv().BFF_SECRET,
   };
 
   // Vercel sets X-Forwarded-For itself and overwrites any value the client
