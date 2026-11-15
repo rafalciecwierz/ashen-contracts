@@ -279,7 +279,7 @@ Decision: `@nestjs/throttler` in the API, with an `AuthThrottlerGuard` on login 
 Alternatives considered:
 
 - A plain per-IP limit on `req.ip`, as the task first said. Rejected: behind the BFF every player shares one bucket.
-- A rate limiter in the Next.js BFF. Rejected: the API is public, so a limiter in front of it can be bypassed, and on Vercel route handlers run as serverless functions, each with its own memory, so an in-memory counter does not work there without a shared store (Upstash, Vercel KV). It could come back later as an extra layer.
+- A rate limiter in the Next.js BFF. Rejected: the API is public, so a limiter in front of it can be bypassed, and on Vercel route handlers run as serverless functions, each with its own memory, so an in-memory counter does not work there without a shared store (Upstash, Vercel KV). It could come back later as an extra layer; REFACTOR.md WEB-13 weighed that once the deployment was known and dropped it, because it would only save round trips for attempts the API rejects anyway.
 - The BFF sets `X-Forwarded-For` and the API trusts it through `trust proxy`. Rejected: the platform proxy appends to the same header, and an attacker calling the API directly can put any value in it. Without a secret, the API cannot tell the BFF's entry from a forged one.
 - Limiting the network: a private network or an IP allowlist. Rejected: no shared private network across Vercel and Railway/Render, and Vercel's IPs are shared and change (static IPs are a paid add-on).
 - Rejecting every request without the BFF secret, so the API is closed to everyone but the BFF. Not rejected, but deferred to its own task: it changes the API's security model and affects the planned browser WebSocket connection to the API.
