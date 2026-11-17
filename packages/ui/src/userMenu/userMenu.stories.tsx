@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
+import { expect, fn, screen, userEvent } from 'storybook/test';
 import { Navbar, UserMenu } from '..';
 
 const meta: Meta<typeof UserMenu> = {
@@ -10,7 +11,11 @@ export default meta;
 type Story = StoryObj<typeof UserMenu>;
 
 const items = [
-  { label: 'Log out', onSelect: () => console.log('Log out selected') },
+  {
+    id: 'logout',
+    label: 'Log out',
+    onSelect: () => console.log('Log out selected'),
+  },
 ];
 
 export const Default: Story = {
@@ -18,6 +23,39 @@ export const Default: Story = {
     name: 'Unnamed Hero',
     description: 'hero@example.com',
     items,
+  },
+};
+
+const onSelectSettings = fn();
+const onSelectLogout = fn();
+
+/** "Log out" is disabled, as while its action is pending. */
+export const WithDisabledItem: Story = {
+  args: {
+    name: 'Unnamed Hero',
+    description: 'hero@example.com',
+    items: [
+      { id: 'settings', label: 'Settings', onSelect: onSelectSettings },
+      {
+        id: 'logout',
+        label: 'Log out',
+        onSelect: onSelectLogout,
+        disabled: true,
+      },
+    ],
+  },
+  play: async ({ canvas }) => {
+    onSelectLogout.mockClear();
+    await userEvent.click(canvas.getByRole('button'));
+
+    // The menu renders in a portal, outside the story's canvas.
+    const logout = await screen.findByRole('menuitem', { name: 'Log out' });
+    await expect(logout).toHaveAttribute('aria-disabled', 'true');
+    await userEvent.click(logout, { pointerEventsCheck: 0 });
+    await expect(onSelectLogout).not.toHaveBeenCalled();
+
+    await userEvent.click(screen.getByRole('menuitem', { name: 'Settings' }));
+    await expect(onSelectSettings).toHaveBeenCalledOnce();
   },
 };
 

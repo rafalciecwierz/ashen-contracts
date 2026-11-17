@@ -1,19 +1,18 @@
 'use client';
 
 import { DropdownMenu } from 'radix-ui';
-import { Avatar } from '..';
+import { Avatar } from '../avatar/avatar.component';
 
 export interface UserMenuItem {
+  id: string;
   label: string;
   onSelect: () => void;
+  disabled?: boolean;
 }
 
 export interface UserMenuProps {
-  /** Shown as the avatar's label and as the heading of the menu. */
   name: string;
-  /** Secondary line under the name, e.g. the account email. */
   description?: string;
-  /** Avatar image URL; the initial of `name` is shown when absent. */
   avatarSrc?: string;
   items: UserMenuItem[];
 }
@@ -52,9 +51,10 @@ export function UserMenu({
 
           {items.map((item) => (
             <DropdownMenu.Item
-              key={item.label}
+              key={item.id}
               onSelect={item.onSelect}
-              className="cursor-pointer rounded px-3 py-2 text-sm outline-none data-highlighted:bg-surface-raised"
+              disabled={item.disabled}
+              className="cursor-pointer rounded px-3 py-2 text-sm outline-none data-highlighted:bg-surface-raised data-disabled:cursor-not-allowed data-disabled:text-ink-muted"
             >
               {item.label}
             </DropdownMenu.Item>

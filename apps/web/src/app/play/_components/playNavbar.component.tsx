@@ -18,7 +18,6 @@ export function PlayNavbar({ email }: PlayNavbarProps) {
   const [logoutFailed, setLogoutFailed] = useState(false);
 
   function onLogout(): void {
-    if (isLoggingOut) return;
     setLogoutFailed(false);
     startTransition(async () => {
       try {
@@ -48,7 +47,14 @@ export function PlayNavbar({ email }: PlayNavbarProps) {
           <UserMenu
             name={t('unnamedHero')}
             description={email}
-            items={[{ label: t('logout'), onSelect: onLogout }]}
+            items={[
+              {
+                id: 'logout',
+                label: t('logout'),
+                onSelect: onLogout,
+                disabled: isLoggingOut,
+              },
+            ]}
           />
         </>
       }
