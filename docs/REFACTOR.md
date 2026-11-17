@@ -1034,7 +1034,14 @@ Verified locally with `docker compose up -d`: `pnpm test:e2e` from a cold start 
 
 ### UI-01 — UserMenu: circular import and keys
 
-**Status:** ⬜ TODO
+**Status:** ✅ DONE (2026-11-17)
+
+**Notes:**
+
+- **Import:** `userMenu.component.tsx` imports `Avatar` from `../avatar/avatar.component`, not from the `'..'` barrel that re-exports `UserMenu` itself. Stories still import from `'..'`: they aren't part of the barrel, so they can't form a cycle, and importing like a consumer does is the point.
+- **Keys:** `UserMenuItem` has a required `id`, used as the React key. Labels are translated, so they change with the locale and can repeat.
+- **Note taken up, `disabled`:** `UserMenuItem` has an optional `disabled`, passed to Radix `DropdownMenu.Item`, which then ignores selection and sets `aria-disabled`/`data-disabled` (styled muted, `cursor-not-allowed`). `PlayNavbar` disables "Log out" while the logout transition is pending, and its `if (isLoggingOut) return` guard in `onLogout` is gone.
+- **Verified:** a new story, `WithDisabledItem`, with a play function: the disabled item has `aria-disabled` and clicking it doesn't call `onSelect`, while the enabled item does. It is the first interaction test in `packages/ui`. With the `disabled` prop removed from the component, it fails. Also `pnpm lint`, `pnpm typecheck`, `pnpm format:check`, `pnpm test` (15 story tests, 97 web tests) and `pnpm test:e2e` (3 passed, logout included).
 
 **Fix:** Import `Avatar` directly from its file, not from the `'..'` barrel. Give `UserMenuItem` an `id` and use it as the React key instead of `label`.
 
