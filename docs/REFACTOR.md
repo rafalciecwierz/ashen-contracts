@@ -1049,7 +1049,15 @@ Verified locally with `docker compose up -d`: `pnpm test:e2e` from a cold start 
 
 ### UI-02 — `cn()` helper and safer Button defaults
 
-**Status:** ⬜ TODO
+**Status:** ✅ DONE (2026-11-17)
+
+**Notes:**
+
+- **`cn()`:** `packages/ui/src/utils/cn.ts`, `twMerge(clsx(inputs))`, with `clsx` ^2.1.1 and `tailwind-merge` ^3.7.0 (the 3.x line supports Tailwind v4) as dependencies of `packages/ui`. The default `twMerge` config already resolves the project's `@theme` tokens (checked: `bg-brand-600` vs `bg-error`, `text-sm` vs `text-ink-muted`, `font-semibold` vs `font-heading` all merge correctly), so no `extendTailwindMerge`. It isn't exported from the package: nothing in `apps/web` needs it yet (start local, promote on a second use).
+- **Deviation, "every component":** `cn()` is used where classes are combined: `Button`, `Input` (the error border) and `Avatar` (the size). `Modal`, `Navbar` and `UserMenu` have only static class strings and no `className` prop, so `cn()` would add nothing there; giving them a `className` prop is not part of this task.
+- **`Button`:** `type` defaults to `'button'`. The two forms in `apps/web` already pass `type="submit"`, so nothing changed there. The `Modal` close button and the `UserMenu` trigger already have `type="button"` (Radix `Dialog.Close` sets it; the trigger sets it by hand).
+- **Verified:** two new Button stories with play functions: `InsideForm` (no `type` → `type="button"`, a click doesn't submit the form) and `ClassNameOverride` (`bg-error px-8` replaces `bg-brand-600` and `px-5`, `py-2` stays). Both fail with string concatenation and no default `type`. Also `pnpm lint`, `pnpm typecheck`, `pnpm format:check`, `pnpm test` (17 story tests) and `pnpm test:e2e` (3 passed: the login and register forms submit).
+- **Docs:** `docs/ARCHITECTURE.md` (Component library) describes both conventions.
 
 **Fix:** Add `cn()` (`clsx` + `tailwind-merge`) so a `className` override replaces conflicting classes instead of being concatenated, and use it in every component. Default `Button` to `type="button"`; forms pass `type="submit"` explicitly.
 

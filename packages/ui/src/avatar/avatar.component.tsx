@@ -1,7 +1,7 @@
+import { cn } from '../utils/cn';
+
 export interface AvatarProps {
-  /** Used for the fallback initial and as the accessible label. */
   name: string;
-  /** Image URL. When absent, the first letter of `name` is shown instead. */
   src?: string;
   size?: 'sm' | 'md';
 }
@@ -18,7 +18,10 @@ export function Avatar({ name, src, size = 'md' }: AvatarProps) {
     <span
       role="img"
       aria-label={name}
-      className={`inline-flex shrink-0 items-center justify-center overflow-hidden rounded-full bg-brand-600 font-body font-semibold text-ink ${sizeStyles[size]}`}
+      className={cn(
+        'inline-flex shrink-0 items-center justify-center overflow-hidden rounded-full bg-brand-600 font-body font-semibold text-ink',
+        sizeStyles[size],
+      )}
     >
       {src ? (
         <img src={src} alt="" className="h-full w-full object-cover" />
