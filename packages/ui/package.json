@@ -40,9 +40,9 @@
     "playwright": "catalog:",
     "storybook": "^10.6.0",
     "tailwindcss": "^4.3.3",
+    "typescript": "catalog:",
     "typescript-eslint": "^8.71.2",
-    "vitest": "^5.0.2",
-    "typescript": "catalog:"
+    "vitest": "^5.0.2"
   },
   "scripts": {
     "storybook": "storybook dev -p 6006",
@@ -53,6 +53,8 @@
     "test": "vitest run"
   },
   "dependencies": {
-    "radix-ui": "^1.6.7"
+    "clsx": "^2.1.1",
+    "radix-ui": "^1.6.7",
+    "tailwind-merge": "^3.7.0"
   }
 }
