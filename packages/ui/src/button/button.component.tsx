@@ -3,6 +3,7 @@ import { cn } from '../utils/cn';
 
 export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: 'primary' | 'secondary';
+  /** Defaults to `'button'`, so a button in a form never submits it by accident. */
   type?: 'button' | 'submit' | 'reset';
 }
 

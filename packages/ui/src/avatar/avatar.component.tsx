@@ -1,7 +1,9 @@
 import { cn } from '../utils/cn';
 
 export interface AvatarProps {
+  /** Used for the fallback initial and as the accessible label. */
   name: string;
+  /** Image URL. When absent, the first letter of `name` is shown instead. */
   src?: string;
   size?: 'sm' | 'md';
 }

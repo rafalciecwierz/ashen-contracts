@@ -4,15 +4,20 @@ import { DropdownMenu } from 'radix-ui';
 import { Avatar } from '../avatar/avatar.component';
 
 export interface UserMenuItem {
+  /** Stable identifier, used as the React key (labels change with the locale). */
   id: string;
   label: string;
   onSelect: () => void;
+  /** Shown but not selectable, e.g. while the item's action is pending. */
   disabled?: boolean;
 }
 
 export interface UserMenuProps {
+  /** Shown as the avatar's label and as the heading of the menu. */
   name: string;
+  /** Secondary line under the name, e.g. the account email. */
   description?: string;
+  /** Avatar image URL; the initial of `name` is shown when absent. */
   avatarSrc?: string;
   items: UserMenuItem[];
 }
