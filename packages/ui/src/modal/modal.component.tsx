@@ -8,6 +8,8 @@ export interface ModalProps {
   title: string;
   description?: string;
   children: ReactNode;
+  /** Accessible name of the ✕ button; pass a translated string. Defaults to `'Close'`. */
+  closeLabel?: string;
 }
 
 export function Modal({
@@ -16,6 +18,7 @@ export function Modal({
   title,
   description,
   children,
+  closeLabel = 'Close',
 }: ModalProps) {
   return (
     <Dialog.Root open={open} onOpenChange={onOpenChange}>
@@ -33,7 +36,7 @@ export function Modal({
           {children}
           <Dialog.Close asChild>
             <button
-              aria-label="Close"
+              aria-label={closeLabel}
               className="absolute top-3 right-3 text-ink-muted hover:text-ink transition-colors"
             >
               ✕
