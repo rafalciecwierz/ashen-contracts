@@ -1063,7 +1063,9 @@ Verified locally with `docker compose up -d`: `pnpm test:e2e` from a cold start 
 
 ### UI-03 — Localizable Modal close label
 
-**Status:** ⬜ TODO
+**Status:** ✅ DONE (2026-11-19)
+
+**Notes:** `Modal` has an optional `closeLabel` prop, the accessible name of the ✕ button, defaulting to `'Close'`, so existing uses keep working. `packages/ui` stays free of next-intl: the app passes a translated string. `apps/web` doesn't use `Modal` yet, so nothing there changed; its first use should pass `closeLabel={t(...)}`. Verified with a new story, `WithCloseLabel`, with a play function: the dialog opens, the ✕ button is named "Zamknij" (no "Close" button), and clicking it closes the dialog. It fails with the hardcoded `aria-label="Close"` back. Also `pnpm lint`, `pnpm typecheck`, `pnpm format:check` and `pnpm test` (18 story tests).
 
 **Fix:** Replace the hardcoded `aria-label="Close"` with a `closeLabel` prop that has a default value.
 

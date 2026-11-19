@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { useState } from 'react';
+import { expect, screen, userEvent, waitFor } from 'storybook/test';
 import { Button } from '../button/button.component';
 import { Modal } from '..';
 
@@ -56,5 +57,37 @@ export const WithoutDescription: Story = {
         </Modal>
       </>
     );
+  },
+};
+
+/** The ✕ button's accessible name comes from `closeLabel`, e.g. a translation. */
+export const WithCloseLabel: Story = {
+  render: () => {
+    const [open, setOpen] = useState(false);
+    return (
+      <>
+        <Button onClick={() => setOpen(true)}>Otwórz</Button>
+        <Modal
+          open={open}
+          onOpenChange={setOpen}
+          title="Porzucić kontrakt?"
+          description="Tej akcji nie można cofnąć."
+          closeLabel="Zamknij"
+        >
+          <p className="text-sm text-ink-muted">Postęp kontraktu przepadnie.</p>
+        </Modal>
+      </>
+    );
+  },
+  play: async ({ canvas }) => {
+    await userEvent.click(canvas.getByRole('button', { name: 'Otwórz' }));
+
+    // The dialog renders in a portal, outside the story's canvas.
+    const dialog = await screen.findByRole('dialog');
+    await expect(
+      screen.queryByRole('button', { name: 'Close' }),
+    ).not.toBeInTheDocument();
+    await userEvent.click(screen.getByRole('button', { name: 'Zamknij' }));
+    await waitFor(() => expect(dialog).not.toBeInTheDocument());
   },
 };
