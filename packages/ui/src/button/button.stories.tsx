@@ -52,12 +52,12 @@ export const InsideForm: Story = {
 export const ClassNameOverride: Story = {
   args: {
     variant: 'primary',
-    className: 'bg-error px-8',
+    className: 'bg-brand-700 px-8',
     children: 'Abandon contract',
   },
   play: async ({ canvas }) => {
     const button = canvas.getByRole('button', { name: 'Abandon contract' });
-    await expect(button).toHaveClass('bg-error', 'px-8', 'py-2');
+    await expect(button).toHaveClass('bg-brand-700', 'px-8', 'py-2');
     await expect(button).not.toHaveClass('bg-brand-600');
     await expect(button).not.toHaveClass('px-5');
   },

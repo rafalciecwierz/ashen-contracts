@@ -1086,7 +1086,15 @@ Verified locally with `docker compose up -d`: `pnpm test:e2e` from a cold start 
 
 ### UI-05 — Storybook config cleanup
 
-**Status:** ⬜ TODO
+**Status:** ✅ DONE (2026-11-20)
+
+**Notes:**
+
+- **Config:** `.storybook/main.ts` drops the `../stories/**` globs and `@storybook/addon-onboarding` (removed from `devDependencies` too). Deviation: the `../src/**/*.mdx` glob went as well. No MDX files exist, and every test run warned that it matched nothing; add it back with the first MDX page.
+- **Fonts:** `@fontsource-variable/cinzel` and `@fontsource-variable/inter` (devDependencies, imported in `preview.tsx`): self-hosted variable fonts, like next/font gives `apps/web`, so Storybook and the story tests need no network. Fontsource names them 'Cinzel Variable' and 'Inter Variable', so `preview.css` points `--font-heading`/`--font-body` at them with `@theme inline`, as `apps/web/src/app/globals.css` does for next/font. Checked in a running Storybook: both fonts load (`document.fonts`), the computed families are right, and the heading renders in Cinzel.
+- **a11y `'error'`:** switched. It found 6 `color-contrast` violations, 5 of them against a white background: Storybook renders stories on a white canvas, while the app is dark. `preview.css` now gives `body` the app's background, text colour and font, as `apps/web`'s `<body>` does (`bg-bg text-ink font-body`). That left two real ones. UI-02's `ClassNameOverride` story overrode the button with `bg-error`, which light text fails on (3.78:1); it now uses `bg-brand-700`, which tests the same merge. And `text-error` on `bg` was 4.49:1, under WCAG AA's 4.5:1, which affects the web app's form errors too: the `--color-error` token goes from `oklch(60% 0.2 25)` to `oklch(62% 0.2 25)`. Nothing uses `error` as a background, only for text and borders, so lighter is safe. With the old token, `Input`'s `WithError` story fails.
+- **Verified:** `pnpm lint`, `pnpm typecheck`, `pnpm format:check` and `pnpm test` (18 story tests, all passing axe).
+- **Docs:** `docs/ARCHITECTURE.md` (Testing) now describes the Storybook tests and the a11y check; they were missing from that list.
 
 **Fix:** Remove the non-existent `../stories/**` globs and the `addon-onboarding` addon. Load the Cinzel and Inter fonts in Storybook as well. Consider switching a11y `test: 'todo'` to `'error'` once violations are fixed.
 
