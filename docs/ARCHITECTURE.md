@@ -54,6 +54,7 @@ A single repo keeps `apps/web` and `apps/api` in sync on shared types (`packages
 - Documented and developed in isolation with **Storybook**
 - Published/hosted separately via **Chromatic** so the design system has its own shareable, public link independent of the game itself
 - Consumed by `apps/web` as a workspace package (`workspace:*`), not copy-pasted
+- Design tokens live in `@ashen-contracts/ui/theme.css`, which holds only a Tailwind `@theme` block and doesn't import Tailwind. Each consumer imports `tailwindcss` and then `theme.css` (`apps/web/src/app/globals.css`, `packages/ui/.storybook/preview.css`), so Tailwind's base styles are emitted once
 - Components build their class names with `cn()` (`src/utils/cn.ts`: `clsx` + `tailwind-merge`), their own classes first and the caller's `className` last, so an override replaces a conflicting class (`bg-error` replaces `bg-brand-600`) instead of both ending up in the markup. `Button` defaults to `type="button"`; a form's submit button passes `type="submit"`
 
 ## Backend (`apps/api`)

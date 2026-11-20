@@ -1,10 +1,12 @@
-@import 'tailwindcss';
-
 /*
  * Ashen Contracts — design tokens
  * Dark, "sci-fi/dark-fantasy dashboard" palette (see docs/GAME_DESIGN.md for tone reference).
  * Each --color-* variable below becomes a Tailwind utility automatically:
  * --color-brand-600 → bg-brand-600, text-brand-600, border-brand-600, etc.
+ *
+ * Tokens only: this file doesn't import Tailwind. Each consumer imports `tailwindcss`
+ * first and this file after it (apps/web globals.css, .storybook/preview.css), so the
+ * consumer decides how Tailwind is loaded and its base styles come from one place.
  */
 @theme {
   /* Brand accent (purple, from the first Button) */
