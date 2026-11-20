@@ -1,3 +1,25 @@
 /* Storybook is a consumer of the library like apps/web: Tailwind first, then the tokens. */
 @import 'tailwindcss';
 @import '../src/styles/theme.css';
+
+/*
+ * Fontsource registers the variable fonts as 'Cinzel Variable' and 'Inter Variable'
+ * (imported in preview.tsx), not the 'Cinzel'/'Inter' that theme.css names, so the
+ * tokens are pointed at them, as apps/web's globals.css does for next/font.
+ */
+@theme inline {
+  --font-heading: 'Cinzel Variable', serif;
+  --font-body: 'Inter Variable', system-ui, sans-serif;
+}
+
+/*
+ * Stories render on the app's background, as apps/web's <body> does (bg-bg text-ink font-body).
+ * Storybook's default white canvas made the a11y contrast checks test colours the app never shows.
+ */
+@layer base {
+  body {
+    background-color: var(--color-bg);
+    color: var(--color-ink);
+    font-family: var(--font-body);
+  }
+}

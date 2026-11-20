@@ -26,7 +26,7 @@
 
   /* Feedback (needed soon for the login/register screen error states) */
   --color-success: oklch(65% 0.15 150);
-  --color-error: oklch(60% 0.2 25);
+  --color-error: oklch(62% 0.2 25);
 
   /* Typography */
   --font-heading: 'Cinzel', serif;
