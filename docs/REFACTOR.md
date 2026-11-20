@@ -1071,7 +1071,14 @@ Verified locally with `docker compose up -d`: `pnpm test:e2e` from a cold start 
 
 ### UI-04 — Keep `theme.css` to tokens only
 
-**Status:** ⬜ TODO
+**Status:** ✅ DONE (2026-11-20)
+
+**Notes:**
+
+- **Change:** `packages/ui/src/styles/theme.css` no longer imports Tailwind; its header comment says consumers import `tailwindcss` first and the tokens after it. Storybook's `preview.tsx` imports a new `.storybook/preview.css` that does exactly that, like `apps/web/src/app/globals.css` already did, so `apps/web` needed no change.
+- **The duplicate was real, but small:** the minifier merges most of the second copy of Tailwind's preflight, so every `@layer` appeared once before the change too. What it couldn't merge were the two `@supports` blocks for `::placeholder`, which were in the production CSS twice. Diffing `next build`'s CSS before and after (17,128 → 16,887 bytes) shows that those two duplicated rules are the only difference, so nothing else changed for the web app.
+- **Verified:** that diff; `build-storybook` output has one of each `@layer` and the utilities the components use (e.g. `.bg-brand-600`, `.data-disabled:text-ink-muted`), so Tailwind's source detection still finds `src/` from `.storybook/`. Also `pnpm lint`, `pnpm typecheck`, `pnpm format:check` and `pnpm test` (18 story tests).
+- **Docs:** `docs/ARCHITECTURE.md` (Component library) says how `theme.css` is consumed.
 
 **Problem:** `theme.css` runs `@import "tailwindcss"`, and `apps/web/globals.css` imports Tailwind as well, which risks duplicated base styles.
 

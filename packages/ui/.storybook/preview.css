@@ -1,0 +1,3 @@
+/* Storybook is a consumer of the library like apps/web: Tailwind first, then the tokens. */
+@import 'tailwindcss';
+@import '../src/styles/theme.css';
