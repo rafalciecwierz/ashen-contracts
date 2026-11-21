@@ -13,7 +13,7 @@ Purpose: a portfolio project to demonstrate full-stack engineering (frontend-fir
 - Frontend: Next.js 16 (App Router) + TypeScript + Tailwind v4, next-intl, Zod; shared components in Storybook (`packages/ui`, built on Radix UI)
 - Backend: NestJS 12 + Prisma 7 + PostgreSQL
 - Testing: Vitest everywhere: API unit tests, API integration tests via supertest, web unit and component tests in `apps/web` (jsdom + React Testing Library), and Storybook interaction tests in `packages/ui` (browser mode, Playwright); Playwright Test for browser e2e tests of the whole system in `apps/e2e` (`docs/DECISIONS.md` #015)
-- Tooling: pnpm workspaces, TypeScript 6 (one version via the pnpm catalog), ESLint 9 + Prettier, commitlint, GitHub Actions CI (`ci.yml`, and `pr-title.yml` for PR titles; plus an AI review that only comments on PRs, `claude-review.yml`, which needs an `ANTHROPIC_API_KEY` or `CLAUDE_CODE_OAUTH_TOKEN` repo secret)
+- Tooling: pnpm workspaces, TypeScript 6 (one version via the pnpm catalog), ESLint 9 + Prettier, commitlint, GitHub Actions CI (`ci.yml`, which also publishes Storybook to Chromatic when a `CHROMATIC_PROJECT_TOKEN` repo secret is set; and `pr-title.yml` for PR titles; plus an AI review that only comments on PRs, `claude-review.yml`, which needs an `ANTHROPIC_API_KEY` or `CLAUDE_CODE_OAUTH_TOKEN` repo secret)
 - Agent MCP servers (`.mcp.json`, approved per user on first use): Next.js DevTools (runtime errors, routes and logs of a running `pnpm dev`) and Playwright (headless browser for checking UI changes; needs `pnpm dlx @playwright/mcp@0.0.83 install-browser chrome-for-testing` once)
 - Local infra: `docker-compose.yml` runs PostgreSQL and Redis
 - Planned, not installed yet: BullMQ on Redis (timed actions, v0.4), Socket.io (real-time)
