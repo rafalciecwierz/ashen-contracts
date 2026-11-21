@@ -153,3 +153,62 @@ jobs:
             apps/e2e/playwright-report/
             apps/e2e/test-results/
           retention-days: 7
+
+  # Publishes Storybook to Chromatic (docs/ARCHITECTURE.md, Deployment). On main, the build is
+  # the public link in README and becomes the visual baseline; on a PR, Chromatic compares each
+  # story with that baseline and shows the visual changes for review on chromatic.com.
+  #
+  # The job runs only when the CHROMATIC_PROJECT_TOKEN secret is available. A PR from a fork gets
+  # no secrets, and the secret doesn't exist before the Chromatic project is set up; in both cases
+  # the job is skipped instead of failing. A job-level `if` can't read secrets, so a tiny job checks
+  # and passes the answer on.
+  chromatic-token:
+    name: Check for a Chromatic token
+    runs-on: ubuntu-latest
+    timeout-minutes: 1
+    outputs:
+      present: ${{ steps.check.outputs.present }}
+    steps:
+      - id: check
+        env:
+          TOKEN: ${{ secrets.CHROMATIC_PROJECT_TOKEN }}
+        run: echo "present=$([ -n "$TOKEN" ] && echo true || echo false)" >> "$GITHUB_OUTPUT"
+
+  chromatic:
+    name: Publish Storybook to Chromatic
+    needs: chromatic-token
+    if: ${{ needs.chromatic-token.outputs.present == 'true' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          # Chromatic finds the baseline build through git history.
+          fetch-depth: 0
+
+      - uses: pnpm/action-setup@v6
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      # Built with pnpm here, so Chromatic uploads the result instead of guessing how to build it.
+      - name: Build Storybook
+        run: pnpm --filter @ashen-contracts/ui build-storybook
+
+      - name: Publish to Chromatic
+        uses: chromaui/action@v18
+        with:
+          projectToken: ${{ secrets.CHROMATIC_PROJECT_TOKEN }}
+          workingDir: packages/ui
+          storybookBuildDir: storybook-static
+          # A visual change is for review on chromatic.com, not a CI failure;
+          # a story that fails to render still fails the job.
+          exitZeroOnChanges: true
+          # What reaches main was reviewed in its PR, so it becomes the new baseline.
+          autoAcceptChanges: main

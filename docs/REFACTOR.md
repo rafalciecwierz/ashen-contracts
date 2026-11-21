@@ -1100,7 +1100,16 @@ Verified locally with `docker compose up -d`: `pnpm test:e2e` from a cold start 
 
 ### UI-06 — Publish Storybook to Chromatic
 
-**Status:** ⬜ TODO
+**Status:** 🔶 IN PROGRESS (2026-11-21). The CI job is ready; waiting for the owner to create the Chromatic project.
+
+**Notes:**
+
+- **CI:** a `chromatic` job in `ci.yml`, in parallel with `verify` and `e2e`. It builds Storybook with pnpm (`build-storybook`) and uploads `packages/ui/storybook-static` with `chromaui/action@v18` (input names checked against its `action.yml`). The action doesn't build it itself, because it would have to guess how to run the script in a pnpm workspace. `fetch-depth: 0`, because Chromatic finds the baseline build through git history. `exitZeroOnChanges`: a visual change is for review on chromatic.com, not a CI failure, while a story that fails to render still fails the job. `autoAcceptChanges: main`: what reaches `main` was reviewed in its PR, so it becomes the new baseline. No TurboSnap (`onlyChanged`): with 18 stories a full build is far inside the free plan's monthly snapshots, and it adds configuration to explain.
+- **No token, no job:** a small `chromatic-token` job checks whether the `CHROMATIC_PROJECT_TOKEN` secret is set, and `chromatic` runs only if it is (a job-level `if` can't read secrets). So merging this before the project exists, or a PR from a fork, skips the job instead of turning CI red.
+- **Deviation, README:** it still says "coming soon". The link is `https://main--<appId>.chromatic.com`, and the appId exists only once the project does; a placeholder link in a public README would be broken.
+- **Left for the owner:** (1) log in at chromatic.com with GitHub and add this repository as a project; (2) save its project token as the `CHROMATIC_PROJECT_TOKEN` Actions secret; (3) after the first build on `main`, replace "coming soon" in README with `https://main--<appId>.chromatic.com`, and mark this task done.
+- **Verified so far:** `build-storybook` succeeds locally; the token check prints `present=false` for an empty token and `present=true` otherwise; `pnpm format:check` (the YAML parses). The `chromatic` job itself can only be checked in CI once the secret exists.
+- **Docs:** `docs/ARCHITECTURE.md` (Deployment) and CLAUDE.md (Tooling) mention the job and the secret.
 
 **Depends on:** REPO-01
 
