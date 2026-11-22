@@ -17,7 +17,7 @@ Status legend: ⬜ TODO · 🔶 IN PROGRESS · ✅ DONE · 🚫 DROPPED
 2. **Safety net:** REPO-01 (CI), REPO-02 (docker-compose), REPO-03
 3. **Docs and AI context in sync:** AI-01, DOC-01, DOC-02, AI-02
 4. **API hardening:** API-01 → API-14
-5. **Frontend:** WEB-01 → WEB-13, UI-01 → UI-06
+5. **Frontend:** WEB-01 → WEB-14, UI-01 → UI-07
 6. Everything else, then continue with the v0.1 roadmap (character creation)
 
 ---
@@ -1028,6 +1028,16 @@ Verified locally with `docker compose up -d`: `pnpm test:e2e` from a cold start 
 
 **Fix:** Only once the deployment is known: a limiter in the Server Actions (since WEB-06 there are no route handlers; or `proxy.ts`) as an extra layer, never instead of the API's (the API is public). On Vercel it needs a shared store (e.g. Upstash Redis), because serverless instances don't share memory. See `docs/DECISIONS.md` #017.
 
+### WEB-14 — `@types/node` in `apps/web` behind the Node version
+
+**Status:** ⬜ TODO
+
+**Problem:** Found during UI-07 (`pnpm peers check`). `apps/web` declares `@types/node` `^20`, while the repo runs Node 24 (`.nvmrc`), `apps/api` and `apps/e2e` use `^24`, and Vitest 5 wants `^22 || >=24`. Types for Node 20 can also miss APIs the web app could use on Node 24.
+
+**Fix:** Bump `apps/web`'s `@types/node` to the same `^24` range as the other workspaces (or move it to the pnpm catalog so they can't drift apart again).
+
+**Done when:** `pnpm peers check` reports no issues, and `pnpm typecheck` and `pnpm test` pass.
+
 ---
 
 ## UI — `packages/ui`
@@ -1116,7 +1126,14 @@ Verified locally with `docker compose up -d`: `pnpm test:e2e` from a cold start 
 
 ### UI-07 — Storybook Vitest addon peer mismatch
 
-**Status:** ⬜ TODO
+**Status:** ✅ DONE (2026-11-22)
+
+**Notes:**
+
+- **Upgrade, not a pin:** `@storybook/addon-vitest` supports Vitest `^4 || ^5` from 10.6.4 on, so Storybook was upgraded instead of moving `packages/ui` back to Vitest 4, away from the rest of the repo. Every Storybook package moves together (`storybook`, `@storybook/addon-a11y`, `addon-docs`, `addon-vitest`, `react-vite`, `eslint-plugin-storybook`): `^10.6.6` in `package.json`, 10.6.7 in the lockfile. `@chromatic-com/storybook` 5.3.1 already accepts any 10.x.
+- **Why not the newest, 10.6.8:** it was two days old. The lockfile was resolved with `--config.minimum-release-age=10080` (7 days), so it picked 10.6.7 (12 days old). A 14-day cutoff failed: the lockfile on `main` already holds three packages younger than that (`@testing-library/user-event` 14.6.9, `tldts` and `tldts-core` 7.4.21), and pnpm checks the whole lockfile. Making a release-age policy permanent (`minimumReleaseAge` in `pnpm-workspace.yaml`) is a repo-wide supply-chain decision, not part of this task.
+- **Verified:** `pnpm peers check` has no entries for `packages/ui` any more. A fresh clone with the diff applied installs with `--frozen-lockfile` (as CI does). `pnpm lint`, `pnpm typecheck`, `pnpm format:check`, `pnpm test` (18 story tests) and `build-storybook` pass. The lockfile diff contains only Storybook packages.
+- **Found on the way:** the one peer warning left, `@types/node` ^20 in `apps/web` against Vitest 5's `^22 || >=24`, belongs to `apps/web`; recorded as WEB-14.
 
 **Problem:** Found during CRIT-03 (`pnpm peers check`). `@storybook/addon-vitest@10.6` supports `vitest` and `@vitest/browser-playwright` `^3 || ^4`, but 5.0.2 is installed. Story tests may break or behave unpredictably.
 
