@@ -3,7 +3,7 @@
 A browser-based idle/RPG game where players manage a stronghold, fulfill monster-hunting contracts, and grow their influence over time — built as a full-stack portfolio project to demonstrate production-grade frontend and backend engineering, not just another CRUD demo.
 
 **Live demo:** _coming soon_
-**Storybook (component library):** _coming soon_
+**Storybook (component library):** https://main--6b018ee0b59c87199d9f4f03.chromatic.com
 
 [![CI](https://github.com/rafalciecwierz/ashen-contracts/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/rafalciecwierz/ashen-contracts/actions/workflows/ci.yml)
 ![status](https://img.shields.io/badge/status-in%20development-orange)
