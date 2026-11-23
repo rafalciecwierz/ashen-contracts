@@ -1,0 +1,485 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Proposal D: Manuscript</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700&family=Cinzel:wght@500;600&family=EB+Garamond:ital,wght@0,400;0,500;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      /* Light "vellum" theme. Same type family as Proposal A, so it could ship as A's light mode. */
+      :root {
+        --vellum: #ece2cc;
+        --vellum-2: #e3d7bc;
+        --rule: #c9b994;
+        --rule-strong: #a8966e;
+        --ink: #2b241d;
+        --ink-muted: #5c5144;
+        --ink-faint: #7a6d5c;
+        --rubric: #9b2d20;
+        --rubric-soft: rgba(155, 45, 32, 0.08);
+        --gilt: #a07a22;
+        --f-display: 'Cinzel', serif;
+        --f-initial: 'Cinzel Decorative', serif;
+        --f-body: 'EB Garamond', Georgia, serif;
+        --f-mono: 'IBM Plex Mono', monospace;
+      }
+      * {
+        box-sizing: border-box;
+        margin: 0;
+      }
+      body {
+        background: var(--vellum);
+        color: var(--ink);
+        font: 19px/1.6 var(--f-body);
+        background-image:
+          radial-gradient(
+            ellipse at 50% 0%,
+            rgba(255, 255, 255, 0.35),
+            transparent 60%
+          ),
+          radial-gradient(
+            ellipse at 50% 120%,
+            rgba(120, 90, 40, 0.18),
+            transparent 60%
+          );
+        min-height: 100vh;
+      }
+      a {
+        color: var(--rubric);
+      }
+      .mono {
+        font-family: var(--f-mono);
+      }
+      .proposal-bar {
+        font: 13px var(--f-mono);
+        color: var(--ink-faint);
+        padding: 8px 16px;
+        display: flex;
+        justify-content: space-between;
+        gap: 16px;
+        flex-wrap: wrap;
+        border-bottom: 1px solid var(--rule);
+      }
+
+      header {
+        text-align: center;
+        padding: 28px 16px 0;
+      }
+      .wordmark {
+        font: 600 15px var(--f-display);
+        letter-spacing: 0.3em;
+        color: var(--rubric);
+        text-transform: uppercase;
+      }
+      nav {
+        display: flex;
+        justify-content: center;
+        gap: 28px;
+        margin-top: 12px;
+        padding-bottom: 14px;
+        border-bottom: 1px double var(--rule-strong);
+        flex-wrap: wrap;
+      }
+      nav a {
+        font: 500 13px var(--f-display);
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        color: var(--ink-muted);
+        text-decoration: none;
+        padding: 6px 0;
+      }
+      nav a[aria-current] {
+        color: var(--ink);
+        border-bottom: 1px solid var(--rubric);
+      }
+      nav a.locked {
+        color: var(--ink-faint);
+      }
+
+      /* Folio: text column + margin notes */
+      .folio {
+        max-width: 1080px;
+        margin: 0 auto;
+        padding: 40px 24px 56px;
+        display: grid;
+        grid-template-columns: 200px 1fr 220px;
+        gap: 48px;
+      }
+      @media (max-width: 980px) {
+        .folio {
+          grid-template-columns: 1fr;
+          gap: 28px;
+        }
+        .margin-l {
+          order: 2;
+        }
+        .margin-r {
+          order: 3;
+        }
+      }
+      @media (max-width: 640px) {
+        .folio {
+          padding: 28px 16px 40px;
+        }
+      }
+
+      .margin-l,
+      .margin-r {
+        font-size: 16px;
+        color: var(--ink-muted);
+      }
+      .margin-l h3,
+      .margin-r h3 {
+        font: 600 12px var(--f-display);
+        letter-spacing: 0.16em;
+        text-transform: uppercase;
+        color: var(--rubric);
+        margin-bottom: 8px;
+      }
+      .margin-l section + section,
+      .margin-r section + section {
+        margin-top: 32px;
+      }
+      .note-list {
+        list-style: none;
+        padding: 0;
+      }
+      .note-list li {
+        display: flex;
+        justify-content: space-between;
+        border-bottom: 1px dotted var(--rule);
+        padding: 5px 0;
+      }
+      .note-list .mono {
+        font-size: 13px;
+        color: var(--ink);
+      }
+      .meter {
+        height: 5px;
+        background: var(--vellum-2);
+        border: 1px solid var(--rule);
+        margin: 6px 0 2px;
+      }
+      .meter i {
+        display: block;
+        height: 100%;
+        background: var(--rubric);
+      }
+      .meter.gilt i {
+        background: var(--gilt);
+      }
+      .small {
+        font: 12px var(--f-mono);
+        color: var(--ink-faint);
+      }
+
+      .chapter {
+        font: 500 13px var(--f-display);
+        letter-spacing: 0.2em;
+        text-transform: uppercase;
+        color: var(--ink-faint);
+        text-align: center;
+      }
+      h1 {
+        font: 600 34px var(--f-display);
+        text-align: center;
+        letter-spacing: 0.06em;
+        margin: 6px 0 2px;
+      }
+      .fleuron {
+        text-align: center;
+        color: var(--rubric);
+        margin: 8px 0 22px;
+        letter-spacing: 0.6em;
+      }
+      .text p {
+        margin-bottom: 16px;
+        text-align: justify;
+        hyphens: auto;
+      }
+      .text p.opening::first-letter {
+        font: 700 64px/0.85 var(--f-initial);
+        color: var(--rubric);
+        float: left;
+        padding: 6px 10px 0 0;
+      }
+
+      .decision {
+        margin: 28px 0;
+        padding: 20px 0;
+        border-top: 1px solid var(--rule-strong);
+        border-bottom: 1px solid var(--rule-strong);
+      }
+      .decision .chapter {
+        text-align: left;
+        color: var(--rubric);
+        margin-bottom: 12px;
+      }
+      .choice {
+        all: unset;
+        box-sizing: border-box;
+        display: flex;
+        width: 100%;
+        justify-content: space-between;
+        gap: 12px;
+        align-items: center;
+        min-height: 52px;
+        padding: 8px 14px;
+        cursor: pointer;
+        border-left: 2px solid transparent;
+        font: 19px var(--f-body);
+      }
+      .choice:hover,
+      .choice:focus-visible {
+        background: var(--rubric-soft);
+        border-left-color: var(--rubric);
+      }
+      .choice:focus-visible {
+        outline: 2px solid var(--rubric);
+        outline-offset: 2px;
+      }
+      .choice .n {
+        font: 600 14px var(--f-display);
+        color: var(--rubric);
+        width: 28px;
+      }
+      .choice span.t {
+        flex: 1;
+      }
+      .choice small {
+        font: 12px var(--f-mono);
+        color: var(--ink-faint);
+        white-space: nowrap;
+      }
+      .choice.gated {
+        background: rgba(160, 122, 34, 0.1);
+        border-left-color: var(--gilt);
+      }
+      .choice.gated small {
+        color: var(--gilt);
+      }
+
+      .past {
+        font-size: 16px;
+        color: var(--ink-muted);
+      }
+      .past p {
+        margin-bottom: 10px;
+      }
+      .past time {
+        font: 12px var(--f-mono);
+        color: var(--ink-faint);
+        margin-right: 8px;
+      }
+
+      /* Creation */
+      section.screen {
+        border-top: 1px double var(--rule-strong);
+        padding: 48px 16px 64px;
+      }
+      .creation {
+        max-width: 760px;
+        margin: 0 auto;
+      }
+      .grid2 {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 0;
+        border-top: 1px solid var(--rule-strong);
+        margin-top: 20px;
+      }
+      .entry {
+        padding: 16px 14px;
+        border-bottom: 1px solid var(--rule);
+        cursor: pointer;
+      }
+      .entry h4 {
+        font: 600 16px var(--f-display);
+        letter-spacing: 0.06em;
+      }
+      .entry p {
+        font-size: 16px;
+        color: var(--ink-muted);
+        font-style: italic;
+      }
+      .entry .mono {
+        font-size: 12px;
+        color: var(--ink-faint);
+      }
+      .entry.on {
+        background: var(--rubric-soft);
+        box-shadow: inset 2px 0 0 var(--rubric);
+      }
+      .entry.on h4 {
+        color: var(--rubric);
+      }
+      .btns {
+        display: flex;
+        justify-content: center;
+        margin-top: 32px;
+        gap: 12px;
+      }
+      .btn {
+        all: unset;
+        min-height: 44px;
+        padding: 0 26px;
+        display: inline-flex;
+        align-items: center;
+        font: 600 13px var(--f-display);
+        letter-spacing: 0.16em;
+        text-transform: uppercase;
+        border: 1px solid var(--ink);
+        cursor: pointer;
+      }
+      .btn.primary {
+        background: var(--rubric);
+        color: #f6ead6;
+        border-color: var(--rubric);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="proposal-bar">
+      <span>Proposal D — Manuscript · light vellum theme</span
+      ><a href="index.html">← all proposals</a>
+    </div>
+
+    <header>
+      <div class="wordmark">Ashen Contracts</div>
+      <nav aria-label="Game">
+        <a href="#" aria-current="page">The Clearing</a>
+        <a href="#">Chronicle</a>
+        <a href="#">Satchel</a>
+        <a href="#" class="locked" aria-disabled="true">Stronghold ✝</a>
+      </nav>
+    </header>
+
+    <div class="folio">
+      <aside class="margin-l">
+        <section>
+          <h3>Maren</h3>
+          <div><em>Fenborn. Light Sleeper, Old Scars.</em></div>
+          <div class="small" style="margin-top: 10px">Energy 64 / 100</div>
+          <div class="meter"><i style="width: 64%"></i></div>
+          <div class="small">+1 in 0:37</div>
+          <div class="small" style="margin-top: 10px">Level 1 · 40 / 100</div>
+          <div class="meter gilt"><i style="width: 40%"></i></div>
+        </section>
+        <section>
+          <h3>Virtues</h3>
+          <ul class="note-list">
+            <li><span>Might</span><span class="mono">iii</span></li>
+            <li><span>Wits</span><span class="mono">v</span></li>
+            <li><span>Resolve</span><span class="mono">iv</span></li>
+          </ul>
+        </section>
+      </aside>
+
+      <main class="text">
+        <div class="chapter">Chapter the First</div>
+        <h1>The Clearing</h1>
+        <div class="fleuron" aria-hidden="true">❦</div>
+        <p class="opening">
+          A red squirrel watches you from a stump, something glinting between
+          its paws. It does not run. It is waiting to see what you are, and you
+          find, uncomfortably, that you are waiting too.
+        </p>
+
+        <div class="decision" role="group" aria-label="Choose">
+          <div class="chapter">What do you do?</div>
+          <button class="choice">
+            <span class="n">I.</span><span class="t">Chase it</span
+            ><small>Wits · 5 energy</small>
+          </button>
+          <button class="choice gated">
+            <span class="n">II.</span><span class="t">Offer it the acorn</span
+            ><small>✦ in your satchel</small>
+          </button>
+          <button class="choice">
+            <span class="n">III.</span><span class="t">Leave it be</span
+            ><small>—</small>
+          </button>
+        </div>
+
+        <div class="past">
+          <p>
+            <time>08:12</time>You walked the clearing. Nothing of note happened.
+          </p>
+          <p>
+            <time>07:40</time>You tripped on an exposed root, struck your head,
+            and woke eight hours later.
+          </p>
+          <p>
+            <time>yest.</time>The bandit was dead before you knew you had drawn
+            the knife.
+          </p>
+        </div>
+      </main>
+
+      <aside class="margin-r">
+        <section>
+          <h3>Afield</h3>
+          <div>Walking the treeline</div>
+          <div class="meter"><i style="width: 35%"></i></div>
+          <div class="small">9:42 remaining · 10 energy</div>
+        </section>
+        <section>
+          <h3>Satchel</h3>
+          <ul class="note-list">
+            <li><span>Crowns</span><span class="mono">12</span></li>
+            <li><span>Acorn</span><span class="mono">1</span></li>
+            <li><span>Notched knife</span><span class="mono">1</span></li>
+          </ul>
+        </section>
+        <section>
+          <h3>Roads</h3>
+          <ul class="note-list">
+            <li><span>The Clearing</span><span class="mono">here</span></li>
+            <li>
+              <span><em>here be nothing yet</em></span
+              ><span class="mono">?</span>
+            </li>
+          </ul>
+        </section>
+      </aside>
+    </div>
+
+    <section class="screen">
+      <div class="creation">
+        <div class="chapter">Screen 2 · Character creation</div>
+        <h1>Of Thy Origin</h1>
+        <div class="fleuron" aria-hidden="true">❦</div>
+        <div class="grid2" role="radiogroup" aria-label="Origin">
+          <div class="entry" role="radio" aria-checked="false">
+            <h4>Marchlander</h4>
+            <p>Raised between two crowns that both taxed the same field.</p>
+            <span class="mono">+1 Resolve</span>
+          </div>
+          <div class="entry on" role="radio" aria-checked="true">
+            <h4>Fenborn</h4>
+            <p>Reed-folk. Patient, quiet, hard to find.</p>
+            <span class="mono">+1 Wits</span>
+          </div>
+          <div class="entry" role="radio" aria-checked="false">
+            <h4>Vale Half-elf</h4>
+            <p>Welcome in neither house, useful to both.</p>
+            <span class="mono">+1 Wits</span>
+          </div>
+          <div class="entry" role="radio" aria-checked="false">
+            <h4>Exiled Dwarf</h4>
+            <p>Sent up from the deep halls for a reason no one will say.</p>
+            <span class="mono">+1 Might</span>
+          </div>
+        </div>
+        <div class="btns">
+          <button class="btn">Back</button
+          ><button class="btn primary">Continue</button>
+        </div>
+      </div>
+    </section>
+  </body>
+</html>

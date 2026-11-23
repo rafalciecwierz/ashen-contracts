@@ -1,0 +1,721 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Proposal A: Chronicle</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600&family=EB+Garamond:ital,wght@0,400;0,500;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      /* Tokens: 1:1 from docs/design/design-tokens.json */
+      :root {
+        --bg-base: #141210;
+        --bg-surface: #1b1815;
+        --bg-raised: #221d18;
+        --bg-hover: #25211d;
+        --bg-track: #2c2823;
+        --border-subtle: #26221e;
+        --border: #2f2a25;
+        --border-strong: #3a342d;
+        --border-control: #4a433a;
+        --border-control-hover: #8a7f70;
+        --text: #e6dfd3;
+        --text-muted: #a39a8c;
+        --text-locked: #8f877a;
+        --text-disabled: #6f675c;
+        --on-accent: #1a1410;
+        --ember: #d9773f;
+        --link: #e0a37c;
+        --link-hover: #f0c2a2;
+        --neutral-fill: #9c9282;
+        --f-display: 'Cinzel', serif;
+        --f-body: 'EB Garamond', Georgia, serif;
+        --f-mono: 'IBM Plex Mono', monospace;
+        --r: 4px;
+        --r-bar: 3px;
+      }
+      * {
+        box-sizing: border-box;
+        margin: 0;
+      }
+      body {
+        background: var(--bg-base);
+        color: var(--text);
+        font: 18px/1.55 var(--f-body);
+      }
+      a {
+        color: var(--link);
+      }
+      a:hover {
+        color: var(--link-hover);
+      }
+      .label {
+        font: 600 12px var(--f-display);
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        color: var(--text-muted);
+      }
+      .mono {
+        font-family: var(--f-mono);
+      }
+      .wrap {
+        max-width: 1240px;
+        margin: 0 auto;
+        padding: 0 24px;
+      }
+      @media (max-width: 640px) {
+        .wrap {
+          padding: 0 16px;
+        }
+      }
+
+      .proposal-bar {
+        border-bottom: 1px solid var(--border);
+        font: 13px var(--f-mono);
+        color: var(--text-muted);
+        padding: 8px 0;
+      }
+      .proposal-bar .wrap {
+        display: flex;
+        justify-content: space-between;
+        gap: 16px;
+        flex-wrap: wrap;
+      }
+
+      /* Nav */
+      header.nav {
+        border-bottom: 1px solid var(--border);
+        background: var(--bg-surface);
+      }
+      header.nav .wrap {
+        display: flex;
+        align-items: center;
+        gap: 24px;
+        min-height: 60px;
+        flex-wrap: wrap;
+      }
+      .wordmark {
+        font: 600 16px var(--f-display);
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+      }
+      .wordmark span {
+        color: var(--ember);
+      }
+      nav.tabs {
+        display: flex;
+        gap: 20px;
+        flex: 1;
+        overflow-x: auto;
+      }
+      nav.tabs a {
+        font: 500 13px var(--f-display);
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: var(--text-muted);
+        text-decoration: none;
+        padding: 20px 0 18px;
+        border-bottom: 2px solid transparent;
+        white-space: nowrap;
+      }
+      nav.tabs a[aria-current] {
+        color: var(--text);
+        border-color: var(--ember);
+      }
+      nav.tabs a.locked {
+        color: var(--text-disabled);
+      }
+      .energy {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font: 13px var(--f-mono);
+        color: var(--text-muted);
+      }
+      .energy b {
+        color: var(--ember);
+        font-weight: 500;
+      }
+      .bar {
+        height: 6px;
+        background: var(--bg-track);
+        border-radius: var(--r-bar);
+        overflow: hidden;
+      }
+      .bar > i {
+        display: block;
+        height: 100%;
+        background: var(--ember);
+        border-radius: var(--r-bar);
+      }
+      .bar.neutral > i {
+        background: var(--neutral-fill);
+      }
+      .energy .bar {
+        width: 120px;
+      }
+      .avatar {
+        width: 34px;
+        height: 34px;
+        border-radius: 50%;
+        border: 1px solid var(--border-control);
+        display: grid;
+        place-items: center;
+        font: 600 13px var(--f-display);
+        color: var(--text-muted);
+      }
+
+      /* Layout */
+      main.grid {
+        display: grid;
+        grid-template-columns: 280px 1fr 300px;
+        gap: 24px;
+        padding: 24px 0 48px;
+      }
+      @media (max-width: 1080px) {
+        main.grid {
+          grid-template-columns: 1fr 1fr;
+        }
+        .center {
+          grid-column: 1 / -1;
+          order: -1;
+        }
+      }
+      @media (max-width: 700px) {
+        main.grid {
+          grid-template-columns: 1fr;
+        }
+      }
+      .panel {
+        background: var(--bg-surface);
+        border: 1px solid var(--border);
+        border-radius: var(--r);
+        padding: 20px;
+      }
+      .panel + .panel {
+        margin-top: 24px;
+      }
+      .panel h2 {
+        margin-bottom: 14px;
+      }
+
+      .char-name {
+        font: 600 22px var(--f-display);
+        letter-spacing: 0.06em;
+      }
+      .char-meta {
+        font-size: 16px;
+        color: var(--text-muted);
+        font-style: italic;
+        margin-bottom: 16px;
+      }
+      .row {
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+        font-size: 16px;
+      }
+      .stats {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 8px;
+        margin-top: 16px;
+      }
+      .stat {
+        border: 1px solid var(--border);
+        border-radius: var(--r);
+        padding: 10px 8px;
+        text-align: center;
+      }
+      .stat .v {
+        font: 500 22px var(--f-mono);
+        display: block;
+      }
+      .stat .k {
+        font: 600 11px var(--f-display);
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: var(--text-muted);
+      }
+      .chips {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+        margin-top: 12px;
+      }
+      .chip {
+        font-size: 15px;
+        border: 1px solid var(--border-control);
+        border-radius: var(--r);
+        padding: 2px 10px;
+        color: var(--text-muted);
+      }
+      ul.plain {
+        list-style: none;
+        padding: 0;
+      }
+      ul.plain li {
+        display: flex;
+        justify-content: space-between;
+        padding: 8px 0;
+        border-bottom: 1px solid var(--border-subtle);
+        font-size: 16px;
+      }
+      ul.plain li:last-child {
+        border-bottom: 0;
+      }
+
+      .loc-head {
+        font: 600 28px var(--f-display);
+        letter-spacing: 0.06em;
+      }
+      .loc-desc {
+        color: var(--text-muted);
+        font-style: italic;
+        margin: 6px 0 24px;
+        max-width: 60ch;
+      }
+      .event {
+        background: var(--bg-surface);
+        border: 1px solid var(--border-strong);
+        border-left: 2px solid var(--ember);
+        border-radius: var(--r);
+        padding: 28px;
+      }
+      .event .label {
+        color: var(--ember);
+      }
+      .event p.lead {
+        font-size: 21px;
+        line-height: 1.6;
+        margin: 12px 0 22px;
+        max-width: 62ch;
+      }
+      .choices {
+        display: grid;
+        gap: 10px;
+      }
+      button.choice {
+        all: unset;
+        box-sizing: border-box;
+        min-height: 56px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        padding: 10px 18px;
+        border: 1px solid var(--border-control);
+        border-radius: var(--r);
+        cursor: pointer;
+        font: 18px var(--f-body);
+        color: var(--text);
+      }
+      button.choice:hover,
+      button.choice:focus-visible {
+        background: var(--bg-hover);
+        border-color: var(--border-control-hover);
+      }
+      button.choice:focus-visible {
+        outline: 2px solid var(--ember);
+        outline-offset: 2px;
+      }
+      button.choice small {
+        font: 13px var(--f-mono);
+        color: var(--text-muted);
+        white-space: nowrap;
+      }
+      button.choice.gated {
+        background: var(--bg-raised);
+        border-color: var(--ember);
+      }
+      button.choice.gated small {
+        color: var(--ember);
+      }
+
+      .expedition {
+        margin-top: 24px;
+      }
+      .expedition .top {
+        display: flex;
+        justify-content: space-between;
+        gap: 12px;
+        flex-wrap: wrap;
+        margin-bottom: 10px;
+      }
+      .btn {
+        all: unset;
+        box-sizing: border-box;
+        min-height: 44px;
+        display: inline-flex;
+        align-items: center;
+        padding: 0 20px;
+        border: 1px solid var(--border-control);
+        border-radius: var(--r);
+        font: 500 13px var(--f-display);
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        cursor: pointer;
+        color: var(--text);
+      }
+      .btn:hover {
+        background: var(--bg-hover);
+        border-color: var(--border-control-hover);
+      }
+      .btn.primary {
+        background: var(--ember);
+        border-color: var(--ember);
+        color: var(--on-accent);
+      }
+
+      .log li {
+        display: block !important;
+      }
+      .log time {
+        font: 12px var(--f-mono);
+        color: var(--text-muted);
+        display: block;
+      }
+      .log p {
+        font-size: 16px;
+        color: var(--text-muted);
+      }
+      .log li:first-child p {
+        color: var(--text);
+      }
+      .reward {
+        font: 13px var(--f-mono);
+        color: var(--ember);
+      }
+      .locked-loc {
+        color: var(--text-locked);
+      }
+
+      /* Character creation */
+      section.screen {
+        border-top: 1px solid var(--border);
+        padding: 48px 0 64px;
+      }
+      .screen-title {
+        margin-bottom: 24px;
+      }
+      .creation {
+        max-width: 860px;
+        margin: 0 auto;
+      }
+      .steps {
+        display: flex;
+        gap: 24px;
+        margin-bottom: 28px;
+        font: 13px var(--f-mono);
+        color: var(--text-muted);
+        flex-wrap: wrap;
+      }
+      .steps .on {
+        color: var(--ember);
+      }
+      .cards {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 12px;
+      }
+      .card {
+        border: 1px solid var(--border-control);
+        border-radius: var(--r);
+        padding: 18px;
+        background: var(--bg-surface);
+        cursor: pointer;
+      }
+      .card h3 {
+        font: 600 16px var(--f-display);
+        letter-spacing: 0.06em;
+        margin-bottom: 6px;
+      }
+      .card p {
+        font-size: 16px;
+        color: var(--text-muted);
+      }
+      .card .mono {
+        font-size: 13px;
+        color: var(--text-muted);
+        margin-top: 10px;
+        display: block;
+      }
+      .card.selected {
+        border-color: var(--ember);
+        background: var(--bg-raised);
+      }
+      .card.selected .mono {
+        color: var(--ember);
+      }
+      .field {
+        margin: 28px 0;
+      }
+      .field label {
+        display: block;
+        margin-bottom: 6px;
+      }
+      .field input {
+        width: 100%;
+        max-width: 420px;
+        min-height: 44px;
+        background: var(--bg-base);
+        border: 1px solid var(--border-control);
+        border-radius: var(--r);
+        color: var(--text);
+        font: 18px var(--f-body);
+        padding: 0 14px;
+      }
+      .field input:focus {
+        outline: 2px solid var(--ember);
+        outline-offset: 1px;
+      }
+      .foot {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 12px;
+        flex-wrap: wrap;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="proposal-bar">
+      <div class="wrap">
+        <span>Proposal A — Chronicle · tokens from design-tokens.json</span
+        ><a href="index.html">← all proposals</a>
+      </div>
+    </div>
+
+    <header class="nav">
+      <div class="wrap">
+        <div class="wordmark">Ashen <span>·</span> Contracts</div>
+        <nav class="tabs" aria-label="Game">
+          <a href="#" aria-current="page">The Clearing</a>
+          <a href="#">Chronicle</a>
+          <a href="#">Satchel</a>
+          <a href="#" class="locked" aria-disabled="true">Stronghold</a>
+        </nav>
+        <div class="energy" title="+1 energy every 60 s">
+          <span>Energy</span>
+          <div
+            class="bar"
+            role="meter"
+            aria-valuemin="0"
+            aria-valuemax="100"
+            aria-valuenow="64"
+            aria-label="Energy"
+          >
+            <i style="width: 64%"></i>
+          </div>
+          <b>64</b>/100 <span>+1 in <span id="tick">0:37</span></span>
+        </div>
+        <div class="avatar" aria-label="Account menu">M</div>
+      </div>
+    </header>
+
+    <div class="wrap">
+      <main class="grid">
+        <aside>
+          <div class="panel">
+            <div class="char-name">Maren</div>
+            <div class="char-meta">Fenborn · of no house she remembers</div>
+            <div class="row">
+              <span class="label">Level 1</span
+              ><span
+                class="mono"
+                style="font-size: 13px; color: var(--text-muted)"
+                >40 / 100 XP</span
+              >
+            </div>
+            <div class="bar neutral" style="margin-top: 6px">
+              <i style="width: 40%"></i>
+            </div>
+            <div class="stats">
+              <div class="stat">
+                <span class="v">3</span><span class="k">Might</span>
+              </div>
+              <div class="stat">
+                <span class="v">5</span><span class="k">Wits</span>
+              </div>
+              <div class="stat">
+                <span class="v">4</span><span class="k">Resolve</span>
+              </div>
+            </div>
+            <div class="chips">
+              <span class="chip">Light Sleeper</span
+              ><span class="chip">Old Scars</span>
+            </div>
+          </div>
+          <div class="panel">
+            <h2 class="label">Satchel</h2>
+            <ul class="plain">
+              <li><span>Acorn</span><span class="mono">×1</span></li>
+              <li>
+                <span>Notched knife</span><span class="mono">equipped</span>
+              </li>
+              <li><span>Crowns</span><span class="mono">12</span></li>
+            </ul>
+          </div>
+        </aside>
+
+        <section class="center">
+          <h1 class="loc-head">The Clearing</h1>
+          <p class="loc-desc">
+            Where the forest gives up and the road begins. Ash still settles on
+            the stumps, though no one here remembers the fire.
+          </p>
+
+          <article class="event" aria-labelledby="ev">
+            <span class="label" id="ev"
+              >Event · returned from the treeline</span
+            >
+            <p class="lead">
+              A red squirrel watches you from a stump, something glinting
+              between its paws. It does not run. It is waiting to see what you
+              are.
+            </p>
+            <div class="choices">
+              <button class="choice">
+                Chase it <small>Wits check · 5 energy</small>
+              </button>
+              <button class="choice gated">
+                Offer it the acorn <small>◆ you carry: Acorn</small>
+              </button>
+              <button class="choice">Leave it be <small>no cost</small></button>
+            </div>
+          </article>
+
+          <div class="panel expedition">
+            <div class="top">
+              <h2 class="label">Expedition · Walk the treeline</h2>
+              <span
+                class="mono"
+                style="font-size: 13px; color: var(--text-muted)"
+                ><span id="exp">9:42</span> remaining</span
+              >
+            </div>
+            <div class="bar"><i id="expbar" style="width: 35%"></i></div>
+            <div class="foot" style="margin-top: 16px">
+              <span style="font-size: 16px; color: var(--text-muted)"
+                >10 energy · 15 min · resolves into an event</span
+              ><button class="btn">Recall</button>
+            </div>
+          </div>
+        </section>
+
+        <aside>
+          <div class="panel log">
+            <h2 class="label">Chronicle</h2>
+            <ul class="plain">
+              <li>
+                <time>08:12</time>
+                <p>You walked the clearing. Nothing of note happened.</p>
+                <span class="reward">+2 crowns</span>
+              </li>
+              <li>
+                <time>07:40</time>
+                <p>
+                  You tripped on an exposed root, struck your head, and woke
+                  eight hours later.
+                </p>
+                <span class="reward">energy restored</span>
+              </li>
+              <li>
+                <time>yesterday</time>
+                <p>
+                  <em>First Blood.</em> The bandit was dead before you knew you
+                  had drawn the knife.
+                </p>
+                <span class="reward">+25 XP · Notched knife</span>
+              </li>
+            </ul>
+          </div>
+          <div class="panel">
+            <h2 class="label">Roads</h2>
+            <ul class="plain">
+              <li>
+                <span>The Clearing</span
+                ><span class="mono" style="color: var(--ember)">here</span>
+              </li>
+              <li class="locked-loc">
+                <span>Mill on the Weir</span><span class="mono">rep 10</span>
+              </li>
+              <li class="locked-loc">
+                <span>???</span><span class="mono">locked</span>
+              </li>
+            </ul>
+          </div>
+        </aside>
+      </main>
+    </div>
+
+    <section class="screen">
+      <div class="wrap creation">
+        <p class="label screen-title">Screen 2 · Character creation</p>
+        <div class="steps">
+          <span>1 Name</span><span class="on">2 Origin</span
+          ><span>3 Traits</span>
+        </div>
+        <h1 class="loc-head">Where do you come from?</h1>
+        <p class="loc-desc">
+          You remember the shape of it, if not the faces. Choose once; the road
+          does not let you choose again.
+        </p>
+        <div class="cards" role="radiogroup" aria-label="Origin">
+          <div class="card" role="radio" aria-checked="false">
+            <h3>Marchlander</h3>
+            <p>
+              Human, raised between two crowns that both taxed the same field.
+            </p>
+            <span class="mono">+1 Resolve</span>
+          </div>
+          <div class="card selected" role="radio" aria-checked="true">
+            <h3>Fenborn</h3>
+            <p>
+              Reed-folk. Patient, quiet, and hard to find when they don't want
+              to be.
+            </p>
+            <span class="mono">+1 Wits</span>
+          </div>
+          <div class="card" role="radio" aria-checked="false">
+            <h3>Vale Half-elf</h3>
+            <p>Welcome in neither house, useful to both.</p>
+            <span class="mono">+1 Wits</span>
+          </div>
+          <div class="card" role="radio" aria-checked="false">
+            <h3>Exiled Dwarf</h3>
+            <p>Sent up from the deep halls for a reason no one will say.</p>
+            <span class="mono">+1 Might</span>
+          </div>
+        </div>
+        <div class="field">
+          <label class="label" for="nm">Name</label>
+          <input id="nm" value="Maren" />
+        </div>
+        <div class="foot">
+          <button class="btn">Back</button
+          ><button class="btn primary">Continue</button>
+        </div>
+      </div>
+    </section>
+
+    <script>
+      // Display-only countdowns for the mockup (the real values come from the server).
+      let s = 37,
+        e = 582;
+      setInterval(() => {
+        s = s > 0 ? s - 1 : 59;
+        e = e > 0 ? e - 1 : 900;
+        document.getElementById('tick').textContent =
+          `0:${String(s).padStart(2, '0')}`;
+        document.getElementById('exp').textContent =
+          `${Math.floor(e / 60)}:${String(e % 60).padStart(2, '0')}`;
+        document.getElementById('expbar').style.width =
+          `${(1 - e / 900) * 100}%`;
+      }, 1000);
+    </script>
+  </body>
+</html>
