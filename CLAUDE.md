@@ -4,7 +4,7 @@
 
 ## What this project is
 
-A browser-based idle/RPG game set in a dark-fantasy world. The player manages a stronghold, takes on monster-hunting contracts, collects resources that regenerate over time, and progresses through building/research actions that take real time to complete. Full design: `docs/GAME_DESIGN.md`.
+A browser-based idle/RPG game set in a dark-fantasy world. The player picks a location on a map and goes on instant adventures there, paid with energy that regenerates over time; later a stronghold (training that takes real time, through the job queue) and contracts (special missions) unlock. Full design: `docs/GAME_DESIGN.md`.
 
 Purpose: a portfolio project to demonstrate full-stack engineering (frontend-first) for job applications — not a commercial product. Priority: clean, explainable architecture over feature count. I need to be able to justify every technical decision in an interview.
 
@@ -22,7 +22,7 @@ Purpose: a portfolio project to demonstrate full-stack engineering (frontend-fir
 ## Code conventions
 
 - All resource/time calculations happen server-side. Never trust client-sent timestamps or resource values.
-- Any action with a real-world duration (building, research) goes through the job queue (BullMQ), not `setInterval`/naive polling.
+- Any action with a real-world duration (stronghold training) goes through the job queue (BullMQ), not `setInterval`/naive polling.
 - Write tests for: resource regeneration math, queue/job behavior, action validation (enough resources? valid state?).
 - Import generated/external code (Prisma client, etc.) with explicit relative paths (`../generated/prisma/client` — the Prisma client is generated into `apps/api/src/generated/prisma`), never bare `src/...` specifiers. `apps/api` has no `baseUrl` (deprecated in TypeScript 6), so those no longer compile; they used to work under `nest start` but not in Vitest.
 - **`apps/api` is full TypeScript strict**, `strictPropertyInitialization` included (`docs/DECISIONS.md` #023). A class field needs an initializer or a constructor assignment.

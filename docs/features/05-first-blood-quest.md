@@ -4,7 +4,7 @@
 
 ## Goal
 
-A scripted, one-time quest that fires shortly after character creation: a low-stakes bandit encounter that narratively reveals the character is more capable than they appear. This is the first taste of the event/narrative system that expeditions will use more broadly from v0.2 onward — worth building deliberately, since its structure gets reused.
+A scripted, one-time quest that fires shortly after character creation: a low-stakes bandit encounter that narratively reveals the character is more capable than they appear. This is the first taste of the narrative system that adventure outcomes use from v0.2 onward (its single choice is the model for interactive outcomes in v0.3) — worth building deliberately, since its structure gets reused.
 
 ## Business rules
 

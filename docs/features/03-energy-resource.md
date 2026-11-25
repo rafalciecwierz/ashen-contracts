@@ -4,7 +4,7 @@
 
 ## Goal
 
-The character has an "energy" resource that gates actions and regenerates passively over time, calculated server-side — this is the foundational time-based mechanic everything else (expeditions, training) builds on.
+The character has an "energy" resource that gates actions and regenerates passively over time, calculated server-side — this is the foundational time-based mechanic everything else (adventures, training) builds on.
 
 ## Business rules
 
@@ -26,7 +26,7 @@ Character (extends the record from 02-character-creation.md)
 ## Endpoints (sketch)
 
 - `GET /characters/me/state` — returns current character state, with energy recalculated in-flight based on `lastEnergyUpdate` (does not require a separate "tick" endpoint)
-- Any endpoint that spends energy (e.g. starting an expedition, once that exists) recalculates current energy first, then validates the cost, then persists the new value and updates `lastEnergyUpdate`
+- Any endpoint that spends energy (e.g. going on an adventure, once that exists) recalculates current energy first, then validates the cost, then persists the new value and updates `lastEnergyUpdate`
 
 ## Edge cases to handle
 

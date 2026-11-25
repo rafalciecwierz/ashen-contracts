@@ -1147,7 +1147,9 @@ Verified locally with `docker compose up -d`: `pnpm test:e2e` from a cold start 
 
 ### GAME-01 — Define what "contracts" are in the game
 
-**Status:** ⬜ TODO
+**Status:** ✅ DONE (2026-11-25)
+
+**Notes:** Decided with the owner, against the task's suggestion: a contract is **not** the everyday action. The everyday action is an **adventure**, one visit to a location picked on the map: instant, paid with energy (cost per location), resolved server-side into an outcome from the location's pool, followed by "Go again" or "Back to map". Contracts are special missions for a grown character in harder locations (requirements, bigger reward, own narrative arc), designed only after the base loop works; they may not be in the first versions at all. Further owner decisions: timed expeditions are gone, and the first action with a real-world duration (and the first BullMQ job) is stronghold training, as ADR #001 and ARCHITECTURE already say; outcomes start as ready effects (text plus a fixed effect), with choices, skill checks and item-gated resolutions as a later outcome type. The owner also described the game shell, now in GAME_DESIGN "Screen layout": a top bar (logo, character name, energy, level, avatar menu with settings and log out), navigation on the left, the character on the right, and a URL-driven center column. Changes: GAME_DESIGN (new "Core loop", "Adventures", "Contracts", "Screen layout"; stronghold, randomness and skill checks reworded), ROADMAP (game layout in v0.1; v0.2 is now "Map & adventures" with a second location, the forest; interactive outcomes and the first item-gated resolution move to v0.3; contracts listed after v0.4), README and CLAUDE.md descriptions, "expedition" → "adventure" in feature specs 01, 03, 04, 05 and ARCHITECTURE's e2e line, and an `Update` line in ADR #001 (its first use is now training, not building and research). Following the PR review, the level stays out of the v0.1 layout, because leveling arrives in v0.3 and the v0.1 character has no level. The (uncommitted) `docs/design/` mockups predate the decision; their README and index say so. Verified with `pnpm format:check` and a grep for leftover "expedition" outside this file. Left for other tasks: GAME-02 and GAME-04 rest on timed expeditions (notes added there); the landing copy in `apps/web/messages/en.json` ("Raise your stronghold, sign the contracts…") still fits as a promise of later features and was not changed.
 
 **Problem:** README and CLAUDE.md describe a stronghold with monster-hunting contracts and building/research. GAME_DESIGN and ROADMAP describe narrative expeditions and a mystery-origin character. Contracts don't appear in the roadmap at all, despite the game's name.
 
@@ -1160,6 +1162,8 @@ Verified locally with `docker compose up -d`: `pnpm test:e2e` from a cold start 
 **Problem:** The headline backend feature (ADR #001) first appears in v0.4, after the MVP checkpoint pressure point.
 
 **Fix:** Make expedition resolution in v0.2 the first delayed BullMQ job, with a Socket.io "expedition finished" notification. Update the ROADMAP, ARCHITECTURE and the v0.2 feature spec.
+
+**Note (from GAME-01):** adventures now resolve instantly for energy, so v0.2 has no timed action to queue, and the owner chose stronghold training (v0.4) as the first BullMQ job. Re-scope this task (e.g. another timed action worth bringing forward) or drop it.
 
 ### GAME-03 — Guest / demo account
 
@@ -1176,6 +1180,8 @@ Verified locally with `docker compose up -d`: `pnpm test:e2e` from a cold start 
 **Status:** ⬜ TODO
 
 **Fix:** Add a server-side `TIME_SCALE` config (e.g. 60× in demo) applied to energy regeneration and job delays, so a 30-minute expedition resolves in 30 seconds during a live demo. It must never be controllable from the client.
+
+**Note (from GAME-01):** there are no timed expeditions any more; the scale now matters for energy regeneration (how fast a demo player can go again) and stronghold training.
 
 ### GAME-05 — Strengthen concurrency and idempotency in the specs
 

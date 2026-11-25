@@ -4,7 +4,7 @@
 
 ## Goal
 
-Players can register and log in. Every subsequent feature (character, energy, expeditions) is scoped to an authenticated player.
+Players can register and log in. Every subsequent feature (character, energy, adventures) is scoped to an authenticated player.
 
 ## Business rules
 

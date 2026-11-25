@@ -1,6 +1,6 @@
 # The Ashen Contracts
 
-A browser-based idle/RPG game where players manage a stronghold, fulfill monster-hunting contracts, and grow their influence over time — built as a full-stack portfolio project to demonstrate production-grade frontend and backend engineering, not just another CRUD demo.
+A browser-based idle/RPG game where players explore a dark-fantasy world through short narrative adventures, grow a character with a mysterious past, and later build a stronghold and take on contracts — built as a full-stack portfolio project to demonstrate production-grade frontend and backend engineering, not just another CRUD demo.
 
 **Live demo:** _coming soon_
 **Storybook (component library):** https://main--6b018ee0b59c87199d9f4f03.chromatic.com
@@ -20,14 +20,15 @@ Every architectural decision below is documented with reasoning in [`docs/DECISI
 
 ## What it does
 
-Players manage a stronghold in a dark-fantasy world. Resources regenerate over time (calculated server-side, not trusted from the client), contracts can be accepted and completed for rewards, and longer-running actions — building, research — use a proper job queue rather than naive polling.
+Players pick a location on the map and go on an adventure there: it costs energy and resolves instantly into a narrative outcome (coin, items, XP, or trouble). Energy regenerates over time (calculated server-side, not trusted from the client). Later, the character unlocks a stronghold, where training takes real time and runs on a proper job queue rather than naive polling, and contracts: special missions in harder locations.
 
 | Feature                                                 | Status         |
 | ------------------------------------------------------- | -------------- |
 | Auth & player state                                     | 🔶 in progress |
 | Time-based resource regeneration (server-authoritative) | 🔶 in progress |
-| Contracts & inventory system                            | 🔲 planned     |
-| Delayed actions via job queue (BullMQ + Redis)          | 🔲 planned     |
+| Map, adventures & inventory                             | 🔲 planned     |
+| Stronghold training via job queue (BullMQ + Redis)      | 🔲 planned     |
+| Contracts (special missions)                            | 🔲 planned     |
 | Real-time notifications (Socket.io)                     | 🔲 planned     |
 | Player-to-player interaction (leaderboard/trading)      | 🔲 planned     |
 
@@ -36,14 +37,14 @@ Game design & mechanics: [`docs/GAME_DESIGN.md`](./docs/GAME_DESIGN.md)
 
 ## Tech stack & why
 
-| Layer           | Choice                                                     | Why                                                                                                                                     |
-| --------------- | ---------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------- |
-| Frontend        | Next.js + TypeScript                                       | Type-safe, SSR where useful, industry-standard for React roles                                                                          |
-| UI components   | Custom library + Storybook                                 | Mirrors real production work — isolated, testable, reusable components                                                                  |
-| Backend         | NestJS + PostgreSQL                                        | Structured, testable architecture over a bare Express app                                                                               |
-| Background jobs | Redis + BullMQ                                             | Reliable, restart-safe handling of timed actions (builds, research) — the naive `setInterval` approach doesn't survive a server restart |
-| Real-time       | Socket.io                                                  | Push updates to the client without polling                                                                                              |
-| Testing         | Vitest (unit + API integration) + Playwright (browser e2e) | Coverage on the logic that actually matters: resource math, queue behavior                                                              |
+| Layer           | Choice                                                     | Why                                                                                                                                        |
+| --------------- | ---------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------ |
+| Frontend        | Next.js + TypeScript                                       | Type-safe, SSR where useful, industry-standard for React roles                                                                             |
+| UI components   | Custom library + Storybook                                 | Mirrors real production work — isolated, testable, reusable components                                                                     |
+| Backend         | NestJS + PostgreSQL                                        | Structured, testable architecture over a bare Express app                                                                                  |
+| Background jobs | Redis + BullMQ                                             | Reliable, restart-safe handling of timed actions (stronghold training) — the naive `setInterval` approach doesn't survive a server restart |
+| Real-time       | Socket.io                                                  | Push updates to the client without polling                                                                                                 |
+| Testing         | Vitest (unit + API integration) + Playwright (browser e2e) | Coverage on the logic that actually matters: resource math, queue behavior                                                                 |
 
 This is a monorepo (`apps/web`, `apps/api`, `packages/ui`, `packages/shared`) managed with pnpm workspaces — full reasoning in [`docs/DECISIONS.md`](./docs/DECISIONS.md).
 
