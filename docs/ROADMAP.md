@@ -26,6 +26,7 @@ The skeleton: something real, deployed, and playable, even if rough.
 - [x] JWT Guard protecting authenticated endpoints (global, opt-out via `@Public()`)
 - [x] Navbar on `/play` (logo, user menu with logout)
 - [ ] Navbar on public pages (logo, login/register links)
+- [ ] Game layout (`docs/GAME_DESIGN.md` "Screen layout"): top bar with logo, character name, energy, level and the avatar menu (settings, log out); left column with game navigation; right column with the character's avatar and basic stats; center column driven by the URL
 - [ ] Short character creation flow (race/origin choice, starting traits)
 - [ ] Single starting location (the clearing)
 - [ ] Energy resource, server-authoritative time-based regeneration
@@ -33,31 +34,35 @@ The skeleton: something real, deployed, and playable, even if rough.
 - [ ] E2E tests: Playwright in `apps/e2e`, auth flow, own CI job (plan: `docs/REFACTOR.md` WEB-11, decision: `docs/DECISIONS.md` #015)
 - [ ] Deploy, free plans only: Vercel (web), Render (api), Prisma Postgres (db) (`docs/DECISIONS.md` #020)
 
-## v0.2 — Expeditions & narrative events 🔲
+## v0.2 — Map & adventures 🔲
 
-The mechanical signature of the game.
+The base loop: map → adventure → outcome → go again.
 
-- [ ] Expedition system: send character to a location, resolves after a duration
-- [ ] Event pool for the starting location: mundane / complication / choice outcomes
-- [ ] Basic inventory (items from event outcomes)
-- [ ] First item-gated alternate resolution (the "acorn & squirrel" pattern)
+- [ ] Map view (`/map`): a plain list of locations, locked ones shown as such
+- [ ] Second location (the forest), so the map has a choice
+- [ ] Adventure: instant, costs energy (per location), resolves server-side into an outcome drawn from the location's pool
+- [ ] Ready outcomes only (text plus a fixed effect): mundane, reward, complication
+- [ ] Outcome screen with "Go again" and "Back to map"
+- [ ] Basic inventory (items from outcomes)
 
 ## v0.3 — Stats, XP & leveling 🔲
 
-- [ ] XP from expeditions/quests, leveling
+- [ ] XP from adventures/quests, leveling
 - [ ] Core stats (e.g. Might, Wits, Resolve)
-- [ ] Stat-based skill checks wired into narrative events
+- [ ] Interactive outcomes: an outcome that stops on a player choice before its effect
+- [ ] Stat-based skill checks in interactive outcomes
+- [ ] First item-gated alternate resolution (the "acorn & squirrel" pattern)
 
 ## v0.4 — The stronghold 🔲
 
 - [ ] Triggering quest that unlocks the stronghold
-- [ ] Training (skill/stat progression via a queued system — first use of BullMQ; choose a free Redis host first, see `docs/DECISIONS.md` #020)
+- [ ] Training (skill/stat progression with a real-world duration via a queued system — first use of BullMQ; choose a free Redis host first, see `docs/DECISIONS.md` #020)
 - [ ] Blacksmith/armory (purchasable equipment)
-- [ ] Expedition-only loot distinct from purchasable gear
+- [ ] Adventure-only loot distinct from purchasable gear
 
 ### 🏁 MVP checkpoint — interview-ready
 
-Through v0.4, the game has a full loop: create a character, explore, fight, level up, unlock and grow a base. This is the version to demo if a job opportunity comes up before the rest is built.
+Through v0.4, the game has a full loop: create a character, go on adventures, level up, unlock and grow a base. This is the version to demo if a job opportunity comes up before the rest is built.
 
 ---
 
@@ -65,12 +70,13 @@ Through v0.4, the game has a full loop: create a character, explore, fight, leve
 
 No fixed scope past this point; each version is planned and logged individually in `CHANGELOG.md` as it's built. Known candidates, roughly in order of likely priority:
 
-- [ ] Real-time notifications (Socket.io) for completed actions
-- [ ] Second location with its own event pool
+- [ ] Contracts: special missions for a grown character in harder locations (`docs/GAME_DESIGN.md` "Contracts")
+- [ ] Real-time notifications (Socket.io) for completed actions (training)
+- [ ] More locations with their own outcome pools
 - [ ] Reputation system
 - [ ] Deeper training/skill tree
 - [ ] Player-to-player interaction (leaderboard, trading)
-- [ ] Additional locations & event content
+- [ ] More outcome content for existing locations
 - [ ] Skill-based mini-challenges as an alternative to stat checks
 - [ ] PIXI.js mini-games for select events (stretch)
 - [ ] Deeper origin-story reveals (stretch)

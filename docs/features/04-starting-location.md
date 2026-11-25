@@ -4,7 +4,7 @@
 
 ## Goal
 
-A single accessible location where the character exists after creation. In v0.1 this is mostly a data model and a screen to view it — the ability to run expeditions there comes in v0.2 (`docs/ROADMAP.md`), but the location and its narrative framing need to exist first.
+A single accessible location where the character exists after creation. In v0.1 this is mostly a data model and a screen to view it — adventures there come in v0.2 (`docs/ROADMAP.md`), but the location and its narrative framing need to exist first.
 
 ## Business rules
 
