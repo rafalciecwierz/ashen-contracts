@@ -50,7 +50,7 @@ A contract is a **special mission**, not the everyday action. Contracts appear l
 
 The game is one shell with a fixed frame and a content area driven by the URL.
 
-- **Top bar:** game logo, character name, energy, level, and the player's avatar with a dropdown menu (settings, log out).
+- **Top bar:** game logo, character name, energy, level (once leveling exists, v0.3), and the player's avatar with a dropdown menu (settings, log out).
 - **Left column (fixed): game navigation.** Map, Character, Stronghold (shown locked until unlocked), Ranking, and further features as they arrive.
 - **Right column (fixed): the character.** Avatar and basic stats.
 - **Center column (widest): the current view**, chosen by the URL: the map (a plain list of locations at first, no graphics), the character's stats, the stronghold, or a single location with the outcome of the last adventure.

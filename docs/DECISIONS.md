@@ -27,6 +27,8 @@ Alternatives considered: a `setTimeout`/cron job scanning the database every min
 
 Consequences: an extra infrastructure dependency (Redis), but much more reliable behavior under restarts/scaling — and a stronger interview talking point than "I used setInterval."
 
+Update (REFACTOR.md GAME-01): the decision stands, but its first use changed. Building and research are no longer planned, and adventures resolve instantly for energy, so the only timed action so far is training in the stronghold (v0.4), which is the first BullMQ job.
+
 ## 002. Monorepo instead of separate frontend/backend repos
 
 Date: 20.09.2026.

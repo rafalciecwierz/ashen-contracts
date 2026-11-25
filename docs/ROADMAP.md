@@ -26,7 +26,7 @@ The skeleton: something real, deployed, and playable, even if rough.
 - [x] JWT Guard protecting authenticated endpoints (global, opt-out via `@Public()`)
 - [x] Navbar on `/play` (logo, user menu with logout)
 - [ ] Navbar on public pages (logo, login/register links)
-- [ ] Game layout (`docs/GAME_DESIGN.md` "Screen layout"): top bar with logo, character name, energy, level and the avatar menu (settings, log out); left column with game navigation; right column with the character's avatar and basic stats; center column driven by the URL
+- [ ] Game layout (`docs/GAME_DESIGN.md` "Screen layout"): top bar with logo, character name, energy and the avatar menu (settings, log out); left column with game navigation; right column with the character's avatar, origin, traits and starting stats (from `docs/features/02-character-creation.md`); center column driven by the URL. The level joins in v0.3
 - [ ] Short character creation flow (race/origin choice, starting traits)
 - [ ] Single starting location (the clearing)
 - [ ] Energy resource, server-authoritative time-based regeneration
@@ -48,6 +48,7 @@ The base loop: map → adventure → outcome → go again.
 ## v0.3 — Stats, XP & leveling 🔲
 
 - [ ] XP from adventures/quests, leveling
+- [ ] Level and XP in the top bar and the character column
 - [ ] Core stats (e.g. Might, Wits, Resolve)
 - [ ] Interactive outcomes: an outcome that stops on a player choice before its effect
 - [ ] Stat-based skill checks in interactive outcomes
