@@ -1,0 +1,831 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Grimoire — round 1</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Texturina:ital,opsz,wght@0,12..72,400;0,12..72,600;0,12..72,800;1,12..72,400&family=Vollkorn:ital,wght@0,400;0,600;1,400&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      /*
+  Direction 2: Grimoire (a Dungeons & Dragons tome).
+  Palette: oxblood leather #3d1a14, leather dark #22100c, vellum #e5d6ad, vellum edge #c9b27c, iron-gall ink #2b1e12, oak-gall green #2e5638, gilt #c79d45.
+  Type: Texturina (display: a bookish blackletter-roman hybrid), Vollkorn (body).
+  The one memorable thing: the game lives inside an open book, with ribbon bookmarks as navigation and illuminated initials.
+*/
+      :root {
+        --leather: #3d1a14;
+        --leather-dk: #22100c;
+        --leather-hi: #5a2a20;
+        --vellum: #e5d6ad;
+        --vellum-edge: #c9b27c;
+        --ink: #2b1e12;
+        --ink-soft: #5b4630;
+        --green: #2e5638;
+        --green-hi: #3f7149;
+        --gilt: #c79d45;
+        --gilt-hi: #f1d58c;
+        --gilt-dk: #8a6a26;
+        --ribbon-1: #7c1f1a;
+        --ribbon-2: #2e5638;
+        --ribbon-3: #26375a;
+        --f-display: 'Texturina', serif;
+        --f-body: 'Vollkorn', Georgia, serif;
+        --grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.65' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 .5 0'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)'/%3E%3C/svg%3E");
+        --fibre: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='turbulence' baseFrequency='.012 .09' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .35 0 0 0 0 .25 0 0 0 0 .1 0 0 0 .09 0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)'/%3E%3C/svg%3E");
+      }
+      * {
+        box-sizing: border-box;
+        margin: 0;
+      }
+      body {
+        background: var(--leather-dk);
+        color: var(--ink);
+        font: 19px/1.6 var(--f-body);
+      }
+      [hidden] {
+        display: none !important;
+      }
+      .i {
+        width: 1.2em;
+        height: 1.2em;
+        flex: none;
+      }
+      button {
+        font: inherit;
+        color: inherit;
+      }
+      :focus-visible {
+        outline: 3px solid var(--gilt-hi);
+        outline-offset: 3px;
+      }
+
+      .leather {
+        background-color: var(--leather);
+        background-image:
+          var(--grain),
+          radial-gradient(
+            ellipse at 50% 40%,
+            var(--leather-hi),
+            var(--leather) 55%,
+            var(--leather-dk)
+          );
+      }
+      /* Tooled gilt frame: double rule + inner blind line */
+      .tooled {
+        position: relative;
+      }
+      .tooled::before {
+        content: '';
+        position: absolute;
+        inset: 14px;
+        border: 2px solid var(--gilt);
+        box-shadow:
+          inset 0 0 0 5px transparent,
+          inset 0 0 0 7px var(--gilt-dk),
+          0 0 0 1px rgba(0, 0, 0, 0.4);
+        pointer-events: none;
+      }
+      .corner {
+        position: absolute;
+        width: 74px;
+        height: 74px;
+        color: var(--gilt);
+        pointer-events: none;
+      }
+      .corner.tl {
+        top: 8px;
+        left: 8px;
+      }
+      .corner.tr {
+        top: 8px;
+        right: 8px;
+        transform: scaleX(-1);
+      }
+      .corner.bl {
+        bottom: 8px;
+        left: 8px;
+        transform: scaleY(-1);
+      }
+      .corner.br {
+        bottom: 8px;
+        right: 8px;
+        transform: scale(-1);
+      }
+
+      .btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        min-height: 50px;
+        padding: 0 26px;
+        cursor: pointer;
+        text-decoration: none;
+        font: 600 20px var(--f-display);
+        color: var(--ink);
+        background: linear-gradient(180deg, var(--vellum), var(--vellum-edge));
+        border: 2px solid var(--gilt-dk);
+        border-radius: 2px;
+        box-shadow:
+          inset 0 0 0 3px var(--vellum),
+          inset 0 0 0 4px var(--gilt),
+          0 3px 8px rgba(0, 0, 0, 0.35);
+      }
+      .btn:hover {
+        background: linear-gradient(180deg, #f0e4c0, var(--vellum));
+      }
+      .btn-primary {
+        color: var(--gilt-hi);
+        background: linear-gradient(180deg, var(--green-hi), var(--green));
+        box-shadow:
+          inset 0 0 0 3px var(--green),
+          inset 0 0 0 4px var(--gilt),
+          0 3px 8px rgba(0, 0, 0, 0.35);
+      }
+      .btn-primary:hover {
+        background: linear-gradient(180deg, #4b8457, var(--green-hi));
+      }
+      .btn small {
+        font: 400 15px var(--f-body);
+        opacity: 0.9;
+      }
+      .btn[disabled] {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+
+      /* ---------- Landing: the closed tome ---------- */
+      .landing {
+        min-height: 100vh;
+        display: grid;
+        place-items: center;
+        padding: 40px 16px;
+      }
+      .cover {
+        width: min(760px, 100%);
+        min-height: min(88vh, 860px);
+        padding: 90px 64px 70px;
+        text-align: center;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        border-radius: 6px 14px 14px 6px;
+        box-shadow:
+          inset 18px 0 30px -12px rgba(0, 0, 0, 0.7),
+          inset -4px 0 0 rgba(255, 255, 255, 0.05),
+          0 30px 60px rgba(0, 0, 0, 0.6),
+          14px 0 0 -6px #1a0c09;
+      }
+      @media (max-width: 640px) {
+        .cover {
+          padding: 70px 26px 50px;
+        }
+      }
+      .medallion {
+        width: 150px;
+        height: 150px;
+        border-radius: 50%;
+        display: grid;
+        place-items: center;
+        color: var(--gilt);
+        background: radial-gradient(
+          circle,
+          var(--leather-hi),
+          var(--leather-dk)
+        );
+        box-shadow:
+          0 0 0 3px var(--gilt),
+          0 0 0 9px var(--leather),
+          0 0 0 11px var(--gilt-dk),
+          inset 0 4px 12px rgba(0, 0, 0, 0.6);
+      }
+      .medallion .i {
+        width: 84px;
+        height: 84px;
+        filter: drop-shadow(0 2px 0 rgba(0, 0, 0, 0.6));
+      }
+      .title {
+        margin-top: 36px;
+        font: 800 clamp(56px, 10vw, 104px)/0.95 var(--f-display);
+        font-variation-settings: 'opsz' 72;
+        background: linear-gradient(
+          100deg,
+          var(--gilt-dk) 0%,
+          var(--gilt) 30%,
+          var(--gilt-hi) 45%,
+          var(--gilt) 60%,
+          var(--gilt-dk) 100%
+        );
+        background-size: 250% 100%;
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+        filter: drop-shadow(0 3px 0 rgba(0, 0, 0, 0.55));
+        animation: shimmer 7s ease-in-out infinite;
+      }
+      .title small {
+        display: block;
+        font-size: 0.42em;
+        letter-spacing: 0.14em;
+        margin-top: 10px;
+      }
+      @keyframes shimmer {
+        0%,
+        100% {
+          background-position: 100% 0;
+        }
+        50% {
+          background-position: 0 0;
+        }
+      }
+      .rule {
+        width: 260px;
+        height: 24px;
+        color: var(--gilt);
+        margin: 26px auto;
+      }
+      .cover p {
+        color: #ecdcb4;
+        font-style: italic;
+        max-width: 30em;
+        font-size: 20px;
+        text-shadow: 0 2px 2px rgba(0, 0, 0, 0.5);
+      }
+      .cover .actions {
+        display: flex;
+        gap: 16px;
+        justify-content: center;
+        flex-wrap: wrap;
+        margin-top: 34px;
+      }
+      .clasp {
+        position: absolute;
+        right: -10px;
+        top: 50%;
+        width: 44px;
+        height: 110px;
+        margin-top: -55px;
+        border-radius: 6px;
+        background: linear-gradient(
+          90deg,
+          var(--gilt-dk),
+          var(--gilt-hi) 50%,
+          var(--gilt-dk)
+        );
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+      }
+
+      /* ---------- Game: the open book ---------- */
+      .desk {
+        min-height: 100vh;
+        padding-bottom: 40px;
+      }
+      .topbar {
+        display: flex;
+        align-items: center;
+        gap: 22px;
+        padding: 12px 28px;
+        color: #f0e2bd;
+        border-bottom: 2px solid var(--gilt-dk);
+        box-shadow:
+          0 1px 0 var(--gilt),
+          0 8px 20px rgba(0, 0, 0, 0.5);
+        background: rgba(0, 0, 0, 0.25);
+        flex-wrap: wrap;
+      }
+      .topbar .logo {
+        font: 800 28px var(--f-display);
+        color: var(--gilt);
+        text-decoration: none;
+        margin-right: auto;
+        text-shadow: 0 2px 0 rgba(0, 0, 0, 0.6);
+      }
+      .res {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+      }
+      .res .i {
+        color: var(--gilt);
+      }
+      .meter {
+        width: 170px;
+        height: 14px;
+        border: 1px solid var(--gilt);
+        padding: 2px;
+        background: var(--leather-dk);
+        border-radius: 8px;
+      }
+      .meter i {
+        display: block;
+        height: 100%;
+        border-radius: 6px;
+        background: linear-gradient(90deg, var(--gilt-dk), var(--gilt-hi));
+        transition: width 0.5s;
+      }
+      .who {
+        font: 600 22px var(--f-display);
+      }
+      .avatar-btn {
+        width: 46px;
+        height: 46px;
+        border-radius: 50%;
+        display: grid;
+        place-items: center;
+        cursor: pointer;
+        color: var(--gilt);
+        background: var(--leather-dk);
+        border: 2px solid var(--gilt);
+      }
+
+      .book {
+        max-width: 1360px;
+        margin: 34px auto 0;
+        padding: 0 24px;
+        display: grid;
+        grid-template-columns: 170px minmax(0, 1fr) 320px;
+        align-items: start;
+      }
+      @media (max-width: 1080px) {
+        .book {
+          grid-template-columns: 150px 1fr;
+        }
+        .page.right {
+          grid-column: 2;
+          margin-top: 20px;
+          border-radius: 4px;
+        }
+      }
+      @media (max-width: 720px) {
+        .book {
+          grid-template-columns: 1fr;
+          padding: 0 12px;
+        }
+        .ribbons {
+          flex-direction: row;
+          overflow-x: auto;
+          padding: 0 0 10px;
+        }
+        .page.right {
+          grid-column: 1;
+        }
+      }
+
+      .ribbons {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        padding-top: 40px;
+      }
+      .ribbons a {
+        position: relative;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        min-height: 48px;
+        padding: 0 14px 0 16px;
+        color: #f6ead0;
+        text-decoration: none;
+        font: 600 19px var(--f-display);
+        white-space: nowrap;
+        background: var(--ribbon-1);
+        clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%, 10px 50%);
+        box-shadow: inset 0 -3px 0 rgba(0, 0, 0, 0.25);
+        transition: transform 0.15s;
+      }
+      .ribbons a:nth-child(2) {
+        background: var(--ribbon-2);
+      }
+      .ribbons a:nth-child(3) {
+        background: var(--ribbon-3);
+      }
+      .ribbons a:nth-child(5) {
+        background: #5a3d18;
+      }
+      .ribbons a:hover {
+        transform: translateX(-4px);
+      }
+      .ribbons a[aria-current] {
+        transform: translateX(-12px);
+        box-shadow:
+          inset 0 -3px 0 rgba(0, 0, 0, 0.25),
+          inset 0 0 0 2px var(--gilt-hi);
+      }
+      .ribbons a[aria-disabled='true'] {
+        background: #4a3a33;
+        color: #d9cbb0;
+      }
+      .ribbons a[aria-disabled='true']::after {
+        content: '';
+        width: 14px;
+        height: 14px;
+        margin-left: auto;
+        border-radius: 50%;
+        background: radial-gradient(circle at 40% 35%, #c23b2e, #7a1d16);
+        box-shadow: 0 1px 2px #000;
+      }
+      @media (min-width: 721px) {
+        .ribbons a {
+          margin-right: -2px;
+        }
+      }
+
+      .page {
+        position: relative;
+        background-color: var(--vellum);
+        background-image:
+          var(--fibre),
+          radial-gradient(
+            ellipse at 50% 45%,
+            transparent 55%,
+            rgba(120, 85, 30, 0.35) 100%
+          );
+        box-shadow:
+          0 2px 0 #b9a06a,
+          0 4px 0 #a88d58,
+          0 6px 0 #957a48,
+          0 20px 40px rgba(0, 0, 0, 0.55);
+      }
+      .page.left {
+        border-radius: 4px 0 0 4px;
+        padding: 54px 60px 56px;
+        min-height: 640px;
+      }
+      .page.left::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        width: 46px;
+        background: linear-gradient(90deg, transparent, rgba(80, 50, 15, 0.32));
+        pointer-events: none;
+      }
+      .page.right {
+        border-radius: 0 4px 4px 0;
+        padding: 50px 34px 40px;
+        min-height: 640px;
+        text-align: center;
+      }
+      .page.right::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        bottom: 0;
+        width: 40px;
+        background: linear-gradient(
+          270deg,
+          transparent,
+          rgba(80, 50, 15, 0.32)
+        );
+        pointer-events: none;
+      }
+      @media (max-width: 720px) {
+        .page.left {
+          padding: 34px 22px;
+          min-height: 0;
+          border-radius: 4px;
+        }
+      }
+
+      .center-kicker {
+        font-style: italic;
+        color: var(--ink-soft);
+        text-align: center;
+      }
+      .center-title {
+        font: 800 46px/1.05 var(--f-display);
+        text-align: center;
+        color: var(--ink);
+      }
+      .divider {
+        display: block;
+        width: 280px;
+        height: 26px;
+        margin: 12px auto 26px;
+        color: var(--green);
+      }
+      .outcome-text p {
+        font-size: 20px;
+        line-height: 1.7;
+        text-align: justify;
+        hyphens: auto;
+      }
+      .outcome-text p::first-letter {
+        float: left;
+        margin: 6px 12px 0 0;
+        padding: 8px 12px 6px;
+        font: 800 64px/0.9 var(--f-display);
+        color: var(--gilt-hi);
+        background: var(--green);
+        border: 3px double var(--gilt);
+        box-shadow: 0 0 0 2px var(--green);
+        text-shadow: 0 2px 0 rgba(0, 0, 0, 0.5);
+      }
+      .effects {
+        list-style: none;
+        padding: 18px 0 0;
+        margin: 26px 0;
+        display: flex;
+        justify-content: center;
+        gap: 22px;
+        flex-wrap: wrap;
+        border-top: 1px solid var(--vellum-edge);
+        font-style: italic;
+      }
+      .effects li::before {
+        content: '❧ ';
+        color: var(--green);
+        font-style: normal;
+      }
+      .effects .gain {
+        color: var(--green);
+        font-weight: 600;
+      }
+      .effects .loss,
+      .effects .cost {
+        color: #7c1f1a;
+      }
+      .outcome-actions {
+        display: flex;
+        justify-content: center;
+        gap: 16px;
+        flex-wrap: wrap;
+      }
+      .enter {
+        animation: ink 0.6s ease-out;
+      }
+      @keyframes ink {
+        from {
+          opacity: 0;
+          filter: blur(2px);
+        }
+      }
+
+      .locations {
+        list-style: none;
+        padding: 0;
+      }
+      .locations li + li {
+        border-top: 1px dotted var(--ink-soft);
+      }
+      .loc {
+        width: 100%;
+        display: grid;
+        grid-template-columns: 48px 1fr auto;
+        grid-template-areas: 'i n c' 'i d c';
+        gap: 0 16px;
+        align-items: center;
+        padding: 14px 6px;
+        text-align: left;
+        background: none;
+        border: 0;
+        cursor: pointer;
+      }
+      button.loc:hover {
+        background: rgba(46, 86, 56, 0.1);
+      }
+      .loc .i {
+        grid-area: i;
+        width: 42px;
+        height: 42px;
+        color: var(--green);
+      }
+      .loc-name {
+        grid-area: n;
+        font: 600 25px/1.1 var(--f-display);
+      }
+      .loc-desc {
+        grid-area: d;
+        font-style: italic;
+        color: var(--ink-soft);
+        font-size: 17px;
+      }
+      .loc-cost {
+        grid-area: c;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        font-weight: 600;
+        color: var(--green);
+      }
+      .loc-cost .i {
+        width: 20px;
+        height: 20px;
+        color: #9a6b1f;
+      }
+      .locked .loc .i,
+      .locked .loc-name {
+        color: var(--ink-soft);
+      }
+      .locked .loc-cost {
+        color: var(--ink-soft);
+        font-weight: 400;
+        font-style: italic;
+      }
+
+      .portrait {
+        width: 150px;
+        height: 180px;
+        margin: 0 auto 16px;
+        display: grid;
+        place-items: center;
+        color: var(--ink);
+        border-radius: 75px 75px 6px 6px;
+        background: radial-gradient(ellipse at 50% 35%, #efe2bd, #cdb680);
+        box-shadow:
+          0 0 0 3px var(--gilt),
+          0 0 0 6px var(--vellum),
+          0 0 0 8px var(--green);
+      }
+      .portrait .i {
+        width: 96px;
+        height: 96px;
+      }
+      .page.right h2 {
+        font: 800 36px/1 var(--f-display);
+      }
+      .origin {
+        font-style: italic;
+        color: var(--ink-soft);
+        margin: 6px 0 16px;
+      }
+      .traits {
+        display: flex;
+        justify-content: center;
+        gap: 8px;
+        flex-wrap: wrap;
+        margin-bottom: 22px;
+      }
+      .traits span {
+        font: italic 17px var(--f-body);
+        padding: 0 12px;
+        border-bottom: 2px solid var(--green);
+      }
+      .stats {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 22px;
+      }
+      .stats div {
+        position: relative;
+        padding: 12px 0 8px;
+      }
+      .stats div::before {
+        content: '';
+        position: absolute;
+        left: 50%;
+        top: 2px;
+        width: 58px;
+        height: 58px;
+        margin-left: -29px;
+        transform: rotate(45deg);
+        border: 2px solid var(--green);
+        box-shadow:
+          inset 0 0 0 3px var(--vellum),
+          inset 0 0 0 4px var(--gilt);
+      }
+      .stats b {
+        position: relative;
+        display: block;
+        font: 800 30px/1.2 var(--f-display);
+      }
+      .stats span {
+        display: block;
+        margin-top: 30px;
+        font-size: 16px;
+        color: var(--ink-soft);
+      }
+      .purse {
+        margin-top: 24px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 8px;
+        font-weight: 600;
+      }
+      .purse .i {
+        color: #9a6b1f;
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        *,
+        *::before,
+        *::after {
+          animation: none !important;
+          transition: none !important;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <svg width="0" height="0" style="position: absolute" aria-hidden="true">
+      <symbol id="flourish" viewBox="0 0 74 74">
+        <g fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M4 70V18C4 10 10 4 18 4h52" />
+          <path d="M12 70V26c0-8 6-14 14-14h44" />
+          <path d="M18 30c6-12 18-12 18-2s-12 8-10 0" />
+          <circle cx="18" cy="18" r="4" fill="currentColor" />
+        </g>
+      </symbol>
+      <symbol id="rule" viewBox="0 0 280 26">
+        <g fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M0 13h110M170 13h110" />
+          <path d="M110 13c10-12 20-12 30 0 10 12 20 12 30 0" />
+          <path d="M110 13c10 12 20 12 30 0 10-12 20-12 30 0" />
+        </g>
+        <circle cx="140" cy="13" r="4" fill="currentColor" />
+      </symbol>
+    </svg>
+
+    <div data-view="landing" class="landing leather">
+      <div class="cover leather tooled">
+        <svg class="corner tl" aria-hidden="true"><use href="#flourish" /></svg
+        ><svg class="corner tr" aria-hidden="true">
+          <use href="#flourish" />
+        </svg>
+        <svg class="corner bl" aria-hidden="true"><use href="#flourish" /></svg
+        ><svg class="corner br" aria-hidden="true">
+          <use href="#flourish" />
+        </svg>
+        <span class="clasp" aria-hidden="true"></span>
+        <div class="medallion" data-icon="swords" aria-hidden="true"></div>
+        <h1 class="title">Ashen<small>Contracts</small></h1>
+        <svg class="rule" aria-hidden="true"><use href="#rule" /></svg>
+        <p>
+          The fires have burned low and the roads belong to monsters. Take the
+          work no one else will, and find out what you were before you woke in
+          the ash.
+        </p>
+        <div class="actions">
+          <a href="#game" class="btn btn-primary" data-go="game">Log in</a>
+          <a href="#game" class="btn" data-go="game">Create account</a>
+        </div>
+      </div>
+    </div>
+
+    <div data-view="game" class="desk leather" hidden>
+      <header class="topbar">
+        <a href="#" class="logo" data-go="landing">Ashen Contracts</a>
+        <span class="who">Maren</span>
+        <span class="res"
+          ><span data-icon="energy"></span
+          ><span
+            class="meter"
+            role="meter"
+            aria-label="Energy"
+            aria-valuemin="0"
+            aria-valuemax="100"
+            ><i data-energy-bar></i></span
+          ><span><span data-energy></span>/100</span></span
+        >
+        <button
+          class="avatar-btn"
+          aria-label="Account menu"
+          data-icon="character"
+        ></button>
+      </header>
+      <div class="book">
+        <nav class="ribbons" aria-label="Game">
+          <a href="#" data-nav="map" data-icon="map">Map</a>
+          <a href="#" data-nav="character" data-icon="character">Character</a>
+          <a href="#" data-nav="journal" data-icon="journal">Journal</a>
+          <a href="#" data-icon="stronghold" aria-disabled="true">Stronghold</a>
+          <a href="#" data-nav="ranking" data-icon="ranking">Ranking</a>
+        </nav>
+        <main id="center" class="page left"></main>
+        <aside class="page right" aria-label="Character">
+          <div class="portrait" data-icon="wolf" aria-hidden="true"></div>
+          <h2>Maren</h2>
+          <p class="origin">Fenborn, of no house she remembers</p>
+          <div class="traits">
+            <span>Light Sleeper</span><span>Old Scars</span>
+          </div>
+          <div class="stats">
+            <div><b>3</b><span>Might</span></div>
+            <div><b>5</b><span>Wits</span></div>
+            <div><b>4</b><span>Resolve</span></div>
+          </div>
+          <p class="purse">
+            <span data-icon="coins"></span><span data-crowns></span> crowns
+          </p>
+        </aside>
+      </div>
+    </div>
+
+    <script>
+      window.PROTO = {
+        divider:
+          '<svg class="divider" aria-hidden="true"><use href="#rule"/></svg>',
+      };
+    </script>
+    <script src="icons.js"></script>
+    <script src="proto.js"></script>
+  </body>
+</html>

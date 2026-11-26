@@ -1250,7 +1250,9 @@ Added on 2026-11-26. The app looks generic: `packages/ui/src/styles/theme.css` s
 
 ### DS-06 — Visual direction in rounds
 
-**Status:** ⬜ TODO
+**Status:** 🔶 IN PROGRESS
+
+**Notes:** Round 1 (2026-11-26) is in `docs/design/round-1/`: five sketches (Crypt, Grimoire, Broadside, Forge, Lantern), each a landing page and the desktop game screen sharing one prototype script (`proto.js`: landing → game, map → adventure → outcome, energy), with screenshots and a scored comparison in `index.html`. Fonts were checked for Polish characters through the Google Fonts `latin-ext` subset (IM Fell, UnifrakturMaguntia, Macondo and Germania One failed). Icons are copied from game-icons.net (CC BY 3.0, credited in `icons.js` and the index). Waiting for the owner to pick the directions for round 2.
 
 **Fix:** Run the rounds described in `docs/DESIGN.md` "Process" in `docs/design/round-N/`: sketches of as many directions as are worth trying, full versions of the chosen one or two (mobile, component sheet, the whole loop), and refinement of the winner. Each round gets an `index.html` and a scored comparison; the owner picks.
 
