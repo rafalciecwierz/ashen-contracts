@@ -18,7 +18,8 @@ Status legend: ⬜ TODO · 🔶 IN PROGRESS · ✅ DONE · 🚫 DROPPED
 3. **Docs and AI context in sync:** AI-01, DOC-01, DOC-02, AI-02
 4. **API hardening:** API-01 → API-14
 5. **Frontend:** WEB-01 → WEB-14, UI-01 → UI-07
-6. Everything else, then continue with the v0.1 roadmap (character creation)
+6. Everything else
+7. **Design system:** DS-01 → DS-05, then continue with the v0.1 roadmap (game layout, character creation)
 
 ---
 
@@ -1198,3 +1199,49 @@ Verified locally with `docker compose up -d`: `pnpm test:e2e` from a cold start 
 **Status:** ⬜ TODO
 
 **Fix:** Add structured logging (`nestjs-pino`) with a request ID, and use it to surface errors from the deployed API. This pairs with `/health` from API-10.
+
+---
+
+## DS — Design system
+
+Added on 2026-11-26. The app looks generic: `packages/ui/src/styles/theme.css` still carries the template's purple `brand-*` and Inter, and the components were styled one at a time. Before the v0.1 game screens are built, settle one visual direction, turn it into tokens and components, and write it down so new components stay consistent. All DS tasks go into one branch (`feat/ui-design-system`), one commit per task.
+
+### DS-01 — Design skills for the agent
+
+**Status:** ✅ DONE (2026-11-26)
+
+**Fix:** Pick the agent skills worth copying for design work, read them, and vendor them under ADR 014 (pinned commit, `NOTICE.md`, licence).
+
+**Notes:** Copied `frontend-design` from anthropics/skills (Apache 2.0, commit `e4bb5d9`), verbatim, into `.claude/skills/frontend-design/` with `LICENSE.txt` and `NOTICE.md`, and added it to `.prettierignore` like the other copied skills. It fits ADR 014 as a general technique adopted on purpose: it is short, written for apps as well as pages, and lists the traits that make generated design look generated. Rejected: [Leonxlnx/taste-skill](https://github.com/Leonxlnx/taste-skill) (MIT). Its current version is built for marketing sites (one section per 1440×900 screen, real photography, WebGL, Next.js as a static export), not for a text-heavy game interface; it can be reconsidered for the landing page. Worth knowing for DS-02: the skill's list of generated-design tells matches much of the Chronicle mockup (`docs/design/a-chronicle.html`, `design-tokens.json`): a near-black background with one warm orange accent close to `#D97757`, tracked all-caps labels, middle-dot meta strings, a monospace face for small data labels. Also fixed while here: the ROADMAP's E2E item was still unchecked although WEB-11 shipped it.
+
+### DS-02 — Design brief
+
+**Status:** ⬜ TODO
+
+**Fix:** Settle the direction with the owner (`grilling`): subject, audience, references from real games and books, mood, what the one memorable element is, and what is banned. Weigh the Chronicle mockup against the `frontend-design` tells. Write the result to `docs/DESIGN.md` as the brief.
+
+**Done when:** `docs/DESIGN.md` holds a brief the owner has agreed to, with a palette, type choices, a layout concept and principles.
+
+### DS-03 — Tokens
+
+**Status:** ⬜ TODO
+
+**Fix:** Turn the brief into tokens in one source of truth (decide between `theme.css` and `design-tokens.json`, and record it as an ADR): colour with WCAG contrast checked, type scale, spacing, radii, motion. Replace `brand-*` and Inter, and load the chosen fonts in `apps/web` and Storybook.
+
+**Done when:** `theme.css` holds only the new tokens, `pnpm build` and the story tests pass, and no component uses a removed token.
+
+### DS-04 — Components
+
+**Status:** ⬜ TODO
+
+**Fix:** Restyle the existing components (Button, Input, Modal, Navbar, Avatar, UserMenu) on the new tokens, and add the ones v0.1's game layout needs (panel, progress meter for energy and XP, navigation item, choice). Review each through Storybook screenshots, light on decoration, with visible focus and reduced motion respected.
+
+**Done when:** every component has stories, the story tests (with a11y checks) pass, and the login, register and landing pages use the new look.
+
+### DS-05 — Design docs and a component skill
+
+**Status:** ⬜ TODO
+
+**Fix:** Finish `docs/DESIGN.md` as the style guide (principles, token use, do and don't, a checklist for a new component), add a project skill that applies it when a component is added to `packages/ui`, and point to both from CLAUDE.md.
+
+**Done when:** a new component can be built from the docs alone, and CLAUDE.md links to them.
