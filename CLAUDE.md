@@ -67,6 +67,7 @@ PRs are squash-merged, so the PR title becomes the commit header on `main` (GitH
 ## Where to find more context
 
 - Full game design & mechanics: `docs/GAME_DESIGN.md`
+- Visual direction (design brief, later the style guide for new components): `docs/DESIGN.md`, proposals in `docs/design/`
 - Version roadmap (what we're building now vs later): `docs/ROADMAP.md`
 - Architecture decisions and reasoning: `docs/DECISIONS.md`
 - Feature specs, one per feature, each with a `Status` (planned | in progress | done) and "Deviations from spec": `docs/features/`

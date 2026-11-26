@@ -19,7 +19,7 @@ Status legend: ⬜ TODO · 🔶 IN PROGRESS · ✅ DONE · 🚫 DROPPED
 4. **API hardening:** API-01 → API-14
 5. **Frontend:** WEB-01 → WEB-14, UI-01 → UI-07
 6. Everything else
-7. **Design system:** DS-01 → DS-05, then continue with the v0.1 roadmap (game layout, character creation)
+7. **Design system:** DS-01, DS-02, DS-06 (proposal rounds), DS-03, DS-04, DS-05, then continue with the v0.1 roadmap (game layout, character creation)
 
 ---
 
@@ -1216,7 +1216,9 @@ Added on 2026-11-26. The app looks generic: `packages/ui/src/styles/theme.css` s
 
 ### DS-02 — Design brief
 
-**Status:** ⬜ TODO
+**Status:** ✅ DONE (2026-11-26)
+
+**Notes:** Settled with the owner in a `grilling` session; the brief is in `docs/DESIGN.md`. The owner's answers moved it away from what the agent recommended in three places: the interface itself carries the mood and is heavily ornamented (the agent proposed a quiet interface with loud text), references are the Witcher, _Darkest Dungeon_ and _Fallen London_ / _Sunless Sea_, and the visual material is not fixed in the brief but chosen from proposals made in rounds (sketches, then full versions of one or two, then refinement). Everything in `docs/design/` from before was deleted, including `design-tokens.json` and the Chronicle mockup: kept in git history only. The owner's two logos are in `docs/design/assets/logo/`; they use different visual languages (photorealistic forged iron against a cel-shaded gold-and-violet mark), which the brief leaves open for round 1. The task's "Done when" asked for a palette, type and layout in the brief; deviation: those now come from the chosen proposal, because the owner wants to pick from visual options rather than fix them in words. Verified with `pnpm format:check`.
 
 **Fix:** Settle the direction with the owner (`grilling`): subject, audience, references from real games and books, mood, what the one memorable element is, and what is banned. Weigh the Chronicle mockup against the `frontend-design` tells. Write the result to `docs/DESIGN.md` as the brief.
 
@@ -1226,7 +1228,7 @@ Added on 2026-11-26. The app looks generic: `packages/ui/src/styles/theme.css` s
 
 **Status:** ⬜ TODO
 
-**Fix:** Turn the brief into tokens in one source of truth (decide between `theme.css` and `design-tokens.json`, and record it as an ADR): colour with WCAG contrast checked, type scale, spacing, radii, motion. Replace `brand-*` and Inter, and load the chosen fonts in `apps/web` and Storybook.
+**Fix:** Turn the chosen direction into tokens in one source of truth (`theme.css`, or a token file that generates it; record the choice as an ADR): colour with WCAG contrast checked, type scale, spacing, radii, motion. Replace `brand-*` and Inter, and load the chosen fonts in `apps/web` and Storybook.
 
 **Done when:** `theme.css` holds only the new tokens, `pnpm build` and the story tests pass, and no component uses a removed token.
 
@@ -1245,3 +1247,11 @@ Added on 2026-11-26. The app looks generic: `packages/ui/src/styles/theme.css` s
 **Fix:** Finish `docs/DESIGN.md` as the style guide (principles, token use, do and don't, a checklist for a new component), add a project skill that applies it when a component is added to `packages/ui`, and point to both from CLAUDE.md.
 
 **Done when:** a new component can be built from the docs alone, and CLAUDE.md links to them.
+
+### DS-06 — Visual direction in rounds
+
+**Status:** ⬜ TODO
+
+**Fix:** Run the rounds described in `docs/DESIGN.md` "Process" in `docs/design/round-N/`: sketches of as many directions as are worth trying, full versions of the chosen one or two (mobile, component sheet, the whole loop), and refinement of the winner. Each round gets an `index.html` and a scored comparison; the owner picks.
+
+**Done when:** the owner has chosen one direction with desktop and mobile designs, and `docs/DESIGN.md` names it.
