@@ -18,7 +18,8 @@ Status legend: ⬜ TODO · 🔶 IN PROGRESS · ✅ DONE · 🚫 DROPPED
 3. **Docs and AI context in sync:** AI-01, DOC-01, DOC-02, AI-02
 4. **API hardening:** API-01 → API-14
 5. **Frontend:** WEB-01 → WEB-14, UI-01 → UI-07
-6. Everything else, then continue with the v0.1 roadmap (character creation)
+6. Everything else
+7. **Design system:** DS-01, DS-02, DS-06 (proposal rounds), DS-07 (location art), DS-03, DS-04, DS-05, then continue with the v0.1 roadmap (game layout, character creation)
 
 ---
 
@@ -1198,3 +1199,73 @@ Verified locally with `docker compose up -d`: `pnpm test:e2e` from a cold start 
 **Status:** ⬜ TODO
 
 **Fix:** Add structured logging (`nestjs-pino`) with a request ID, and use it to surface errors from the deployed API. This pairs with `/health` from API-10.
+
+---
+
+## DS — Design system
+
+Added on 2026-11-26. The app looks generic: `packages/ui/src/styles/theme.css` still carries the template's purple `brand-*` and Inter, and the components were styled one at a time. Before the v0.1 game screens are built, settle one visual direction, turn it into tokens and components, and write it down so new components stay consistent. All DS tasks go into one branch (`feat/ui-design-system`), one commit per task.
+
+### DS-01 — Design skills for the agent
+
+**Status:** ✅ DONE (2026-11-26)
+
+**Fix:** Pick the agent skills worth copying for design work, read them, and vendor them under ADR 014 (pinned commit, `NOTICE.md`, licence).
+
+**Notes:** Copied `frontend-design` from anthropics/skills (Apache 2.0, commit `e4bb5d9`), verbatim, into `.claude/skills/frontend-design/` with `LICENSE.txt` and `NOTICE.md`, and added it to `.prettierignore` like the other copied skills. It fits ADR 014 as a general technique adopted on purpose: it is short, written for apps as well as pages, and lists the traits that make generated design look generated. Rejected: [Leonxlnx/taste-skill](https://github.com/Leonxlnx/taste-skill) (MIT). Its current version is built for marketing sites (one section per 1440×900 screen, real photography, WebGL, Next.js as a static export), not for a text-heavy game interface; it can be reconsidered for the landing page. Worth knowing for DS-02: the skill's list of generated-design tells matches much of the Chronicle mockup (`docs/design/a-chronicle.html`, `design-tokens.json`): a near-black background with one warm orange accent close to `#D97757`, tracked all-caps labels, middle-dot meta strings, a monospace face for small data labels. Also fixed while here: the ROADMAP's E2E item was still unchecked although WEB-11 shipped it.
+
+### DS-02 — Design brief
+
+**Status:** ✅ DONE (2026-11-26)
+
+**Notes:** Settled with the owner in a `grilling` session; the brief is in `docs/DESIGN.md`. The owner's answers moved it away from what the agent recommended in three places: the interface itself carries the mood and is heavily ornamented (the agent proposed a quiet interface with loud text), references are the Witcher, _Darkest Dungeon_ and _Fallen London_ / _Sunless Sea_, and the visual material is not fixed in the brief but chosen from proposals made in rounds (sketches, then full versions of one or two, then refinement). Everything in `docs/design/` from before was deleted, including `design-tokens.json` and the Chronicle mockup: kept in git history only. The owner's two logos are in `docs/design/assets/logo/`; they use different visual languages (photorealistic forged iron against a cel-shaded gold-and-violet mark), which the brief leaves open for round 1. The task's "Done when" asked for a palette, type and layout in the brief; deviation: those now come from the chosen proposal, because the owner wants to pick from visual options rather than fix them in words. Verified with `pnpm format:check`.
+
+**Fix:** Settle the direction with the owner (`grilling`): subject, audience, references from real games and books, mood, what the one memorable element is, and what is banned. Weigh the Chronicle mockup against the `frontend-design` tells. Write the result to `docs/DESIGN.md` as the brief.
+
+**Done when:** `docs/DESIGN.md` holds a brief the owner has agreed to, with a palette, type choices, a layout concept and principles.
+
+### DS-03 — Tokens
+
+**Status:** ⬜ TODO
+
+**Fix:** Turn the chosen direction into tokens in one source of truth (`theme.css`, or a token file that generates it; record the choice as an ADR): colour with WCAG contrast checked, type scale, spacing, radii, motion. Replace `brand-*` and Inter, and load the chosen fonts in `apps/web` and Storybook.
+
+**Done when:** `theme.css` holds only the new tokens, `pnpm build` and the story tests pass, and no component uses a removed token.
+
+### DS-04 — Components
+
+**Status:** ⬜ TODO
+
+**Fix:** Restyle the existing components (Button, Input, Modal, Navbar, Avatar, UserMenu) on the new tokens, and add the ones v0.1's game layout needs (panel, progress meter for energy and XP, navigation item, choice). Review each through Storybook screenshots, light on decoration, with visible focus and reduced motion respected.
+
+**Done when:** every component has stories, the story tests (with a11y checks) pass, and the login, register and landing pages use the new look.
+
+### DS-05 — Design docs and a component skill
+
+**Status:** ⬜ TODO
+
+**Fix:** Finish `docs/DESIGN.md` as the style guide (principles, token use, do and don't, a checklist for a new component), add a project skill that applies it when a component is added to `packages/ui`, and point to both from CLAUDE.md.
+
+**Done when:** a new component can be built from the docs alone, and CLAUDE.md links to them.
+
+### DS-06 — Visual direction in rounds
+
+**Status:** ✅ DONE (2026-11-27)
+
+**Notes:** Round 1 (2026-11-26) is in `docs/design/round-1/`: five sketches (Crypt, Grimoire, Broadside, Forge, Lantern), each a landing page and the desktop game screen sharing one prototype script (`proto.js`: landing → game, map → adventure → outcome, energy), with screenshots and a scored comparison in `index.html`. Fonts were checked for Polish characters through the Google Fonts `latin-ext` subset (IM Fell, UnifrakturMaguntia, Macondo and Germania One failed). Icons are copied from game-icons.net (CC BY 3.0, credited in `icons.js` and the index). The owner picked the Forge landing page and none of the game screens: they all read as generated, because they shared one layout skeleton. Round 2 (same day) is in `docs/design/round-2/`: four game views in the Forge family with different compositions (Panorama, Map table, Fate cards, Reliquary). Shared scripts moved to `docs/design/shared/`; `proto.js` gained per-page view templates, and `scenes.js` draws placeholder location panoramas in SVG. On 2026-11-27 the owner picked Reliquary as the game screen, with three keepers (palette and ornaments, the energy orb, icons and item slots), one change (a primary button that is not red) and one borrowing (Panorama's SVG location art above the event text, inside Reliquary's own frame); recorded in `docs/DESIGN.md`. Round 3 (2026-11-27) is in `docs/design/round-3/`: one prototype from the Forge landing into Reliquary (location art above the event text, an account menu, a regeneration countdown under the orb, the character view, a mobile layout with a bottom tab bar and a "More" sheet), a component sheet with states, colour tokens and a WCAG contrast table (every pair passes AA), and four primary-button colours to compare (gold recommended). The styles live in `round-3/reliquary.css` as custom properties, ready for DS-03. `shared/scenes.js` now describes each location as data (a tone and layers from a fixed vocabulary), the base for DS-07. Verified by clicking through every prototype of all three rounds in a headless browser (no console errors) and reviewing screenshots at 1440 px and 390 px. The owner picked gold for the primary button (2026-11-27; recorded in `docs/DESIGN.md`) and closed the round without further changes; individual components get reworked as DS-04 builds them.
+
+**Fix:** Run the rounds described in `docs/DESIGN.md` "Process" in `docs/design/round-N/`: sketches of as many directions as are worth trying, full versions of the chosen one or two (mobile, component sheet, the whole loop), and refinement of the winner. Each round gets an `index.html` and a scored comparison; the owner picks.
+
+**Done when:** the owner has chosen one direction with desktop and mobile designs, and `docs/DESIGN.md` names it.
+
+### DS-07 — Skill for location art
+
+**Status:** ✅ DONE (2026-11-27)
+
+**Problem:** Every location needs art in one consistent style. The round-2 landscapes (`docs/design/shared/scenes.js`) look right, but each was drawn by hand in code.
+
+**Fix:** Describe a scene as data (a list of layers from a fixed vocabulary: ridge, pines, dead trees, mist, water, buildings, fire, smoke, moon, birds), render it to a static SVG file, and add a project skill that turns a location description into such a spec and file, following written style rules (layer order, depth, palette tones, composition, size budget).
+
+**Done when:** given a short description of a new location, the skill produces an SVG that sits next to the existing scenes without looking out of place, and the style rules are written down.
+
+**Notes:** The skill is `.claude/skills/location-art/`: `SKILL.md` (the procedure: description → spec → render → compare in the gallery), `STYLE.md` (canvas and safe area, four planes darker towards the front with mist between them, one light source, tones chosen by mood, one subject, a ban list, the budget, and a reference of every layer type) and `render.mjs`, which runs the browser generator `docs/design/shared/scenes.js` in a Node `vm` sandbox, validates a spec (tone, seed, layer types, required fields, at most 14 layers) and writes a static SVG (at most 60 kB). One generator serves both the prototypes and the files, so they cannot drift. Specs and SVGs live in `docs/design/assets/locations/`; where the game loads them from is left to the map feature (v0.2). The built-in specs stay in `scenes.js`, because the prototypes run from `file://` and cannot fetch JSON; `render.mjs --known` exports them. Deviations: the vocabulary gained `cave`, `graves` and `reeds` (needed by the test locations and reusable), and `render()` takes an `id` prefix and emits `xmlns`, so a standalone file is valid SVG. Verified with three new descriptions (a graveyard by a ruined chapel, a wolves' den, a drowned marsh with a witch's hut), rendered by following the skill and reviewed next to the built-in scenes in the new gallery `docs/design/locations.html`. The first pass showed a dome-like cave and headstones too small to read, so the cave outline became jagged and the graves larger. The round-3 prototypes still render with no console errors.

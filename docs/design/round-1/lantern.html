@@ -1,0 +1,780 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Lantern — round 1</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,500;0,6..96,700;1,6..96,500&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      /*
+  Direction 5: Lantern (Fallen London / Sunless Sea).
+  Palette: abyss #0d1c1d, deep water #13292a, verdigris #5d9283, verdigris pale #a9cbbf, brass #c39a4f, brass light #ecd294, bone #e8dfcf, lamp #f4dc9a.
+  Type: Bodoni Moda (display: Victorian didone), Newsreader (body).
+  The one memorable thing: storylet cards in brass-cornered frames with an oval cameo, like a page from a penny dreadful lit by a lantern.
+*/
+      :root {
+        --abyss: #0d1c1d;
+        --deep: #13292a;
+        --deep-hi: #1c3a3b;
+        --verd: #5d9283;
+        --verd-pale: #a9cbbf;
+        --brass: #c39a4f;
+        --brass-hi: #ecd294;
+        --brass-dk: #7d5f27;
+        --bone: #e8dfcf;
+        --bone-dim: #b9c2bb;
+        --lamp: #f4dc9a;
+        --f-display: 'Bodoni Moda', serif;
+        --f-body: 'Newsreader', Georgia, serif;
+        --engrave: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='8'%3E%3Cpath d='M0 8 8 0' stroke='%23a9cbbf' stroke-opacity='.07' stroke-width='1'/%3E%3C/svg%3E");
+        --mist: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.01' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .6 0 0 0 0 .8 0 0 0 0 .75 0 0 0 .05 0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)'/%3E%3C/svg%3E");
+      }
+      * {
+        box-sizing: border-box;
+        margin: 0;
+      }
+      body {
+        background: var(--abyss);
+        color: var(--bone);
+        font: 19px/1.6 var(--f-body);
+      }
+      [hidden] {
+        display: none !important;
+      }
+      .i {
+        width: 1.2em;
+        height: 1.2em;
+        flex: none;
+      }
+      button {
+        font: inherit;
+        color: inherit;
+      }
+      :focus-visible {
+        outline: 2px solid var(--lamp);
+        outline-offset: 3px;
+      }
+
+      .sea {
+        background-color: var(--abyss);
+        background-image:
+          var(--mist), var(--engrave),
+          radial-gradient(ellipse at 50% -10%, var(--deep-hi), var(--abyss) 70%);
+      }
+      /* Brass frame: thin double rule with filigree corners */
+      .brassed {
+        position: relative;
+        background: linear-gradient(
+          180deg,
+          rgba(19, 41, 42, 0.95),
+          rgba(13, 28, 29, 0.97)
+        );
+        border: 1px solid var(--brass);
+        box-shadow:
+          0 0 0 4px var(--abyss),
+          0 0 0 5px var(--brass-dk),
+          0 24px 50px rgba(0, 0, 0, 0.55);
+      }
+      .filigree {
+        position: absolute;
+        width: 58px;
+        height: 58px;
+        color: var(--brass);
+        pointer-events: none;
+      }
+      .filigree.tl {
+        top: -9px;
+        left: -9px;
+      }
+      .filigree.tr {
+        top: -9px;
+        right: -9px;
+        transform: scaleX(-1);
+      }
+      .filigree.bl {
+        bottom: -9px;
+        left: -9px;
+        transform: scaleY(-1);
+      }
+      .filigree.br {
+        bottom: -9px;
+        right: -9px;
+        transform: scale(-1);
+      }
+
+      .btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        min-height: 50px;
+        padding: 0 26px;
+        cursor: pointer;
+        text-decoration: none;
+        font: 500 19px var(--f-display);
+        letter-spacing: 0.04em;
+        color: var(--brass-hi);
+        background: transparent;
+        border: 1px solid var(--brass);
+        border-radius: 26px;
+        box-shadow:
+          inset 0 0 0 3px var(--abyss),
+          inset 0 0 0 4px var(--brass-dk);
+      }
+      .btn:hover {
+        background: rgba(195, 154, 79, 0.12);
+      }
+      .btn-primary {
+        color: #1d1608;
+        background: linear-gradient(
+          180deg,
+          var(--brass-hi),
+          var(--brass) 60%,
+          var(--brass-dk)
+        );
+        box-shadow:
+          inset 0 1px 0 rgba(255, 255, 255, 0.5),
+          0 0 22px rgba(244, 220, 154, 0.25);
+        border-color: var(--brass-dk);
+      }
+      .btn-primary:hover {
+        background: linear-gradient(
+          180deg,
+          #f6e3b0,
+          var(--brass-hi) 60%,
+          var(--brass)
+        );
+      }
+      .btn small {
+        font: italic 15px var(--f-body);
+      }
+      .btn[disabled] {
+        opacity: 0.45;
+        cursor: not-allowed;
+      }
+
+      /* ---------- Landing ---------- */
+      .landing {
+        min-height: 100vh;
+        position: relative;
+        overflow: hidden;
+        display: grid;
+        place-items: center;
+        padding: 48px 16px;
+      }
+      .beam {
+        position: absolute;
+        left: 50%;
+        top: 22%;
+        width: 160vmax;
+        height: 160vmax;
+        margin: -80vmax 0 0 -80vmax;
+        pointer-events: none;
+        background: conic-gradient(
+          from 0deg,
+          transparent 0deg,
+          rgba(244, 220, 154, 0.13) 8deg,
+          transparent 22deg,
+          transparent 180deg,
+          rgba(244, 220, 154, 0.08) 188deg,
+          transparent 202deg
+        );
+        animation: sweep 16s linear infinite;
+      }
+      @keyframes sweep {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+      .waves {
+        position: absolute;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        height: 30vh;
+        pointer-events: none;
+        opacity: 0.5;
+        background: repeating-linear-gradient(
+          180deg,
+          transparent 0 14px,
+          rgba(169, 203, 191, 0.12) 14px 15px
+        );
+        -webkit-mask-image: linear-gradient(transparent, #000);
+        mask-image: linear-gradient(transparent, #000);
+        animation: swell 7s ease-in-out infinite alternate;
+      }
+      @keyframes swell {
+        to {
+          transform: translateY(8px);
+        }
+      }
+      .card {
+        position: relative;
+        width: min(700px, 100%);
+        padding: 56px 56px 46px;
+        text-align: center;
+      }
+      @media (max-width: 640px) {
+        .card {
+          padding: 44px 24px 36px;
+        }
+      }
+      .cameo {
+        width: 150px;
+        height: 190px;
+        margin: 0 auto 22px;
+        border-radius: 50%;
+        display: grid;
+        place-items: center;
+        color: var(--bone);
+        background: radial-gradient(
+          ellipse at 50% 35%,
+          #2c5a57,
+          var(--abyss) 75%
+        );
+        box-shadow:
+          0 0 0 2px var(--brass),
+          0 0 0 8px var(--abyss),
+          0 0 0 9px var(--brass-dk),
+          0 0 40px rgba(244, 220, 154, 0.2);
+      }
+      .cameo .i {
+        width: 92px;
+        height: 92px;
+        color: var(--lamp);
+        filter: drop-shadow(0 0 12px rgba(244, 220, 154, 0.55));
+      }
+      .card h1 {
+        font: 700 clamp(52px, 9vw, 96px)/0.95 var(--f-display);
+        font-variation-settings: 'opsz' 96;
+        color: var(--bone);
+      }
+      .card h1 em {
+        display: block;
+        font-style: italic;
+        font-weight: 500;
+        font-size: 0.5em;
+        color: var(--brass-hi);
+        margin-top: 6px;
+      }
+      .flour {
+        width: 300px;
+        height: 26px;
+        margin: 22px auto;
+        color: var(--brass);
+        display: block;
+      }
+      .card p {
+        font-size: 20px;
+        color: var(--bone-dim);
+        max-width: 30em;
+        margin: 0 auto;
+        font-style: italic;
+      }
+      .card .actions {
+        display: flex;
+        gap: 18px;
+        justify-content: center;
+        flex-wrap: wrap;
+        margin-top: 32px;
+      }
+
+      /* ---------- Game ---------- */
+      .topbar {
+        display: flex;
+        align-items: center;
+        gap: 24px;
+        padding: 12px 28px;
+        border-bottom: 1px solid var(--brass-dk);
+        background: rgba(8, 18, 19, 0.75);
+        box-shadow: 0 1px 0 rgba(195, 154, 79, 0.3);
+        flex-wrap: wrap;
+      }
+      .topbar .logo {
+        font: italic 500 28px var(--f-display);
+        color: var(--brass-hi);
+        text-decoration: none;
+        margin-right: auto;
+      }
+      .res {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+      .res .i {
+        color: var(--lamp);
+      }
+      .meter {
+        width: 170px;
+        height: 10px;
+        border-radius: 5px;
+        border: 1px solid var(--brass);
+        background: var(--abyss);
+        overflow: hidden;
+      }
+      .meter i {
+        display: block;
+        height: 100%;
+        background: linear-gradient(90deg, var(--verd), var(--verd-pale));
+        transition: width 0.5s;
+      }
+      .who {
+        font: 500 22px var(--f-display);
+      }
+      .avatar-btn {
+        width: 48px;
+        height: 58px;
+        border-radius: 50%;
+        display: grid;
+        place-items: center;
+        cursor: pointer;
+        color: var(--lamp);
+        background: radial-gradient(ellipse at 50% 35%, #2c5a57, var(--abyss));
+        border: 1px solid var(--brass);
+      }
+
+      .shell {
+        display: grid;
+        grid-template-columns: 210px minmax(0, 1fr) 290px;
+        gap: 40px;
+        padding: 40px 30px 56px;
+        max-width: 1440px;
+        margin: 0 auto;
+        align-items: start;
+        min-height: calc(100vh - 82px);
+      }
+      @media (max-width: 1080px) {
+        .shell {
+          grid-template-columns: 190px 1fr;
+        }
+        .charpanel {
+          grid-column: 1 / -1;
+        }
+      }
+      @media (max-width: 720px) {
+        .shell {
+          grid-template-columns: 1fr;
+          padding: 24px 16px;
+        }
+      }
+
+      .chartnav {
+        display: flex;
+        flex-direction: column;
+      }
+      .chartnav a {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        min-height: 52px;
+        padding: 0 10px;
+        font: 500 20px var(--f-display);
+        color: var(--bone-dim);
+        text-decoration: none;
+        border-bottom: 1px solid rgba(195, 154, 79, 0.25);
+      }
+      .chartnav a .i {
+        color: var(--verd);
+      }
+      .chartnav a:hover {
+        color: var(--bone);
+      }
+      .chartnav a[aria-current] {
+        color: var(--lamp);
+        font-style: italic;
+      }
+      .chartnav a[aria-current] .i {
+        color: var(--lamp);
+        filter: drop-shadow(0 0 6px rgba(244, 220, 154, 0.6));
+      }
+      .chartnav a[aria-current]::after {
+        content: '❧';
+        margin-left: auto;
+        color: var(--brass);
+        font-style: normal;
+      }
+      .chartnav a[aria-disabled='true'] {
+        color: #8a9a95;
+      }
+      .chartnav a[aria-disabled='true']::after {
+        content: 'fogbound';
+        margin-left: auto;
+        font: italic 15px var(--f-body);
+      }
+
+      #center {
+        padding: 48px 52px 44px;
+      }
+      @media (max-width: 720px) {
+        #center {
+          padding: 34px 22px;
+        }
+      }
+      .center-kicker {
+        text-align: center;
+        font: italic 18px var(--f-body);
+        color: var(--verd-pale);
+      }
+      .center-title {
+        text-align: center;
+        font: 700 48px/1.05 var(--f-display);
+        font-variation-settings: 'opsz' 72;
+      }
+      .divider {
+        display: block;
+        width: 300px;
+        height: 26px;
+        margin: 14px auto 26px;
+        color: var(--brass);
+      }
+      .outcome-text {
+        display: grid;
+        grid-template-columns: 110px 1fr;
+        gap: 28px;
+        align-items: start;
+        max-width: 40em;
+        margin: 0 auto;
+      }
+      .outcome-art {
+        display: grid !important;
+        place-items: center;
+        color: var(--lamp);
+        width: 110px;
+        height: 140px;
+        border-radius: 50%;
+        background:
+          radial-gradient(ellipse at 50% 35%, #2c5a57, var(--abyss) 75%),
+          var(--engrave);
+        box-shadow:
+          0 0 0 2px var(--brass),
+          0 0 0 6px var(--abyss),
+          0 0 0 7px var(--brass-dk);
+      }
+      @media (max-width: 560px) {
+        .outcome-text {
+          grid-template-columns: 1fr;
+        }
+        .outcome-art {
+          margin: 0 auto;
+        }
+      }
+      .outcome-text p {
+        font-size: 21px;
+        line-height: 1.65;
+      }
+      .effects {
+        list-style: none;
+        padding: 0;
+        margin: 28px 0;
+        display: flex;
+        justify-content: center;
+        gap: 22px;
+        flex-wrap: wrap;
+        font-style: italic;
+      }
+      .effects .gain {
+        color: var(--brass-hi);
+      }
+      .effects .gain::before {
+        content: '+ ';
+        content: '';
+      }
+      .effects .loss,
+      .effects .cost {
+        color: #e6b3a7;
+      }
+      .outcome-actions {
+        display: flex;
+        justify-content: center;
+        gap: 18px;
+        flex-wrap: wrap;
+      }
+      .enter {
+        animation: surface 0.6s ease-out;
+      }
+      @keyframes surface {
+        from {
+          opacity: 0;
+          transform: translateY(6px);
+        }
+      }
+
+      .locations {
+        list-style: none;
+        padding: 0;
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+        gap: 20px;
+      }
+      .loc {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        gap: 4px;
+        padding: 22px 16px 18px;
+        cursor: pointer;
+        background: var(--deep);
+        border: 1px solid var(--brass-dk);
+        box-shadow:
+          inset 0 0 0 4px var(--deep),
+          inset 0 0 0 5px rgba(195, 154, 79, 0.35);
+      }
+      button.loc:hover {
+        border-color: var(--brass);
+        box-shadow:
+          inset 0 0 0 4px var(--deep),
+          inset 0 0 0 5px var(--brass),
+          0 0 24px rgba(244, 220, 154, 0.12);
+      }
+      .loc .i {
+        width: 70px;
+        height: 88px;
+        padding: 16px 12px;
+        border-radius: 50%;
+        margin-bottom: 8px;
+        color: var(--lamp);
+        background: radial-gradient(
+          ellipse at 50% 35%,
+          #2c5a57,
+          var(--abyss) 80%
+        );
+        box-shadow: 0 0 0 1px var(--brass);
+      }
+      .loc-name {
+        font: 700 23px/1.15 var(--f-display);
+      }
+      .loc-desc {
+        font-style: italic;
+        color: var(--bone-dim);
+        font-size: 16px;
+      }
+      .loc-cost {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        margin-top: 8px;
+        color: var(--verd-pale);
+        font-size: 16px;
+      }
+      .loc-cost .i {
+        width: 18px;
+        height: 18px;
+        padding: 0;
+        margin: 0;
+        background: none;
+        box-shadow: none;
+      }
+      .locked .loc {
+        opacity: 0.55;
+      }
+      .locked .loc .i {
+        color: var(--bone-dim);
+      }
+
+      .charpanel {
+        padding: 36px 24px 28px;
+        text-align: center;
+      }
+      .charpanel .cameo {
+        width: 130px;
+        height: 166px;
+        margin-bottom: 16px;
+      }
+      .charpanel .cameo .i {
+        width: 80px;
+        height: 80px;
+      }
+      .charpanel h2 {
+        font: 700 36px/1 var(--f-display);
+      }
+      .origin {
+        font-style: italic;
+        color: var(--bone-dim);
+        margin: 6px 0 16px;
+      }
+      .traits {
+        display: flex;
+        justify-content: center;
+        gap: 14px;
+        flex-wrap: wrap;
+        margin-bottom: 20px;
+        font-style: italic;
+        color: var(--verd-pale);
+      }
+      .stats {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        border-top: 1px solid var(--brass-dk);
+        border-bottom: 1px solid var(--brass-dk);
+        padding: 10px 0;
+      }
+      .stats div + div {
+        border-left: 1px solid rgba(195, 154, 79, 0.3);
+      }
+      .stats b {
+        display: block;
+        font: 700 32px/1.1 var(--f-display);
+        color: var(--brass-hi);
+      }
+      .stats span {
+        font-size: 15px;
+        color: var(--bone-dim);
+        font-style: italic;
+      }
+      .purse {
+        margin-top: 18px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 8px;
+      }
+      .purse .i {
+        color: var(--brass);
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        *,
+        *::before,
+        *::after {
+          animation: none !important;
+          transition: none !important;
+        }
+      }
+      .outcome-art .i {
+        width: 64px;
+        height: 64px;
+        filter: drop-shadow(0 0 10px rgba(244, 220, 154, 0.5));
+      }
+    </style>
+  </head>
+  <body>
+    <svg width="0" height="0" style="position: absolute" aria-hidden="true">
+      <symbol id="fil" viewBox="0 0 58 58">
+        <g fill="none" stroke="currentColor" stroke-width="1.6">
+          <path d="M2 56V14C2 7 7 2 14 2h42" />
+          <path d="M9 56V22c0-7 6-13 13-13h34" />
+          <path d="M14 30c0-10 6-16 16-16 6 0 9 4 7 8s-8 3-7-1" />
+          <path d="M30 14c-6 4-6 12 0 14" />
+        </g>
+        <circle cx="9" cy="9" r="3.5" fill="currentColor" />
+      </symbol>
+      <symbol id="fl" viewBox="0 0 300 26">
+        <g fill="none" stroke="currentColor" stroke-width="1.4">
+          <path d="M0 13h112M188 13h112" />
+          <path
+            d="M112 13c8-10 18-12 24-4 4 6-2 12-6 6M188 13c-8-10-18-12-24-4-4 6 2 12 6 6"
+          />
+          <path d="M136 13h28" />
+        </g>
+        <path d="M150 4l5 9-5 9-5-9z" fill="currentColor" />
+      </symbol>
+    </svg>
+
+    <div data-view="landing" class="landing sea">
+      <div class="beam" aria-hidden="true"></div>
+      <div class="waves" aria-hidden="true"></div>
+      <div class="card brassed">
+        <svg class="filigree tl" aria-hidden="true"><use href="#fil" /></svg
+        ><svg class="filigree tr" aria-hidden="true"><use href="#fil" /></svg>
+        <svg class="filigree bl" aria-hidden="true"><use href="#fil" /></svg
+        ><svg class="filigree br" aria-hidden="true"><use href="#fil" /></svg>
+        <div class="cameo" data-icon="torch" aria-hidden="true"></div>
+        <h1>Ashen <em>Contracts</em></h1>
+        <svg class="flour" aria-hidden="true"><use href="#fl" /></svg>
+        <p>
+          The fires have burned low and the roads belong to monsters. Take the
+          work no one else will, and find out what you were before you woke in
+          the ash.
+        </p>
+        <div class="actions">
+          <a href="#game" class="btn btn-primary" data-go="game">Log in</a>
+          <a href="#game" class="btn" data-go="game">Create account</a>
+        </div>
+      </div>
+    </div>
+
+    <div data-view="game" class="sea" hidden>
+      <header class="topbar">
+        <a href="#" class="logo" data-go="landing">Ashen Contracts</a>
+        <span class="who">Maren</span>
+        <span class="res"
+          ><span data-icon="torch"></span
+          ><span
+            class="meter"
+            role="meter"
+            aria-label="Energy"
+            aria-valuemin="0"
+            aria-valuemax="100"
+            ><i data-energy-bar></i></span
+          ><span><span data-energy></span>/100</span></span
+        >
+        <button
+          class="avatar-btn"
+          aria-label="Account menu"
+          data-icon="character"
+        ></button>
+      </header>
+      <div class="shell">
+        <nav class="chartnav" aria-label="Game">
+          <a href="#" data-nav="map" data-icon="map">Map</a>
+          <a href="#" data-nav="character" data-icon="character">Character</a>
+          <a href="#" data-nav="journal" data-icon="journal">Journal</a>
+          <a href="#" data-icon="stronghold" aria-disabled="true">Stronghold</a>
+          <a href="#" data-nav="ranking" data-icon="ranking">Ranking</a>
+        </nav>
+        <main id="center" class="brassed"></main>
+        <aside class="charpanel brassed" aria-label="Character">
+          <svg class="filigree tl" aria-hidden="true"><use href="#fil" /></svg
+          ><svg class="filigree tr" aria-hidden="true"><use href="#fil" /></svg>
+          <svg class="filigree bl" aria-hidden="true"><use href="#fil" /></svg
+          ><svg class="filigree br" aria-hidden="true"><use href="#fil" /></svg>
+          <div class="cameo" data-icon="wolf" aria-hidden="true"></div>
+          <h2>Maren</h2>
+          <p class="origin">Fenborn, of no house she remembers</p>
+          <div class="traits">
+            <span>Light Sleeper</span><span>Old Scars</span>
+          </div>
+          <div class="stats">
+            <div><b>3</b><span>Might</span></div>
+            <div><b>5</b><span>Wits</span></div>
+            <div><b>4</b><span>Resolve</span></div>
+          </div>
+          <p class="purse">
+            <span data-icon="coins"></span><span data-crowns></span> crowns
+          </p>
+        </aside>
+      </div>
+    </div>
+
+    <script>
+      window.PROTO = {
+        divider:
+          '<svg class="divider" aria-hidden="true"><use href="#fl"/></svg>',
+      };
+    </script>
+    <script src="../shared/icons.js"></script>
+    <script src="../shared/proto.js"></script>
+    <script>
+      // Brass corners on the centre panel survive re-renders.
+      const fil = ['tl', 'tr', 'bl', 'br']
+        .map(
+          (c) =>
+            `<svg class="filigree ${c}" aria-hidden="true"><use href="#fil"/></svg>`,
+        )
+        .join('');
+      const c = document.getElementById('center');
+      new MutationObserver(() => {
+        if (!c.querySelector('.filigree'))
+          c.insertAdjacentHTML('beforeend', fil);
+      }).observe(c, { childList: true });
+      c.insertAdjacentHTML('beforeend', fil);
+    </script>
+  </body>
+</html>

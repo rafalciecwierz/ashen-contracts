@@ -3,21 +3,15 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Design Proposals</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600&family=EB+Garamond:ital,wght@0,400;0,500;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap"
-      rel="stylesheet"
-    />
+    <title>Design rounds</title>
     <style>
       :root {
-        --bg: #141210;
-        --surface: #1b1815;
-        --border: #2f2a25;
-        --control: #4a433a;
-        --text: #e6dfd3;
-        --muted: #a39a8c;
-        --ember: #d9773f;
+        --bg: #f3f1ec;
+        --card: #fff;
+        --line: #d9d4ca;
+        --text: #1f1d1a;
+        --muted: #5f5a52;
+        --mark: #8a3b12;
       }
       * {
         box-sizing: border-box;
@@ -27,324 +21,143 @@
         background: var(--bg);
         color: var(--text);
         font:
-          18px/1.55 'EB Garamond',
-          Georgia,
-          serif;
+          17px/1.55 system-ui,
+          -apple-system,
+          'Segoe UI',
+          sans-serif;
       }
-      .wrap {
+      main {
         max-width: 1100px;
         margin: 0 auto;
-        padding: 48px 24px 64px;
-      }
-      @media (max-width: 640px) {
-        .wrap {
-          padding: 32px 16px 48px;
-        }
-      }
-      .label {
-        font:
-          600 12px 'Cinzel',
-          serif;
-        letter-spacing: 0.14em;
-        text-transform: uppercase;
-        color: var(--muted);
+        padding: 40px 20px 64px;
       }
       h1 {
-        font:
-          600 32px 'Cinzel',
-          serif;
-        letter-spacing: 0.06em;
-        margin: 8px 0 10px;
-      }
-      .intro {
-        color: var(--muted);
-        max-width: 70ch;
-        margin-bottom: 36px;
-      }
-      .grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-        gap: 16px;
-      }
-      a.card {
-        display: block;
-        text-decoration: none;
-        color: inherit;
-        background: var(--surface);
-        border: 1px solid var(--border);
-        border-radius: 4px;
-        overflow: hidden;
-      }
-      a.card:hover,
-      a.card:focus-visible {
-        border-color: var(--control);
-      }
-      a.card:focus-visible {
-        outline: 2px solid var(--ember);
-        outline-offset: 2px;
-      }
-      .swatch {
-        height: 96px;
-        display: flex;
-      }
-      .swatch i {
-        flex: 1;
-      }
-      .card-body {
-        padding: 16px 18px 20px;
-      }
-      .card-body h2 {
-        font:
-          600 18px 'Cinzel',
-          serif;
-        letter-spacing: 0.06em;
-        margin: 4px 0 6px;
-      }
-      .card-body p {
-        font-size: 16px;
-        color: var(--muted);
-      }
-      .rec {
-        color: var(--ember);
-      }
-      h3 {
-        font:
-          600 14px 'Cinzel',
-          serif;
-        letter-spacing: 0.12em;
-        text-transform: uppercase;
-        margin: 48px 0 14px;
-      }
-      .table-wrap {
-        overflow-x: auto;
-        border: 1px solid var(--border);
-        border-radius: 4px;
-      }
-      table {
-        border-collapse: collapse;
-        width: 100%;
-        min-width: 720px;
-        font-size: 16px;
-      }
-      th,
-      td {
-        text-align: left;
-        padding: 10px 14px;
-        border-bottom: 1px solid var(--border);
-        vertical-align: top;
-      }
-      th {
-        font:
-          600 12px 'Cinzel',
-          serif;
-        letter-spacing: 0.12em;
-        text-transform: uppercase;
-        color: var(--muted);
-        background: var(--surface);
-      }
-      tr:last-child td {
-        border-bottom: 0;
-      }
-      td:first-child {
-        color: var(--muted);
-        white-space: nowrap;
-      }
-      ul.notes {
-        padding-left: 20px;
-        color: var(--muted);
-        max-width: 75ch;
-      }
-      ul.notes li {
+        font-size: 30px;
         margin-bottom: 8px;
       }
-      ul.notes b {
-        color: var(--text);
-        font-weight: 500;
+      .lead {
+        color: var(--muted);
+        max-width: 72ch;
+        margin-bottom: 28px;
       }
-      code {
-        font:
-          14px 'IBM Plex Mono',
-          monospace;
-        color: var(--text);
+      .round {
+        background: var(--card);
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        padding: 22px;
+        margin-bottom: 20px;
+      }
+      .round h2 {
+        font-size: 21px;
+        margin-bottom: 4px;
+      }
+      .round .out {
+        color: var(--mark);
+        font-weight: 600;
+        margin-bottom: 12px;
+      }
+      .round p {
+        color: var(--muted);
+        max-width: 76ch;
+      }
+      .links {
+        display: flex;
+        gap: 16px;
+        flex-wrap: wrap;
+        margin-top: 12px;
+      }
+      .links a {
+        font-weight: 600;
+        color: var(--mark);
+      }
+      .shots {
+        display: grid;
+        grid-template-columns: 2fr 2fr 1fr;
+        gap: 10px;
+        margin: 14px 0 4px;
+        align-items: start;
+      }
+      @media (max-width: 760px) {
+        .shots {
+          grid-template-columns: 1fr;
+        }
+      }
+      .shots img {
+        width: 100%;
+        height: auto;
+        display: block;
+        border: 1px solid var(--line);
+        border-radius: 4px;
       }
     </style>
   </head>
   <body>
-    <div class="wrap">
-      <span class="label">Ashen Contracts · docs/design</span>
-      <h1>Design proposals</h1>
-      <p class="intro">
-        Four visual directions for the game UI, each showing the same two
-        screens: the play screen at the Clearing (character, energy, an
-        expedition in progress, the item-gated squirrel event, the chronicle)
-        and character creation. Content follows GAME_DESIGN.md and the v0.1
-        specs; origin and trait names are placeholders. Static HTML, open each
-        file directly in a browser.
-      </p>
-      <p class="intro">
-        These mockups predate the GAME-01 decision (GAME_DESIGN.md "Core loop",
-        "Contracts", "Screen layout"): adventures now resolve instantly for
-        energy instead of running as timed expeditions, choices come later, and
-        the shell is a top bar with navigation on the left and the character on
-        the right. Read them for the visual language, not the layout or
-        mechanics.
+    <main>
+      <h1>Design rounds</h1>
+      <p class="lead">
+        How the visual direction of Ashen Contracts was chosen. The brief and
+        the decisions are written down in <code>docs/DESIGN.md</code>; this page
+        links the prototypes. Each one is static HTML and can be opened straight
+        from disk.
       </p>
 
-      <div class="grid">
-        <a class="card" href="a-chronicle.html">
-          <div class="swatch">
-            <i style="background: #141210"></i
-            ><i style="background: #1b1815"></i
-            ><i style="background: #2f2a25"></i
-            ><i style="background: #e6dfd3"></i
-            ><i style="background: #d9773f"></i>
-          </div>
-          <div class="card-body">
-            <span class="label rec">A · recommended base</span>
-            <h2>Chronicle</h2>
-            <p>
-              Three-column dashboard built 1:1 on design-tokens.json. Warm ash
-              black, one ember accent, Cinzel + EB Garamond + Plex Mono.
-            </p>
-          </div>
-        </a>
-        <a class="card" href="b-notice-board.html">
-          <div class="swatch">
-            <i style="background: #15110d"></i
-            ><i style="background: #d8ccb2"></i
-            ><i style="background: #2a2118"></i
-            ><i style="background: #8e2b25"></i
-            ><i style="background: #c9a24a"></i>
-          </div>
-          <div class="card-body">
-            <span class="label">B</span>
-            <h2>Notice Board</h2>
-            <p>
-              Expeditions as paper contracts pinned to a board, sealed in wax
-              when signed. Gives the game's name a visual meaning.
-            </p>
-          </div>
-        </a>
-        <a class="card" href="c-embers.html">
-          <div class="swatch">
-            <i style="background: #0e0d0c"></i
-            ><i style="background: #24211e"></i
-            ><i style="background: #9a9184"></i
-            ><i style="background: #dcd5c8"></i
-            ><i style="background: #e0823f"></i>
-          </div>
-          <div class="card-body">
-            <span class="label">C</span>
-            <h2>Embers</h2>
-            <p>
-              Text-first and almost chrome-less, after A Dark Room. Story log
-              fades with age; action buttons fill as they cool down.
-            </p>
-          </div>
-        </a>
-        <a class="card" href="d-manuscript.html">
-          <div class="swatch">
-            <i style="background: #ece2cc"></i
-            ><i style="background: #c9b994"></i
-            ><i style="background: #2b241d"></i
-            ><i style="background: #9b2d20"></i
-            ><i style="background: #a07a22"></i>
-          </div>
-          <div class="card-body">
-            <span class="label">D</span>
-            <h2>Manuscript</h2>
-            <p>
-              Light vellum theme: a book folio with margin notes, a rubricated
-              drop cap and Roman-numbered choices.
-            </p>
-          </div>
-        </a>
-      </div>
+      <section class="round">
+        <h2>Round 3: Reliquary, refined</h2>
+        <p class="out">Current direction</p>
+        <p>
+          The Forge landing page leading into the Reliquary game screen: the
+          whole loop (map, adventure, outcome, go again), location art above the
+          event text, the energy orb with a regeneration countdown, an account
+          menu, the character view, and a mobile layout with a bottom tab bar
+          and a "More" sheet. The component sheet lists every part, its states
+          and its tokens, and compares four colours for the primary button.
+        </p>
+        <div class="shots">
+          <a href="round-3/index.html#game"
+            ><img
+              src="round-3/img/game.jpg"
+              alt="Round 3 game screen"
+              loading="lazy"
+          /></a>
+          <a href="round-3/components.html"
+            ><img
+              src="round-3/img/components.jpg"
+              alt="Round 3 component sheet"
+              loading="lazy"
+          /></a>
+          <a href="round-3/index.html#game"
+            ><img
+              src="round-3/img/mobile.jpg"
+              alt="Round 3 on a phone"
+              loading="lazy"
+          /></a>
+        </div>
+        <div class="links">
+          <a href="round-3/index.html">Prototype</a
+          ><a href="round-3/components.html">Component sheet</a>
+        </div>
+      </section>
 
-      <h3>Comparison</h3>
-      <div class="table-wrap">
-        <table>
-          <thead>
-            <tr>
-              <th></th>
-              <th>A Chronicle</th>
-              <th>B Notice Board</th>
-              <th>C Embers</th>
-              <th>D Manuscript</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td>Fits GAME_DESIGN tone</td>
-              <td>Good</td>
-              <td>Strong (contracts-for-coin)</td>
-              <td>Strongest (A Dark Room)</td>
-              <td>Good, lighter mood</td>
-            </tr>
-            <tr>
-              <td>Grows to v0.4 stronghold</td>
-              <td>Best: panels and tabs scale</td>
-              <td>Board scales; stronghold needs its own metaphor</td>
-              <td>Hard: one column fills up</td>
-              <td>Medium: margins get crowded</td>
-            </tr>
-            <tr>
-              <td>Cost in packages/ui</td>
-              <td>Low: tokens exist</td>
-              <td>High: paper shapes, clip-paths, seals</td>
-              <td>Lowest</td>
-              <td>Medium</td>
-            </tr>
-            <tr>
-              <td>Mobile</td>
-              <td>Collapses to one column</td>
-              <td>Board becomes a list</td>
-              <td>Native</td>
-              <td>Margins move below</td>
-            </tr>
-            <tr>
-              <td>Accessibility risk</td>
-              <td>Low (contrast pre-checked in tokens)</td>
-              <td>Rotated cards, paper texture behind text</td>
-              <td>Fading log: older lines drop below 4.5:1 by design</td>
-              <td>Low, but justified text</td>
-            </tr>
-            <tr>
-              <td>Interview story</td>
-              <td>Token pipeline → Tailwind theme</td>
-              <td>Domain-driven UI (GAME-01)</td>
-              <td>Restraint, performance</td>
-              <td>Theming / light mode</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
+      <section class="round">
+        <h2>Round 2: game views</h2>
+        <p class="out">Picked: Reliquary, with Panorama's location art</p>
+        <p>
+          Four game screens in the Forge family, each with its own composition:
+          Panorama, Map table, Fate cards, Reliquary.
+        </p>
+        <div class="links"><a href="round-2/index.html">Comparison</a></div>
+      </section>
 
-      <h3>Recommendation</h3>
-      <ul class="notes">
-        <li>
-          <b>Use A as the system</b>: wire <code>design-tokens.json</code> into
-          <code>packages/ui/src/styles/theme.css</code>, replacing the
-          template's purple <code>brand-*</code> and Inter. It is the cheapest
-          to build and scales to the stronghold.
-        </li>
-        <li>
-          <b>Borrow from B for contracts only</b>: contracts are special
-          missions that arrive later (GAME-01), so the notice board and the wax
-          seal for a signed contract can become that screen inside A, not the
-          whole app.
-        </li>
-        <li>
-          <b>Borrow from C for the narrative</b>: the cooldown-fill button and
-          the "newest line on top" story log fit the event feed in A's center
-          column.
-        </li>
-        <li>
-          <b>Keep D as A's light theme</b>: it uses the same type family, so it
-          is a token swap (<code>data-theme="light"</code>), not a second
-          design.
-        </li>
-      </ul>
-    </div>
+      <section class="round">
+        <h2>Round 1: sketches</h2>
+        <p class="out">Picked: the Forge landing page; no game screen</p>
+        <p>
+          Five directions (Crypt, Grimoire, Broadside, Forge, Lantern), each a
+          landing page and a game screen. The game screens were rejected for
+          sharing one skeleton under different skins.
+        </p>
+        <div class="links"><a href="round-1/index.html">Comparison</a></div>
+      </section>
+    </main>
   </body>
 </html>

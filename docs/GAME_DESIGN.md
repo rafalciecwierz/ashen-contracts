@@ -57,7 +57,7 @@ The game is one shell with a fixed frame and a content area driven by the URL.
 
 Example flow: Map in the navigation → the map in the center → pick the forest → the outcome of an adventure in the forest appears in the center at once → "Go again" or "Back to map".
 
-Visual direction proposals: `docs/design/`.
+Visual direction: `docs/DESIGN.md` (brief and style guide), proposals in `docs/design/`.
 
 ## World & locations
 

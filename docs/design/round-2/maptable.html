@@ -1,0 +1,731 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Map table — game view</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Metamorphous&family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      /*
+  Game view B: Map table (Forge family).
+  The map is the game: a hand-drawn map on a table by candlelight, locations are sealed pins, and the
+  outcome of an adventure arrives as a letter laid on the map.
+  Palette: table #1a110b, wood light #2b1b10, map sepia #b89a6a, map ink #2a1a0e, brass #c08a3e, wax #8e1f17, candle #ffb35a, bone #ecdfc8.
+  Type: Metamorphous (display), EB Garamond (body).
+*/
+      :root {
+        --table: #1a110b;
+        --wood: #2b1b10;
+        --sepia: #b89a6a;
+        --sepia-dk: #8d6f45;
+        --ink: #2a1a0e;
+        --brass: #c08a3e;
+        --brass-hi: #ecc27a;
+        --brass-dk: #6a4a1e;
+        --wax: #8e1f17;
+        --wax-hi: #b8301f;
+        --candle: #ffb35a;
+        --bone: #ecdfc8;
+        --bone-dim: #bfae92;
+        --letter: #1f150e;
+        --f-display: 'Metamorphous', serif;
+        --f-body: 'EB Garamond', Georgia, serif;
+        --woodgrain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='800' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.0025 .08' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .05 0 0 0 0 .03 0 0 0 0 .01 0 0 0 .8 0'/%3E%3C/filter%3E%3Crect width='800' height='200' filter='url(%23n)'/%3E%3C/svg%3E");
+        --paper: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.02' numOctaves='5' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .3 0 0 0 0 .2 0 0 0 0 .08 0 0 0 .35 0'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)'/%3E%3C/svg%3E");
+      }
+      * {
+        box-sizing: border-box;
+        margin: 0;
+      }
+      body {
+        min-height: 100vh;
+        color: var(--bone);
+        font: 20px/1.6 var(--f-body);
+        background-color: var(--table);
+        background-image:
+          radial-gradient(
+            ellipse 60% 50% at 30% 20%,
+            rgba(255, 179, 90, 0.16),
+            transparent 70%
+          ),
+          var(--woodgrain), linear-gradient(var(--wood), var(--table));
+      }
+      .i {
+        width: 1.2em;
+        height: 1.2em;
+        flex: none;
+      }
+      button {
+        font: inherit;
+        color: inherit;
+      }
+      :focus-visible {
+        outline: 2px solid var(--candle);
+        outline-offset: 3px;
+      }
+
+      .btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        min-height: 50px;
+        padding: 0 24px;
+        cursor: pointer;
+        font: 19px var(--f-display);
+        color: var(--bone);
+        background: linear-gradient(180deg, #3a2716, #22160c);
+        border: 1px solid var(--brass);
+        border-radius: 3px;
+        box-shadow:
+          inset 0 1px 0 rgba(236, 194, 122, 0.25),
+          0 3px 0 #000;
+      }
+      .btn:hover {
+        background: linear-gradient(180deg, #4a3220, #2c1d10);
+      }
+      .btn-primary {
+        color: #1c0f05;
+        background: linear-gradient(
+          180deg,
+          var(--brass-hi),
+          var(--brass) 60%,
+          var(--brass-dk)
+        );
+        border-color: #3a2810;
+        box-shadow:
+          inset 0 1px 0 rgba(255, 255, 255, 0.45),
+          0 3px 0 #000,
+          0 0 18px rgba(255, 179, 90, 0.25);
+      }
+      .btn-primary:hover {
+        background: linear-gradient(
+          180deg,
+          #f6d9a0,
+          var(--brass-hi) 60%,
+          var(--brass)
+        );
+      }
+      .btn small {
+        font: italic 15px var(--f-body);
+      }
+      .btn[disabled] {
+        opacity: 0.45;
+        cursor: not-allowed;
+      }
+
+      /* Top bar: a brass rail */
+      .topbar {
+        display: flex;
+        align-items: center;
+        gap: 24px;
+        height: 66px;
+        padding: 0 26px;
+        background: linear-gradient(180deg, #2c1d10, #160d07);
+        border-bottom: 2px solid var(--brass-dk);
+        box-shadow:
+          0 1px 0 var(--brass),
+          0 8px 20px rgba(0, 0, 0, 0.6);
+        flex-wrap: wrap;
+      }
+      .logo {
+        font: 26px var(--f-display);
+        color: var(--brass-hi);
+        text-decoration: none;
+        margin-right: auto;
+      }
+      .who {
+        font: 22px var(--f-display);
+      }
+      .candle {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+      .candle .wick {
+        position: relative;
+        width: 120px;
+        height: 12px;
+        border-radius: 6px;
+        background: #120a05;
+        box-shadow:
+          inset 0 1px 3px #000,
+          0 0 0 1px var(--brass-dk);
+      }
+      .candle .wick i {
+        position: absolute;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        border-radius: 6px;
+        background: linear-gradient(90deg, #7a3a10, var(--candle));
+        transition: width 0.5s;
+      }
+      .candle .wick i::after {
+        content: '';
+        position: absolute;
+        right: -6px;
+        top: -10px;
+        width: 12px;
+        height: 18px;
+        border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+        background: radial-gradient(
+          circle at 50% 70%,
+          #fff3c4,
+          var(--candle) 50%,
+          transparent 72%
+        );
+        filter: blur(0.5px);
+      }
+      .avatar-btn {
+        width: 46px;
+        height: 46px;
+        border-radius: 50%;
+        display: grid;
+        place-items: center;
+        cursor: pointer;
+        color: var(--bone);
+        background: radial-gradient(circle at 40% 35%, #3a2716, #0c0703);
+        border: 2px solid var(--brass);
+      }
+
+      .shell {
+        display: grid;
+        grid-template-columns: 220px minmax(0, 1fr) 280px;
+        gap: 30px;
+        padding: 30px 26px 50px;
+        max-width: 1500px;
+        margin: 0 auto;
+        align-items: start;
+      }
+      @media (max-width: 1100px) {
+        .shell {
+          grid-template-columns: 200px 1fr;
+        }
+        .token {
+          grid-column: 1 / -1;
+        }
+      }
+      @media (max-width: 720px) {
+        .shell {
+          grid-template-columns: 1fr;
+          padding: 18px 12px;
+        }
+      }
+
+      /* Left: brass drawer plates */
+      .drawers {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+      }
+      .drawers a {
+        position: relative;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        min-height: 56px;
+        padding: 0 16px;
+        text-decoration: none;
+        font: 19px var(--f-display);
+        color: #2a1a0b;
+        background: linear-gradient(180deg, #e4b96e, var(--brass) 55%, #8a6128);
+        border: 1px solid #3a2810;
+        border-radius: 4px;
+        box-shadow:
+          inset 0 1px 0 rgba(255, 255, 255, 0.5),
+          inset 0 -2px 0 rgba(0, 0, 0, 0.25),
+          0 4px 0 #0c0703,
+          0 6px 12px rgba(0, 0, 0, 0.5);
+        text-shadow: 0 1px 0 rgba(255, 235, 190, 0.6);
+      }
+      .drawers a::before,
+      .drawers a::after {
+        content: '';
+        position: absolute;
+        top: 50%;
+        width: 6px;
+        height: 6px;
+        margin-top: -3px;
+        border-radius: 50%;
+        background: #3a2810;
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.3);
+      }
+      .drawers a::before {
+        left: 6px;
+      }
+      .drawers a::after {
+        right: 6px;
+      }
+      .drawers a .i {
+        color: #3a2810;
+      }
+      .drawers a:hover {
+        filter: brightness(1.08);
+      }
+      .drawers a[aria-current] {
+        background: linear-gradient(180deg, #fff0c8, #f2c77c 55%, #b07f36);
+        box-shadow:
+          inset 0 1px 0 #fff,
+          0 4px 0 #0c0703,
+          0 0 24px rgba(255, 179, 90, 0.45);
+      }
+      .drawers a[aria-disabled='true'] {
+        filter: grayscale(0.6) brightness(0.6);
+        cursor: not-allowed;
+      }
+
+      /* Centre: the map */
+      .board {
+        position: relative;
+      }
+      .map {
+        position: relative;
+        aspect-ratio: 1000 / 640;
+        border-radius: 3px;
+        overflow: hidden;
+        background-color: var(--sepia);
+        background-image: var(--paper);
+        box-shadow:
+          0 30px 50px rgba(0, 0, 0, 0.6),
+          0 0 0 1px rgba(0, 0, 0, 0.6);
+        transform: rotate(-0.4deg);
+      }
+      .map::after {
+        content: '';
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+        box-shadow: inset 0 0 90px 20px rgba(42, 26, 14, 0.85);
+      }
+      .map svg.chart {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+      }
+      .chart .lbl {
+        font:
+          26px 'Metamorphous',
+          serif;
+        fill: var(--ink);
+      }
+      .chart .sub {
+        font:
+          italic 17px 'EB Garamond',
+          serif;
+        fill: #4a3218;
+      }
+      .pin {
+        cursor: pointer;
+      }
+      .pin .seal {
+        fill: var(--wax);
+        stroke: #3a0b07;
+        stroke-width: 3;
+        transition: transform 0.2s;
+        transform-box: fill-box;
+        transform-origin: center;
+      }
+      .pin:hover .seal,
+      .pin:focus-visible .seal,
+      .pin.here .seal {
+        fill: var(--wax-hi);
+        transform: scale(1.12);
+      }
+      .pin.here .ring {
+        stroke: var(--candle);
+      }
+      .pin .ring {
+        fill: none;
+        stroke: transparent;
+        stroke-width: 3;
+      }
+      .pin.locked {
+        cursor: not-allowed;
+      }
+      .pin.locked .seal {
+        fill: #5a4a36;
+        stroke: #2a1a0e;
+      }
+      .pin:focus {
+        outline: none;
+      }
+      .pin:focus-visible .ring {
+        stroke: #fff;
+      }
+
+      /* The letter */
+      .letter {
+        position: absolute;
+        right: 3%;
+        top: 8%;
+        width: min(440px, 46%);
+        padding: 30px 30px 24px;
+        background: var(--letter);
+        color: var(--bone);
+        border: 1px solid var(--brass-dk);
+        box-shadow:
+          0 0 0 4px #120a05,
+          0 0 0 5px var(--brass-dk),
+          0 26px 40px rgba(0, 0, 0, 0.65);
+        transform: rotate(1.2deg);
+      }
+      .letter::before {
+        content: '';
+        position: absolute;
+        left: -16px;
+        top: 26px;
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: radial-gradient(
+          circle at 35% 35%,
+          var(--wax-hi),
+          var(--wax) 55%,
+          #4a0d08
+        );
+        box-shadow: 0 3px 6px rgba(0, 0, 0, 0.6);
+      }
+      .letter small {
+        font: italic 17px var(--f-body);
+        color: var(--bone-dim);
+      }
+      .letter h2 {
+        font: 30px/1.1 var(--f-display);
+        color: var(--brass-hi);
+        margin: 2px 0 12px;
+      }
+      .letter p {
+        font-size: 20px;
+        line-height: 1.6;
+      }
+      .letter ul {
+        list-style: none;
+        padding: 0;
+        margin: 16px 0 20px;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px 18px;
+        font-style: italic;
+      }
+      .letter .gain {
+        color: #f6cf8a;
+      }
+      .letter .loss,
+      .letter .cost {
+        color: #f0a090;
+      }
+      .letter .acts {
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+      }
+      .enter {
+        animation: lay 0.45s ease-out;
+      }
+      @keyframes lay {
+        from {
+          opacity: 0;
+          transform: translate(30px, -10px) rotate(4deg);
+        }
+      }
+      @media (max-width: 900px) {
+        .letter {
+          position: relative;
+          right: auto;
+          top: auto;
+          width: auto;
+          margin: -40px 12px 0;
+          transform: none;
+        }
+      }
+      .hint {
+        margin-top: 18px;
+        font-style: italic;
+        color: var(--bone-dim);
+        text-align: center;
+      }
+
+      /* Right: hunter's token */
+      .token {
+        padding: 26px 22px;
+        background: linear-gradient(180deg, #24170d, #170e07);
+        border: 1px solid var(--brass-dk);
+        box-shadow:
+          inset 0 0 0 4px #0f0904,
+          inset 0 0 0 5px rgba(192, 138, 62, 0.35),
+          0 18px 30px rgba(0, 0, 0, 0.5);
+        text-align: center;
+      }
+      .medal {
+        width: 150px;
+        height: 150px;
+        margin: 0 auto;
+        border-radius: 50%;
+        display: grid;
+        place-items: center;
+        color: #3a2810;
+        background: radial-gradient(
+          circle at 38% 30%,
+          #fff0c8,
+          var(--brass) 45%,
+          #6a4a1e 80%
+        );
+        box-shadow:
+          0 0 0 4px #0f0904,
+          0 0 0 7px var(--brass-dk),
+          0 10px 20px rgba(0, 0, 0, 0.6);
+      }
+      .medal .i {
+        width: 92px;
+        height: 92px;
+        filter: drop-shadow(0 1px 0 rgba(255, 240, 200, 0.6));
+      }
+      .banner {
+        position: relative;
+        display: inline-block;
+        margin: -16px auto 0;
+        padding: 4px 30px;
+        font: 28px var(--f-display);
+        color: var(--bone);
+        background: var(--wax);
+        clip-path: polygon(0 0, 100% 0, 94% 50%, 100% 100%, 0 100%, 6% 50%);
+      }
+      .origin {
+        font-style: italic;
+        color: var(--bone-dim);
+        margin: 10px 0 16px;
+      }
+      .ledger {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 18px;
+      }
+      .ledger td {
+        padding: 6px 4px;
+        border-bottom: 1px dotted rgba(192, 138, 62, 0.4);
+        text-align: left;
+      }
+      .ledger td:last-child {
+        text-align: right;
+        font: 20px var(--f-display);
+        color: var(--brass-hi);
+      }
+      .traits {
+        margin-top: 14px;
+        font-style: italic;
+        color: var(--bone-dim);
+      }
+      .purse {
+        margin-top: 12px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 8px;
+        color: #f6cf8a;
+      }
+      .purse .i {
+        color: var(--brass);
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        *,
+        *::before,
+        *::after {
+          animation: none !important;
+          transition: none !important;
+        }
+      }
+      .chart .lbl,
+      .chart .sub {
+        paint-order: stroke;
+        stroke: #b89a6a;
+        stroke-width: 7px;
+        stroke-linejoin: round;
+      }
+      .letter {
+        position: relative;
+        right: auto;
+        top: auto;
+        width: 82%;
+        margin: -56px 0 0 auto;
+        padding: 26px 30px 22px;
+        display: grid;
+        grid-template-columns: 1fr auto;
+        gap: 4px 28px;
+        align-items: end;
+      }
+      .letter > small,
+      .letter > h2,
+      .letter > p,
+      .letter > ul {
+        grid-column: 1;
+      }
+      .letter .acts {
+        grid-column: 2;
+        grid-row: 1 / span 4;
+        flex-direction: column;
+        align-self: center;
+      }
+      @media (max-width: 900px) {
+        .letter {
+          width: auto;
+          display: block;
+          margin: -30px 8px 0;
+        }
+      }
+      .letter h2 {
+        font-size: 27px;
+      }
+      .letter p {
+        font-size: 19px;
+      }
+      .shell {
+        grid-template-columns: 200px minmax(0, 1fr) 260px;
+        gap: 26px;
+      }
+    </style>
+  </head>
+  <body>
+    <header class="topbar">
+      <a class="logo" href="../round-1/forge.html">Ashen Contracts</a>
+      <span class="who">Maren</span>
+      <span class="candle" title="Energy"
+        ><span
+          class="wick"
+          role="meter"
+          aria-label="Energy"
+          aria-valuemin="0"
+          aria-valuemax="100"
+          ><i data-energy-bar></i></span
+        ><span><span data-energy></span>/100</span></span
+      >
+      <button
+        class="avatar-btn"
+        aria-label="Account menu"
+        data-icon="character"
+      ></button>
+    </header>
+    <div class="shell">
+      <nav class="drawers" aria-label="Game">
+        <a href="#" data-nav="map" data-icon="map">Map</a>
+        <a href="#" data-nav="character" data-icon="character">Character</a>
+        <a href="#" data-nav="journal" data-icon="journal">Journal</a>
+        <a href="#" aria-disabled="true" data-icon="lock">Stronghold</a>
+        <a href="#" data-nav="ranking" data-icon="ranking">Ranking</a>
+      </nav>
+      <main id="center"></main>
+      <aside class="token" aria-label="Character">
+        <div class="medal" data-icon="wolf" aria-hidden="true"></div>
+        <div class="banner">Maren</div>
+        <p class="origin">Fenborn, of no house she remembers</p>
+        <table class="ledger">
+          <tr>
+            <td>Might</td>
+            <td>3</td>
+          </tr>
+          <tr>
+            <td>Wits</td>
+            <td>5</td>
+          </tr>
+          <tr>
+            <td>Resolve</td>
+            <td>4</td>
+          </tr>
+        </table>
+        <p class="traits">Light Sleeper · Old Scars</p>
+        <p class="purse">
+          <span data-icon="coins"></span><span data-crowns></span> crowns
+        </p>
+      </aside>
+    </div>
+
+    <script src="../shared/icons.js"></script>
+    <script>
+      const POS = {
+        clearing: [430, 430],
+        forest: [270, 250],
+        mill: [650, 330],
+        unknown: [840, 150],
+      };
+      function tree(x, y, s = 1) {
+        return `<path d="M${x} ${y - 22 * s}l${9 * s} ${16 * s}h${-5 * s}l${7 * s} ${12 * s}h${-22 * s}l${7 * s} ${-12 * s}h${-5 * s}z" />`;
+      }
+      function forestGlyphs() {
+        let r = 7,
+          out = '';
+        const rnd = () => (r = (r * 16807) % 2147483647) / 2147483647;
+        for (let k = 0; k < 60; k++) {
+          const a = rnd() * Math.PI * 2,
+            d = Math.sqrt(rnd()) * 130;
+          out += tree(
+            270 + Math.cos(a) * d * 1.3,
+            255 + Math.sin(a) * d * 0.8,
+            0.7 + rnd() * 0.5,
+          );
+        }
+        for (let k = 0; k < 18; k++)
+          out += tree(470 + rnd() * 160, 470 + rnd() * 120, 0.6 + rnd() * 0.3);
+        return out;
+      }
+      function chart(here, LOCATIONS) {
+        const pin = (l) => {
+          const [x, y] = POS[l.slug];
+          const cls = l.locked
+            ? 'pin locked'
+            : `pin${l.slug === here ? ' here' : ''}`;
+          const attrs = l.locked
+            ? `aria-disabled="true"`
+            : `data-loc="${l.slug}" role="button" tabindex="0" aria-label="${l.name}, ${l.cost} energy"`;
+          return `<g class="${cls}" ${attrs}><circle class="ring" cx="${x}" cy="${y}" r="26"/><circle class="seal" cx="${x}" cy="${y}" r="17"/>
+      <text class="lbl" x="${x + 30}" y="${y + 8}">${l.name}</text><text class="sub" x="${x + 32}" y="${y + 30}">${l.locked ? l.locked : l.cost + ' energy'}</text></g>`;
+        };
+        return `<svg class="chart" viewBox="0 0 1000 640" aria-label="Map of the Northern Marches">
+    <defs><filter id="fog" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur in="SourceAlpha" stdDeviation="35" result="a"/><feTurbulence type="fractalNoise" baseFrequency=".018" numOctaves="3"/><feColorMatrix values="0 0 0 0 .16 0 0 0 0 .1 0 0 0 0 .05 0 0 0 1.6 -.3"/><feComposite in2="a" operator="in"/></filter></defs>
+    <g fill="none" stroke="#2a1a0e" stroke-linecap="round">
+      <path d="M1000 40C900 80 870 160 820 220s-60 150-110 190-40 120-20 230" stroke-width="7" opacity=".55"/>
+      <path d="M1000 40C900 80 870 160 820 220s-60 150-110 190-40 120-20 230" stroke-width="2" stroke="#b89a6a" opacity=".9"/>
+      <path d="M0 520c80-30 170-20 260 10s180 40 300 20" stroke-width="2.5" stroke-dasharray="2 10"/>
+      <path d="M430 430c-40-60-110-120-160-180" stroke-width="2.5" stroke-dasharray="10 8"/>
+      <path d="M430 430c70-20 150-50 220-100" stroke-width="2.5" stroke-dasharray="10 8"/>
+      <path d="M560 120l20-30 20 30M610 140l26-40 26 40M680 110l18-26 18 26" stroke-width="2.5"/>
+    </g>
+    <g fill="#2a1a0e" opacity=".8">${forestGlyphs()}</g>
+    <ellipse cx="880" cy="140" rx="210" ry="190" filter="url(#fog)" />
+    <g transform="translate(110 520)" stroke="#2a1a0e" fill="none" stroke-width="2"><circle r="44"/><circle r="36" stroke-dasharray="2 4"/><path d="M0-60L9 0 0 60-9 0z" fill="#2a1a0e"/><path d="M-60 0L0-7 60 0 0 7z" fill="#8e1f17" stroke="none"/><text y="-66" text-anchor="middle" fill="#2a1a0e" stroke="none" style="font:18px Metamorphous">N</text></g>
+    <g transform="translate(60 40)"><path d="M0 10h340M0 70h340" stroke="#2a1a0e" stroke-width="1.5"/><text x="170" y="52" text-anchor="middle" style="font:30px Metamorphous;fill:#2a1a0e">The Northern Marches</text></g>
+    ${LOCATIONS.map(pin).join('')}
+  </svg>`;
+      }
+      let lastHere = 'forest';
+      window.PROTO = {
+        outcome: ({ LOCATIONS, loc, o, canAgain }) => {
+          lastHere = loc.slug;
+          return `<div class="board"><div class="map">${chart(loc.slug, LOCATIONS)}</div>
+      <section class="letter enter" aria-live="polite">
+        <small>From ${loc.name}</small>
+        <h2>${o ? o.title : 'Too tired to go on'}</h2>
+        <p>${o ? o.text : 'Your legs refuse the road. Rest, and try again when your strength returns.'}</p>
+        <ul>${o ? o.gain.map((g) => `<li class="gain">${g}</li>`).join('') : ''}${o && o.loss ? o.loss.map((g) => `<li class="loss">${g}</li>`).join('') : ''}${o ? `<li class="cost">−${loc.cost} energy</li>` : ''}</ul>
+        <div class="acts"><button class="btn btn-primary" data-act="again" data-loc="${loc.slug}" ${canAgain ? '' : 'disabled'}>Go again <small>${loc.cost} energy</small></button><button class="btn" data-act="map">Back to map</button></div>
+      </section></div>`;
+        },
+        map: ({ LOCATIONS }) =>
+          `<div class="board"><div class="map">${chart(lastHere, LOCATIONS)}</div></div><p class="hint">Choose a seal on the map to set out.</p>`,
+      };
+      // Keyboard: Enter or Space on a pin starts the adventure.
+      document.addEventListener('keydown', (e) => {
+        const p = e.target.closest && e.target.closest('.pin[data-loc]');
+        if (p && (e.key === 'Enter' || e.key === ' ')) {
+          e.preventDefault();
+          p.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+        }
+      });
+    </script>
+    <script src="../shared/proto.js"></script>
+  </body>
+</html>

@@ -9,3 +9,5 @@ apps/web/next-env.d.ts
 .claude/skills/grilling/
 .claude/skills/tdd/
 .claude/skills/diagnosing-bugs/
+# Copied from anthropics/skills, kept byte-identical to upstream as well
+.claude/skills/frontend-design/

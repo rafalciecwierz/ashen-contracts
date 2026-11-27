@@ -1,0 +1,773 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Broadside — round 1</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=New+Rocker&family=Sorts+Mill+Goudy:ital@0;1&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      /*
+  Direction 3: Broadside (the Witcher's Northern Kingdoms).
+  Palette: ash rag paper #cdc8bd, paper shadow #a9a397, woodblock black #15120f, cinnabar #b1281d, wolf silver #b9bcbf, post wood #3a2b20.
+  Type: New Rocker (display: thorny, Northern), Sorts Mill Goudy (body: an old printer's face).
+  The one memorable thing: every surface is a printed notice nailed to wood, framed in cut-wood hatching and folk bands.
+*/
+      :root {
+        --paper: #cdc8bd;
+        --paper-dk: #a9a397;
+        --black: #15120f;
+        --red: #b1281d;
+        --red-dk: #7f1a12;
+        --silver: #b9bcbf;
+        --wood: #3a2b20;
+        --wood-dk: #24190f;
+        --ink-soft: #3d3730;
+        --f-display: 'New Rocker', serif;
+        --f-body: 'Sorts Mill Goudy', Georgia, serif;
+        --paper-tex: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='260' height='260'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .1 0 0 0 0 .08 0 0 0 0 .05 0 0 0 .22 0'/%3E%3C/filter%3E%3Crect width='260' height='260' filter='url(%23n)'/%3E%3C/svg%3E");
+        --wood-tex: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='600' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.004 .12' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 .7 0'/%3E%3C/filter%3E%3Crect width='600' height='300' filter='url(%23n)'/%3E%3C/svg%3E");
+        --folk: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='36' height='18'%3E%3Cpath d='M0 9 9 0l9 9-9 9zM18 9l9-9 9 9-9 9z' fill='%2315120f'/%3E%3Cpath d='M9 5l4 4-4 4-4-4zM27 5l4 4-4 4-4-4z' fill='%23b1281d'/%3E%3C/svg%3E");
+      }
+      * {
+        box-sizing: border-box;
+        margin: 0;
+      }
+      body {
+        background: var(--wood-dk);
+        color: var(--black);
+        font: 20px/1.55 var(--f-body);
+      }
+      [hidden] {
+        display: none !important;
+      }
+      .i {
+        width: 1.2em;
+        height: 1.2em;
+        flex: none;
+      }
+      button {
+        font: inherit;
+        color: inherit;
+      }
+      :focus-visible {
+        outline: 3px solid var(--red);
+        outline-offset: 3px;
+      }
+
+      .wood {
+        background-color: var(--wood);
+        background-image: var(--wood-tex);
+      }
+      .sheet {
+        position: relative;
+        background-color: var(--paper);
+        background-image: var(--paper-tex);
+        box-shadow:
+          0 1px 0 var(--paper-dk),
+          6px 10px 0 rgba(0, 0, 0, 0.35);
+      }
+      /* Cut-wood frame: black rule, hatched band, black rule */
+      .cut {
+        border: 4px solid var(--black);
+        outline: 3px solid var(--black);
+        outline-offset: -16px;
+      }
+      .cut::before {
+        content: '';
+        position: absolute;
+        inset: 4px;
+        border: 8px solid transparent;
+        pointer-events: none;
+        border-image: repeating-linear-gradient(
+            45deg,
+            var(--black) 0 2px,
+            transparent 2px 6px
+          )
+          8;
+      }
+      .nail {
+        position: absolute;
+        width: 16px;
+        height: 16px;
+        border-radius: 50%;
+        background: radial-gradient(
+          circle at 35% 35%,
+          #9a9ca0,
+          #3b3d40 60%,
+          #111
+        );
+        box-shadow: 1px 2px 2px rgba(0, 0, 0, 0.6);
+        z-index: 2;
+      }
+      .nail.tl {
+        top: -6px;
+        left: -6px;
+      }
+      .nail.tr {
+        top: -6px;
+        right: -6px;
+      }
+      .nail.bl {
+        bottom: -6px;
+        left: -6px;
+      }
+      .nail.br {
+        bottom: -6px;
+        right: -6px;
+      }
+      .band {
+        height: 18px;
+        background: var(--folk) repeat-x center / 36px 18px;
+      }
+
+      .btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        min-height: 52px;
+        padding: 0 24px;
+        cursor: pointer;
+        text-decoration: none;
+        font: 24px var(--f-display);
+        color: var(--paper);
+        background: var(--black);
+        border: 3px solid var(--black);
+        box-shadow: 4px 4px 0 var(--red);
+      }
+      .btn:hover {
+        transform: translate(-1px, -1px);
+        box-shadow: 5px 5px 0 var(--red);
+      }
+      .btn:active {
+        transform: translate(3px, 3px);
+        box-shadow: 1px 1px 0 var(--red);
+      }
+      .btn-primary {
+        background: var(--red);
+        border-color: var(--black);
+        box-shadow: 4px 4px 0 var(--black);
+      }
+      .btn-primary:hover {
+        box-shadow: 5px 5px 0 var(--black);
+      }
+      .btn:not(.btn-primary) {
+        background: var(--paper);
+        color: var(--black);
+        box-shadow: 4px 4px 0 var(--black);
+      }
+      .btn small {
+        font: italic 15px var(--f-body);
+      }
+      .btn[disabled] {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+
+      /* ---------- Landing ---------- */
+      .landing {
+        min-height: 100vh;
+        display: grid;
+        place-items: center;
+        padding: 48px 16px;
+        position: relative;
+        overflow: hidden;
+      }
+      .landing::before {
+        content: '';
+        position: absolute;
+        left: 50%;
+        top: 0;
+        bottom: 0;
+        width: 220px;
+        margin-left: -110px;
+        background: var(--wood-dk);
+        background-image: var(--wood-tex);
+        box-shadow:
+          inset 12px 0 20px rgba(0, 0, 0, 0.5),
+          inset -12px 0 20px rgba(0, 0, 0, 0.5);
+      }
+      .notice {
+        position: relative;
+        width: min(680px, 100%);
+        padding: 52px 52px 44px;
+        text-align: center;
+        transform: rotate(-1.2deg);
+      }
+      @media (max-width: 640px) {
+        .notice {
+          padding: 40px 24px 34px;
+        }
+      }
+      .notice .kicker {
+        font: 22px var(--f-display);
+        color: var(--red);
+        letter-spacing: 0.06em;
+      }
+      .medal {
+        width: 128px;
+        height: 128px;
+        margin: 14px auto;
+        border-radius: 50%;
+        display: grid;
+        place-items: center;
+        color: var(--black);
+        background: radial-gradient(
+          circle at 35% 30%,
+          #eef0f2,
+          var(--silver) 45%,
+          #6c7074
+        );
+        box-shadow:
+          0 0 0 4px var(--black),
+          0 0 0 8px var(--paper),
+          0 0 0 11px var(--black);
+      }
+      .medal .i {
+        width: 86px;
+        height: 86px;
+      }
+      .notice h1 {
+        font: clamp(60px, 11vw, 112px)/0.9 var(--f-display);
+        color: var(--black);
+      }
+      .notice h1 span {
+        display: block;
+        font-size: 0.55em;
+        color: var(--red);
+      }
+      .notice .band {
+        margin: 22px -10px;
+      }
+      .notice p {
+        font-size: 21px;
+        max-width: 28em;
+        margin: 0 auto;
+        color: var(--ink-soft);
+      }
+      .notice .actions {
+        display: flex;
+        gap: 18px;
+        justify-content: center;
+        flex-wrap: wrap;
+        margin-top: 30px;
+      }
+      .stamp {
+        position: absolute;
+        right: 34px;
+        top: 34px;
+        width: 110px;
+        height: 110px;
+        border: 4px double var(--red);
+        border-radius: 50%;
+        display: grid;
+        place-items: center;
+        text-align: center;
+        font: 16px/1.1 var(--f-display);
+        color: var(--red);
+        transform: rotate(-18deg);
+        opacity: 0.8;
+        mix-blend-mode: multiply;
+      }
+      @media (max-width: 640px) {
+        .stamp {
+          display: none;
+        }
+      }
+      .ash {
+        position: absolute;
+        inset: -20% 0 0;
+        pointer-events: none;
+        background-image:
+          radial-gradient(
+            circle,
+            rgba(205, 200, 189, 0.8) 0 1.5px,
+            transparent 2.5px
+          ),
+          radial-gradient(
+            circle,
+            rgba(205, 200, 189, 0.5) 0 1px,
+            transparent 2px
+          ),
+          radial-gradient(
+            circle,
+            rgba(170, 165, 155, 0.6) 0 2px,
+            transparent 3px
+          );
+        background-size:
+          190px 230px,
+          270px 170px,
+          330px 310px;
+        animation: fall 30s linear infinite;
+      }
+      @keyframes fall {
+        to {
+          background-position:
+            60px 690px,
+            -90px 510px,
+            40px 930px;
+        }
+      }
+
+      /* ---------- Game ---------- */
+      .topbar {
+        display: flex;
+        align-items: center;
+        gap: 22px;
+        padding: 10px 24px;
+        background: var(--black);
+        color: var(--paper);
+        flex-wrap: wrap;
+      }
+      .topbar .logo {
+        font: 30px var(--f-display);
+        color: var(--paper);
+        text-decoration: none;
+        margin-right: auto;
+      }
+      .topbar .logo::first-letter {
+        color: var(--red);
+      }
+      .res {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+      .res .i {
+        color: var(--red);
+      }
+      .meter {
+        width: 170px;
+        height: 14px;
+        border: 2px solid var(--paper);
+        background: repeating-linear-gradient(
+          45deg,
+          #2a2520 0 2px,
+          transparent 2px 5px
+        );
+      }
+      .meter i {
+        display: block;
+        height: 100%;
+        background: var(--red);
+        transition: width 0.5s;
+      }
+      .who {
+        font: 24px var(--f-display);
+      }
+      .avatar-btn {
+        width: 46px;
+        height: 46px;
+        border-radius: 50%;
+        display: grid;
+        place-items: center;
+        cursor: pointer;
+        color: var(--black);
+        border: 3px solid var(--paper);
+        background: radial-gradient(
+          circle at 35% 30%,
+          #eef0f2,
+          var(--silver) 50%,
+          #6c7074
+        );
+      }
+      .topbar + .band {
+        background-color: var(--paper);
+      }
+
+      .shell {
+        display: grid;
+        grid-template-columns: 210px minmax(0, 1fr) 290px;
+        gap: 34px;
+        padding: 34px 26px 50px;
+        max-width: 1440px;
+        margin: 0 auto;
+        align-items: start;
+      }
+      @media (max-width: 1080px) {
+        .shell {
+          grid-template-columns: 190px 1fr;
+        }
+        .wanted {
+          grid-column: 1 / -1;
+        }
+      }
+      @media (max-width: 720px) {
+        .shell {
+          grid-template-columns: 1fr;
+          padding: 20px 14px;
+        }
+      }
+
+      .tabs {
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+      }
+      .tabs a {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        min-height: 50px;
+        padding: 0 16px;
+        font: 23px var(--f-display);
+        color: var(--black);
+        text-decoration: none;
+        background: var(--paper);
+        background-image: var(--paper-tex);
+        border: 3px solid var(--black);
+        box-shadow: 4px 4px 0 var(--black);
+      }
+      .tabs a:nth-child(odd) {
+        transform: rotate(-0.6deg);
+      }
+      .tabs a:nth-child(even) {
+        transform: rotate(0.5deg);
+      }
+      .tabs a:hover {
+        box-shadow: 4px 4px 0 var(--red);
+      }
+      .tabs a[aria-current] {
+        background: var(--black);
+        color: var(--paper);
+        box-shadow: 4px 4px 0 var(--red);
+      }
+      .tabs a[aria-current] .i {
+        color: var(--red);
+      }
+      .tabs a[aria-disabled='true'] {
+        color: var(--ink-soft);
+        background-color: var(--paper-dk);
+        text-decoration: line-through;
+        text-decoration-color: var(--red);
+        text-decoration-thickness: 2px;
+      }
+
+      #center {
+        padding: 50px 54px 46px;
+      }
+      @media (max-width: 720px) {
+        #center {
+          padding: 36px 22px;
+        }
+      }
+      .center-kicker {
+        font: 21px var(--f-display);
+        color: var(--red);
+        text-align: center;
+      }
+      .center-title {
+        font: 56px/1 var(--f-display);
+        text-align: center;
+      }
+      .divider {
+        display: block;
+        height: 18px;
+        margin: 18px 0 26px;
+        background: var(--folk) repeat-x center / 36px 18px;
+      }
+      .outcome-text p {
+        font-size: 22px;
+        line-height: 1.6;
+        max-width: 34em;
+        margin: 0 auto;
+      }
+      .outcome-text p::first-letter {
+        float: left;
+        width: 1.4em;
+        margin: 6px 12px 0 0;
+        font: 70px/1.15 var(--f-display);
+        text-align: center;
+        color: var(--paper);
+        background: var(--black);
+        box-shadow: 4px 4px 0 var(--red);
+      }
+      .effects {
+        list-style: none;
+        padding: 0;
+        margin: 28px 0;
+        display: flex;
+        justify-content: center;
+        gap: 12px;
+        flex-wrap: wrap;
+      }
+      .effects li {
+        padding: 2px 14px;
+        border: 2px solid var(--black);
+        font-style: italic;
+      }
+      .effects .gain {
+        background: var(--black);
+        color: var(--paper);
+        font-style: normal;
+      }
+      .effects .loss,
+      .effects .cost {
+        color: var(--red-dk);
+        border-color: var(--red);
+      }
+      .outcome-actions {
+        display: flex;
+        justify-content: center;
+        gap: 22px;
+        flex-wrap: wrap;
+      }
+      .enter {
+        animation: press 0.35s ease-out;
+      }
+      @keyframes press {
+        from {
+          opacity: 0;
+          transform: scale(1.02);
+        }
+      }
+
+      .locations {
+        list-style: none;
+        padding: 0;
+        display: grid;
+        gap: 16px;
+      }
+      .loc {
+        width: 100%;
+        display: grid;
+        grid-template-columns: 54px 1fr auto;
+        grid-template-areas: 'i n c' 'i d c';
+        gap: 0 16px;
+        align-items: center;
+        padding: 12px 16px;
+        text-align: left;
+        cursor: pointer;
+        background: transparent;
+        border: 3px solid var(--black);
+      }
+      button.loc:hover {
+        box-shadow: 5px 5px 0 var(--red);
+      }
+      .loc .i {
+        grid-area: i;
+        width: 48px;
+        height: 48px;
+        padding: 6px;
+        color: var(--paper);
+        background: var(--black);
+      }
+      .loc-name {
+        grid-area: n;
+        font: 27px/1.1 var(--f-display);
+      }
+      .loc-desc {
+        grid-area: d;
+        font-style: italic;
+        color: var(--ink-soft);
+        font-size: 18px;
+      }
+      .loc-cost {
+        grid-area: c;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        font-style: italic;
+      }
+      .loc-cost .i {
+        width: 20px;
+        height: 20px;
+        color: var(--red);
+      }
+      .locked .loc {
+        border-style: dashed;
+        color: var(--ink-soft);
+      }
+      .locked .loc .i {
+        background: var(--ink-soft);
+      }
+
+      .wanted {
+        padding: 34px 26px 30px;
+        text-align: center;
+        transform: rotate(0.8deg);
+      }
+      .wanted .kicker {
+        font: 22px var(--f-display);
+        color: var(--red);
+      }
+      .portrait {
+        width: 150px;
+        height: 150px;
+        margin: 10px auto 14px;
+        border-radius: 50%;
+        display: grid;
+        place-items: center;
+        color: var(--black);
+        background:
+          repeating-radial-gradient(
+            circle,
+            transparent 0 5px,
+            rgba(21, 18, 15, 0.14) 5px 6px
+          ),
+          var(--paper);
+        box-shadow:
+          0 0 0 4px var(--black),
+          0 0 0 9px var(--paper),
+          0 0 0 11px var(--black);
+      }
+      .portrait .i {
+        width: 100px;
+        height: 100px;
+      }
+      .wanted h2 {
+        font: 42px/1 var(--f-display);
+      }
+      .origin {
+        font-style: italic;
+        color: var(--ink-soft);
+        margin: 4px 0 14px;
+      }
+      .traits {
+        display: flex;
+        justify-content: center;
+        gap: 8px;
+        flex-wrap: wrap;
+        margin-bottom: 18px;
+      }
+      .traits span {
+        padding: 0 10px;
+        border: 2px solid var(--black);
+        font-size: 17px;
+      }
+      .stats {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        border: 3px solid var(--black);
+      }
+      .stats div + div {
+        border-left: 3px solid var(--black);
+      }
+      .stats b {
+        display: block;
+        font: 38px/1.1 var(--f-display);
+        padding-top: 6px;
+      }
+      .stats span {
+        display: block;
+        font-size: 16px;
+        padding-bottom: 6px;
+        background: var(--black);
+        color: var(--paper);
+      }
+      .purse {
+        margin-top: 18px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 8px;
+        font: 22px var(--f-display);
+      }
+      .purse .i {
+        color: var(--red);
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        *,
+        *::before,
+        *::after {
+          animation: none !important;
+          transition: none !important;
+        }
+      }
+      .loc-cost .i {
+        padding: 0;
+        background: none;
+        box-shadow: none;
+        border-radius: 0;
+      }
+    </style>
+  </head>
+  <body>
+    <div data-view="landing" class="landing wood">
+      <div class="ash" aria-hidden="true"></div>
+      <div class="notice sheet cut">
+        <span class="nail tl"></span><span class="nail tr"></span
+        ><span class="nail bl"></span><span class="nail br"></span>
+        <p class="kicker">By order of no lord at all</p>
+        <div class="medal" data-icon="wolf" aria-hidden="true"></div>
+        <h1>Ashen<span>Contracts</span></h1>
+        <div class="band" aria-hidden="true"></div>
+        <p>
+          The fires have burned low and the roads belong to monsters. Take the
+          work no one else will, and find out what you were before you woke in
+          the ash.
+        </p>
+        <div class="actions">
+          <a href="#game" class="btn btn-primary" data-go="game">Log in</a>
+          <a href="#game" class="btn" data-go="game">Create account</a>
+        </div>
+        <div class="stamp" aria-hidden="true">Paid in<br />coin</div>
+      </div>
+    </div>
+
+    <div data-view="game" class="wood" style="min-height: 100vh" hidden>
+      <header class="topbar">
+        <a href="#" class="logo" data-go="landing">Ashen Contracts</a>
+        <span class="who">Maren</span>
+        <span class="res"
+          ><span data-icon="energy"></span
+          ><span
+            class="meter"
+            role="meter"
+            aria-label="Energy"
+            aria-valuemin="0"
+            aria-valuemax="100"
+            ><i data-energy-bar></i></span
+          ><span><span data-energy></span>/100</span></span
+        >
+        <button
+          class="avatar-btn"
+          aria-label="Account menu"
+          data-icon="wolf"
+        ></button>
+      </header>
+      <div class="band" aria-hidden="true"></div>
+      <div class="shell">
+        <nav class="tabs" aria-label="Game">
+          <a href="#" data-nav="map" data-icon="map">Map</a>
+          <a href="#" data-nav="character" data-icon="character">Character</a>
+          <a href="#" data-nav="journal" data-icon="journal">Journal</a>
+          <a href="#" data-icon="stronghold" aria-disabled="true">Stronghold</a>
+          <a href="#" data-nav="ranking" data-icon="ranking">Ranking</a>
+        </nav>
+        <main id="center" class="sheet cut"></main>
+        <aside class="wanted sheet cut" aria-label="Character">
+          <span class="nail tl"></span><span class="nail tr"></span>
+          <p class="kicker">Known as</p>
+          <div class="portrait" data-icon="wolf" aria-hidden="true"></div>
+          <h2>Maren</h2>
+          <p class="origin">Fenborn, of no house she remembers</p>
+          <div class="traits">
+            <span>Light Sleeper</span><span>Old Scars</span>
+          </div>
+          <div class="stats">
+            <div><b>3</b><span>Might</span></div>
+            <div><b>5</b><span>Wits</span></div>
+            <div><b>4</b><span>Resolve</span></div>
+          </div>
+          <p class="purse">
+            <span data-icon="coins"></span><span data-crowns></span> crowns
+          </p>
+        </aside>
+      </div>
+    </div>
+
+    <script>
+      window.PROTO = {
+        divider: '<div class="divider" aria-hidden="true"></div>',
+      };
+    </script>
+    <script src="../shared/icons.js"></script>
+    <script src="../shared/proto.js"></script>
+  </body>
+</html>

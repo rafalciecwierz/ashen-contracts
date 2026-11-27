@@ -1,0 +1,779 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Crypt — round 1</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Grenze+Gotisch:wght@500;700;900&family=Alegreya:ital,wght@0,400;0,500;0,700;1,400&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      /*
+  Direction 1: Crypt (Darkest Dungeon).
+  Palette: stone #2e2c29, deep stone #1c1b19, iron #55504a, ink #0b0a09, bone #e4dac6, blood #9b2b20, torchlight #e9b35c (light only, never a flat fill).
+  Type: Grenze Gotisch (display, carved), Alegreya (body, sturdy book face).
+  The one memorable thing: heavy inked iron frames with rivets, lit from one side by a torch.
+*/
+      :root {
+        --stone: #2e2c29;
+        --stone-deep: #1c1b19;
+        --stone-hi: #3b3834;
+        --iron: #55504a;
+        --iron-hi: #8a8279;
+        --iron-lo: #2a2724;
+        --ink: #0b0a09;
+        --bone: #e4dac6;
+        --bone-dim: #b5aa96;
+        --blood: #9b2b20;
+        --blood-hi: #c03a2b;
+        --torch: #e9b35c;
+        --f-display: 'Grenze Gotisch', serif;
+        --f-body: 'Alegreya', Georgia, serif;
+        --noise: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 .55 0'/%3E%3C/filter%3E%3Crect width='240' height='240' filter='url(%23n)'/%3E%3C/svg%3E");
+        --blocks: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='120'%3E%3Cg fill='none' stroke='%23000' stroke-opacity='.45' stroke-width='3'%3E%3Cpath d='M0 1.5h220M0 61.5h220M110 0v60M0 60v60M220 60v60'/%3E%3C/g%3E%3C/svg%3E");
+      }
+      * {
+        box-sizing: border-box;
+        margin: 0;
+      }
+      body {
+        background: var(--stone-deep);
+        color: var(--bone);
+        font: 19px/1.6 var(--f-body);
+      }
+      [hidden] {
+        display: none !important;
+      }
+      .i {
+        width: 1.25em;
+        height: 1.25em;
+        flex: none;
+      }
+      button {
+        font: inherit;
+        color: inherit;
+      }
+      :focus-visible {
+        outline: 3px solid var(--torch);
+        outline-offset: 3px;
+      }
+
+      /* Stone wall used by both views */
+      .wall {
+        background-color: var(--stone);
+        background-image: var(--noise), var(--blocks);
+      }
+
+      /* Iron plate: the core ornament. Inked outline, bevel, four rivets. */
+      .plate {
+        position: relative;
+        background: linear-gradient(
+          180deg,
+          var(--iron) 0%,
+          var(--iron-lo) 100%
+        );
+        border: 3px solid var(--ink);
+        border-radius: 3px;
+        box-shadow:
+          inset 0 2px 0 rgba(255, 255, 255, 0.18),
+          inset 0 -3px 0 rgba(0, 0, 0, 0.45),
+          0 6px 0 var(--ink),
+          0 10px 24px rgba(0, 0, 0, 0.6);
+      }
+      .rivets::before,
+      .rivets::after {
+        content: '';
+        position: absolute;
+        inset: 7px;
+        pointer-events: none;
+        background:
+          radial-gradient(
+              circle at 5px 5px,
+              var(--iron-hi) 0 2px,
+              var(--ink) 3px,
+              transparent 4px
+            )
+            top left / 10px 10px no-repeat,
+          radial-gradient(
+              circle at 5px 5px,
+              var(--iron-hi) 0 2px,
+              var(--ink) 3px,
+              transparent 4px
+            )
+            top right / 10px 10px no-repeat,
+          radial-gradient(
+              circle at 5px 5px,
+              var(--iron-hi) 0 2px,
+              var(--ink) 3px,
+              transparent 4px
+            )
+            bottom left / 10px 10px no-repeat,
+          radial-gradient(
+              circle at 5px 5px,
+              var(--iron-hi) 0 2px,
+              var(--ink) 3px,
+              transparent 4px
+            )
+            bottom right / 10px 10px no-repeat;
+      }
+      .rivets::after {
+        display: none;
+      }
+
+      .btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        min-height: 52px;
+        padding: 0 26px;
+        cursor: pointer;
+        font: 700 22px/1 var(--f-display);
+        letter-spacing: 0.02em;
+        color: var(--bone);
+        background: linear-gradient(
+          180deg,
+          var(--iron) 0%,
+          var(--iron-lo) 100%
+        );
+        border: 3px solid var(--ink);
+        border-radius: 3px;
+        box-shadow:
+          inset 0 2px 0 rgba(255, 255, 255, 0.18),
+          inset 0 -3px 0 rgba(0, 0, 0, 0.45),
+          0 4px 0 var(--ink);
+        text-decoration: none;
+      }
+      .btn:hover {
+        background: linear-gradient(
+          180deg,
+          var(--iron-hi) 0%,
+          var(--iron) 100%
+        );
+      }
+      .btn:active {
+        transform: translateY(3px);
+        box-shadow:
+          inset 0 2px 0 rgba(255, 255, 255, 0.18),
+          0 1px 0 var(--ink);
+      }
+      .btn-primary {
+        background: linear-gradient(
+          180deg,
+          var(--blood-hi) 0%,
+          var(--blood) 60%,
+          #6c1d16 100%
+        );
+      }
+      .btn-primary:hover {
+        background: linear-gradient(180deg, #d4493a 0%, var(--blood-hi) 100%);
+      }
+      .btn small {
+        font: 500 15px var(--f-body);
+        opacity: 0.85;
+      }
+      .btn[disabled] {
+        opacity: 0.45;
+        cursor: not-allowed;
+      }
+
+      /* ---------- Landing ---------- */
+      .landing {
+        min-height: 100vh;
+        display: grid;
+        place-items: center;
+        padding: 48px 16px;
+        position: relative;
+        overflow: hidden;
+      }
+      .landing::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+        background:
+          radial-gradient(
+            ellipse 55% 60% at 50% 38%,
+            rgba(233, 179, 92, 0.32),
+            transparent 70%
+          ),
+          radial-gradient(
+            ellipse at center,
+            transparent 40%,
+            rgba(0, 0, 0, 0.85) 100%
+          );
+        animation: flicker 3.2s infinite steps(1);
+      }
+      @keyframes flicker {
+        0% {
+          opacity: 1;
+        }
+        12% {
+          opacity: 0.86;
+        }
+        14% {
+          opacity: 1;
+        }
+        41% {
+          opacity: 0.93;
+        }
+        44% {
+          opacity: 1;
+        }
+        70% {
+          opacity: 0.88;
+        }
+        73% {
+          opacity: 1;
+        }
+      }
+      .hero {
+        position: relative;
+        text-align: center;
+        max-width: 860px;
+      }
+      .emblem {
+        width: 120px;
+        height: 120px;
+        margin: 0 auto 8px;
+        color: var(--bone);
+        filter: drop-shadow(0 4px 0 var(--ink))
+          drop-shadow(0 0 30px rgba(233, 179, 92, 0.35));
+      }
+      .emblem .i {
+        width: 100%;
+        height: 100%;
+      }
+      .wordmark {
+        font: 900 clamp(64px, 12vw, 148px)/0.86 var(--f-display);
+        color: var(--bone);
+        text-shadow:
+          0 2px 0 #fff3,
+          0 -2px 0 #000,
+          0 6px 0 var(--ink),
+          0 0 40px rgba(233, 179, 92, 0.25);
+      }
+      .wordmark span {
+        display: block;
+        font-size: 0.5em;
+        letter-spacing: 0.08em;
+        color: var(--bone-dim);
+      }
+      .tagline {
+        margin: 28px auto 34px;
+        max-width: 34em;
+        font-size: 21px;
+        font-style: italic;
+        color: var(--bone);
+        text-shadow: 0 2px 4px #000;
+      }
+      .hero-actions {
+        display: flex;
+        gap: 18px;
+        justify-content: center;
+        flex-wrap: wrap;
+      }
+      .chain {
+        position: absolute;
+        top: 0;
+        width: 14px;
+        height: 30vh;
+        background: repeating-linear-gradient(
+          180deg,
+          transparent 0 4px,
+          var(--iron) 4px 18px,
+          transparent 18px 22px
+        );
+        border-left: 3px solid var(--ink);
+        border-right: 3px solid var(--ink);
+        opacity: 0.7;
+      }
+      .chain.l {
+        left: 12%;
+      }
+      .chain.r {
+        right: 12%;
+        height: 22vh;
+      }
+      .dust {
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+        background-image:
+          radial-gradient(
+            circle at 20% 30%,
+            rgba(233, 179, 92, 0.7) 0 1px,
+            transparent 2px
+          ),
+          radial-gradient(
+            circle at 70% 80%,
+            rgba(233, 179, 92, 0.5) 0 1.5px,
+            transparent 2.5px
+          ),
+          radial-gradient(
+            circle at 45% 60%,
+            rgba(228, 218, 198, 0.35) 0 1px,
+            transparent 2px
+          );
+        background-size:
+          173px 211px,
+          257px 193px,
+          311px 283px;
+        animation: drift 40s linear infinite;
+        opacity: 0.6;
+        mask-image: radial-gradient(
+          ellipse 60% 70% at 50% 40%,
+          #000,
+          transparent
+        );
+      }
+      @keyframes drift {
+        to {
+          background-position:
+            173px -633px,
+            -257px -579px,
+            311px -849px;
+        }
+      }
+
+      /* ---------- Game ---------- */
+      .topbar {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+        padding: 10px 20px;
+        border-bottom: 4px solid var(--ink);
+        background: linear-gradient(
+          180deg,
+          var(--iron) 0%,
+          var(--iron-lo) 100%
+        );
+        box-shadow:
+          0 4px 0 #000,
+          0 10px 20px rgba(0, 0, 0, 0.6);
+        position: relative;
+        z-index: 2;
+        flex-wrap: wrap;
+      }
+      .topbar .logo {
+        font: 900 30px/1 var(--f-display);
+        color: var(--bone);
+        text-decoration: none;
+        text-shadow: 0 3px 0 var(--ink);
+        margin-right: auto;
+      }
+      .res {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-weight: 700;
+      }
+      .res .i {
+        color: var(--torch);
+      }
+      .meter {
+        width: 160px;
+        height: 16px;
+        background: var(--ink);
+        border: 2px solid var(--ink);
+        border-radius: 2px;
+        box-shadow: 0 0 0 2px var(--iron-hi);
+        overflow: hidden;
+      }
+      .meter i {
+        display: block;
+        height: 100%;
+        background: linear-gradient(180deg, #f0c77a, var(--torch) 50%, #a8701f);
+        box-shadow: inset 0 -3px 0 rgba(0, 0, 0, 0.25);
+        transition: width 0.5s;
+      }
+      .who {
+        font: 700 22px var(--f-display);
+      }
+      .avatar-btn {
+        width: 46px;
+        height: 46px;
+        border-radius: 50%;
+        border: 3px solid var(--ink);
+        background: var(--stone-deep);
+        box-shadow: 0 0 0 2px var(--iron-hi);
+        display: grid;
+        place-items: center;
+        cursor: pointer;
+      }
+      .avatar-btn .i {
+        width: 26px;
+        height: 26px;
+      }
+
+      .shell {
+        display: grid;
+        grid-template-columns: 220px minmax(0, 1fr) 280px;
+        gap: 28px;
+        padding: 28px 24px 48px;
+        min-height: calc(100vh - 70px);
+      }
+      @media (max-width: 1080px) {
+        .shell {
+          grid-template-columns: 200px 1fr;
+        }
+        .charpanel {
+          grid-column: 1 / -1;
+        }
+      }
+      @media (max-width: 720px) {
+        .shell {
+          grid-template-columns: 1fr;
+          padding: 16px;
+        }
+      }
+
+      .sidenav {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        align-self: start;
+      }
+      .sidenav a {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        min-height: 52px;
+        padding: 0 16px;
+        font: 700 22px var(--f-display);
+        color: var(--bone);
+        text-decoration: none;
+        background: linear-gradient(90deg, var(--stone-hi), var(--stone));
+        border: 3px solid var(--ink);
+        border-radius: 3px;
+        box-shadow:
+          inset 0 2px 0 rgba(255, 255, 255, 0.08),
+          0 4px 0 var(--ink);
+      }
+      .sidenav a:hover {
+        background: linear-gradient(90deg, #4a4640, var(--stone-hi));
+      }
+      .sidenav a[aria-current] {
+        background: linear-gradient(90deg, var(--blood), #5c1912);
+        box-shadow:
+          inset 0 2px 0 rgba(255, 255, 255, 0.18),
+          0 4px 0 var(--ink),
+          0 0 0 2px var(--torch);
+      }
+      .sidenav a[aria-disabled='true'] {
+        color: var(--bone-dim);
+      }
+      .sidenav a[aria-disabled='true']::after {
+        content: 'sealed';
+        margin-left: auto;
+        font: italic 15px var(--f-body);
+      }
+
+      #center {
+        position: relative;
+        align-self: start;
+        padding: 36px 40px 40px;
+      }
+      @media (max-width: 720px) {
+        #center {
+          padding: 26px 20px;
+        }
+      }
+      .center-kicker {
+        font-style: italic;
+        color: var(--bone-dim);
+      }
+      .center-title {
+        font: 900 52px/1 var(--f-display);
+        text-shadow: 0 4px 0 var(--ink);
+      }
+      .divider {
+        display: block;
+        width: 100%;
+        height: 22px;
+        margin: 14px 0 22px;
+        color: var(--ink);
+      }
+      .outcome-text p {
+        font-size: 21px;
+        line-height: 1.65;
+        max-width: 36em;
+      }
+      .outcome-text p::first-letter {
+        float: left;
+        font: 900 76px/0.8 var(--f-display);
+        color: var(--blood-hi);
+        padding: 8px 10px 0 0;
+        text-shadow: 0 3px 0 var(--ink);
+      }
+      .effects {
+        list-style: none;
+        padding: 0;
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+        margin: 24px 0;
+      }
+      .effects li {
+        padding: 4px 14px;
+        border: 2px solid var(--ink);
+        border-radius: 2px;
+        font-weight: 700;
+        background: var(--stone-deep);
+      }
+      .effects .gain {
+        color: #f0d39a;
+      }
+      .effects .loss,
+      .effects .cost {
+        color: #f2a99f;
+      }
+      .outcome-actions {
+        display: flex;
+        gap: 16px;
+        flex-wrap: wrap;
+      }
+      .enter {
+        animation: rise 0.45s ease-out;
+      }
+      @keyframes rise {
+        from {
+          opacity: 0;
+          transform: translateY(10px);
+        }
+      }
+
+      .locations {
+        list-style: none;
+        padding: 0;
+        display: grid;
+        gap: 14px;
+      }
+      .loc {
+        width: 100%;
+        display: grid;
+        grid-template-columns: 44px 1fr auto;
+        grid-template-areas: 'i n c' 'i d c';
+        gap: 0 16px;
+        align-items: center;
+        text-align: left;
+        padding: 14px 18px;
+        cursor: pointer;
+        background: var(--stone-deep);
+        border: 3px solid var(--ink);
+        border-radius: 3px;
+        box-shadow: inset 0 0 0 2px var(--iron);
+      }
+      button.loc:hover {
+        box-shadow: inset 0 0 0 2px var(--torch);
+      }
+      .loc .i {
+        grid-area: i;
+        width: 40px;
+        height: 40px;
+        color: var(--bone-dim);
+      }
+      .loc-name {
+        grid-area: n;
+        font: 700 26px/1.1 var(--f-display);
+      }
+      .loc-desc {
+        grid-area: d;
+        font-style: italic;
+        color: var(--bone-dim);
+        font-size: 17px;
+      }
+      .loc-cost {
+        grid-area: c;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        font-weight: 700;
+        color: #f0d39a;
+      }
+      .loc-cost .i {
+        width: 20px;
+        height: 20px;
+        color: var(--torch);
+      }
+      .locked .loc {
+        opacity: 0.62;
+      }
+      .locked .loc-cost {
+        color: var(--bone-dim);
+        font-weight: 400;
+        font-style: italic;
+      }
+
+      .charpanel {
+        align-self: start;
+        padding: 26px 22px;
+        text-align: center;
+      }
+      .portrait {
+        width: 132px;
+        height: 132px;
+        margin: 0 auto 12px;
+        border-radius: 50%;
+        border: 4px solid var(--ink);
+        box-shadow:
+          0 0 0 3px var(--iron-hi),
+          0 0 0 7px var(--ink),
+          inset 0 0 30px #000;
+        background: radial-gradient(
+          circle at 50% 30%,
+          #5a4632,
+          var(--stone-deep)
+        );
+        display: grid;
+        place-items: center;
+      }
+      .portrait .i {
+        width: 80px;
+        height: 80px;
+        color: var(--bone);
+      }
+      .charpanel h2 {
+        font: 900 34px/1 var(--f-display);
+        text-shadow: 0 3px 0 var(--ink);
+      }
+      .charpanel .origin {
+        font-style: italic;
+        color: var(--bone);
+        margin-bottom: 14px;
+      }
+      .traits {
+        display: flex;
+        gap: 8px;
+        justify-content: center;
+        flex-wrap: wrap;
+        margin-bottom: 18px;
+      }
+      .traits span {
+        font-size: 16px;
+        padding: 2px 10px;
+        border: 2px solid var(--ink);
+        background: var(--stone-deep);
+        border-radius: 2px;
+      }
+      .stats {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 8px;
+      }
+      .stats div {
+        background: var(--stone-deep);
+        border: 2px solid var(--ink);
+        border-radius: 2px;
+        padding: 8px 4px;
+      }
+      .stats b {
+        display: block;
+        font: 900 32px/1 var(--f-display);
+        color: var(--bone);
+      }
+      .stats span {
+        font-size: 15px;
+        color: var(--bone-dim);
+      }
+      .purse {
+        margin-top: 16px;
+        display: flex;
+        justify-content: center;
+        gap: 8px;
+        align-items: center;
+        font-weight: 700;
+      }
+      .purse .i {
+        color: var(--torch);
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        *,
+        *::before,
+        *::after {
+          animation: none !important;
+          transition: none !important;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div data-view="landing" class="landing wall">
+      <div class="dust" aria-hidden="true"></div>
+      <div class="hero">
+        <div class="emblem" data-icon="skull" aria-hidden="true"></div>
+        <h1 class="wordmark">Ashen<span>Contracts</span></h1>
+        <p class="tagline">
+          The fires have burned low and the roads belong to monsters. Take the
+          work no one else will, and find out what you were before you woke in
+          the ash.
+        </p>
+        <div class="hero-actions">
+          <a href="#game" class="btn btn-primary" data-go="game">Log in</a>
+          <a href="#game" class="btn" data-go="game">Create account</a>
+        </div>
+      </div>
+    </div>
+
+    <div data-view="game" class="wall" hidden>
+      <header class="topbar">
+        <a href="#" class="logo" data-go="landing">Ashen Contracts</a>
+        <span class="who">Maren</span>
+        <span class="res" title="Energy"
+          ><span data-icon="energy"></span
+          ><span
+            class="meter"
+            role="meter"
+            aria-label="Energy"
+            aria-valuemin="0"
+            aria-valuemax="100"
+            ><i data-energy-bar></i></span
+          ><span><span data-energy></span>/100</span></span
+        >
+        <button
+          class="avatar-btn"
+          aria-label="Account menu"
+          data-icon="character"
+        ></button>
+      </header>
+      <div class="shell">
+        <nav class="sidenav" aria-label="Game">
+          <a href="#" data-nav="map" data-icon="map">Map</a>
+          <a href="#" data-nav="character" data-icon="character">Character</a>
+          <a href="#" data-nav="journal" data-icon="journal">Journal</a>
+          <a href="#" data-icon="stronghold" aria-disabled="true">Stronghold</a>
+          <a href="#" data-nav="ranking" data-icon="ranking">Ranking</a>
+        </nav>
+        <main id="center" class="plate rivets"></main>
+        <aside class="charpanel plate rivets" aria-label="Character">
+          <div class="portrait" data-icon="wolf" aria-hidden="true"></div>
+          <h2>Maren</h2>
+          <p class="origin">Fenborn, of no house she remembers</p>
+          <div class="traits">
+            <span>Light Sleeper</span><span>Old Scars</span>
+          </div>
+          <div class="stats">
+            <div><b>3</b><span>Might</span></div>
+            <div><b>5</b><span>Wits</span></div>
+            <div><b>4</b><span>Resolve</span></div>
+          </div>
+          <p class="purse">
+            <span data-icon="coins"></span><span data-crowns></span> crowns
+          </p>
+        </aside>
+      </div>
+    </div>
+
+    <script>
+      window.PROTO = {
+        divider:
+          '<svg class="divider" viewBox="0 0 600 22" preserveAspectRatio="none" aria-hidden="true"><path d="M0 11h250l12-8 12 8 12-8 14 8 14-8 12 8 12-8 12 8h250" fill="none" stroke="currentColor" stroke-width="4"/><circle cx="300" cy="11" r="6" fill="#9b2b20" stroke="currentColor" stroke-width="3"/></svg>',
+      };
+    </script>
+    <script src="../shared/icons.js"></script>
+    <script src="../shared/proto.js"></script>
+  </body>
+</html>

@@ -67,12 +67,13 @@ PRs are squash-merged, so the PR title becomes the commit header on `main` (GitH
 ## Where to find more context
 
 - Full game design & mechanics: `docs/GAME_DESIGN.md`
+- Visual direction (design brief, later the style guide for new components): `docs/DESIGN.md`, proposals in `docs/design/`
 - Version roadmap (what we're building now vs later): `docs/ROADMAP.md`
 - Architecture decisions and reasoning: `docs/DECISIONS.md`
 - Feature specs, one per feature, each with a `Status` (planned | in progress | done) and "Deviations from spec": `docs/features/`
 - System overview, deployment, local development: `docs/ARCHITECTURE.md`
 - Refactor/cleanup backlog with task IDs and per-task notes: `docs/REFACTOR.md`
-- Agent skills (repeatable procedures: `implement-feature`, `refactor-task`, `adr`, `tdd`, `diagnosing-bugs`, `grilling`; user-only: `/release`, and `/grill-me` as a shortcut to `grilling`): `.claude/skills/`
+- Agent skills (repeatable procedures: `implement-feature`, `refactor-task`, `adr`, `tdd`, `diagnosing-bugs`, `grilling`, `frontend-design`, `location-art`; user-only: `/release`, and `/grill-me` as a shortcut to `grilling`): `.claude/skills/`
 
 ## Current status (keep this updated)
 

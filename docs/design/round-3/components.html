@@ -1,0 +1,658 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Reliquary components</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Metamorphous&family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="reliquary.css" />
+    <style>
+      .sheet-page {
+        max-width: 1180px;
+        margin: 0 auto;
+        padding: 40px 24px 80px;
+      }
+      @media (max-width: 640px) {
+        .sheet-page {
+          padding: 28px 16px 60px;
+        }
+      }
+      .sheet-page > header {
+        margin-bottom: 34px;
+      }
+      .sheet-page > header h1 {
+        font: 44px var(--f-display);
+        font-weight: 400;
+      }
+      .sheet-page > header p {
+        color: var(--bone-dim);
+        max-width: 64ch;
+      }
+      section.group {
+        margin: 44px 0;
+      }
+      section.group > h2 {
+        font: 26px var(--f-display);
+        font-weight: 400;
+        color: var(--bronze-hi);
+        padding-bottom: 8px;
+        margin-bottom: 18px;
+        border-bottom: 1px solid var(--bronze-dk);
+      }
+      section.group > p.note {
+        color: var(--bone-dim);
+        font-size: 17px;
+        margin: -8px 0 16px;
+        max-width: 70ch;
+      }
+      .row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 22px;
+        align-items: flex-start;
+      }
+      .cell {
+        display: grid;
+        gap: 8px;
+        justify-items: start;
+      }
+      .cap {
+        font:
+          14px/1.3 system-ui,
+          sans-serif;
+        color: var(--bone-dim);
+      }
+      .cap b {
+        color: var(--bone);
+        font-weight: 600;
+      }
+
+      .swatches {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+        gap: 14px;
+      }
+      .sw {
+        border: 1px solid var(--bronze-dk);
+        background: var(--well);
+      }
+      .sw i {
+        display: block;
+        height: 64px;
+        border-bottom: 1px solid #000;
+      }
+      .sw div {
+        padding: 8px 10px;
+        font:
+          13px/1.4 system-ui,
+          sans-serif;
+        color: var(--bone-dim);
+      }
+      .sw div b {
+        display: block;
+        color: var(--bone);
+        font-size: 14px;
+      }
+      .contrast {
+        width: 100%;
+        border-collapse: collapse;
+        font:
+          14px system-ui,
+          sans-serif;
+        margin-top: 18px;
+      }
+      .contrast th,
+      .contrast td {
+        padding: 7px 10px;
+        border-bottom: 1px solid var(--bronze-dk);
+        text-align: left;
+      }
+      .contrast td.ok {
+        color: #9fd59f;
+      }
+      .contrast td.bad {
+        color: #ff9a8a;
+      }
+      .type-sample {
+        display: grid;
+        gap: 10px;
+      }
+      .type-sample .d {
+        font-family: var(--f-display);
+      }
+      .variants {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+        gap: 18px;
+      }
+      .variant {
+        padding: 20px;
+        background: var(--panel);
+        border: 1px solid var(--bronze-dk);
+        display: grid;
+        gap: 12px;
+        justify-items: start;
+      }
+      .variant h3 {
+        font: 18px var(--f-display);
+        font-weight: 400;
+      }
+      .variant .rec {
+        font:
+          13px system-ui,
+          sans-serif;
+        color: var(--fire-hi);
+      }
+      .is-focus {
+        filter: drop-shadow(0 0 0 var(--fire-hi))
+          drop-shadow(0 0 6px var(--fire-hi));
+      }
+      .input.is-focus {
+        filter: none;
+        border-color: var(--fire-hi);
+        box-shadow:
+          inset 0 2px 8px #000,
+          0 0 0 2px rgba(255, 210, 122, 0.35);
+      }
+      .demo-panel {
+        width: min(460px, 100%);
+        padding: 30px 30px 26px;
+      }
+      .demo-panel h3 {
+        font: var(--t-h2) var(--f-display);
+        font-weight: 400;
+        color: var(--bronze-hi);
+        margin-bottom: 8px;
+      }
+      .scenes {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+        gap: 18px;
+      }
+      .scenes .scene-frame {
+        height: 150px;
+        margin: 0 0 8px;
+      }
+      .plaques.demo {
+        width: 230px;
+      }
+      .tab-demo {
+        display: flex;
+        gap: 6px;
+        padding: 6px;
+        background: linear-gradient(180deg, #1f0d0b, #0a0404);
+        border-top: 1px solid var(--bronze);
+      }
+      .tab-demo span.t {
+        display: grid;
+        justify-items: center;
+        gap: 2px;
+        width: 84px;
+        padding: 4px 0;
+        font: 14px var(--f-display);
+        color: var(--bone-dim);
+      }
+      .tab-demo span.t.on {
+        color: var(--fire-hi);
+      }
+      .tab-demo .sock {
+        width: 32px;
+        height: 32px;
+      }
+      .tab-demo .sock .i {
+        width: 20px;
+        height: 20px;
+      }
+      .tab-demo .on .sock {
+        border-color: var(--fire-hi);
+        box-shadow: 0 0 10px rgba(255, 106, 26, 0.6);
+      }
+      .tab-demo .on .sock .i {
+        color: var(--fire-hi);
+      }
+
+      .variant .btn {
+        white-space: nowrap;
+        padding: 0 26px;
+      }
+      .tab-demo span.t {
+        gap: 8px;
+        padding-top: 8px;
+      }
+    </style>
+  </head>
+  <body>
+    <svg width="0" height="0" style="position: absolute" aria-hidden="true">
+      <symbol id="spike" viewBox="0 0 46 46">
+        <path
+          d="M2 44V12L0 0l12 2h32l-8 4H14q-8 0-8 8v22z"
+          fill="currentColor"
+        />
+        <path
+          d="M12 30q0-18 18-18"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+        />
+        <circle cx="12" cy="12" r="3" fill="#0f0707" />
+      </symbol>
+    </svg>
+    <main class="sheet-page">
+      <header>
+        <h1>Reliquary components</h1>
+        <p>
+          Round 3 component sheet: the parts of the chosen direction, their
+          states, and the tokens behind them (all in
+          <code>reliquary.css</code>). This is the source for DS-03 (tokens) and
+          DS-04 (Storybook components). The live prototype is
+          <a href="index.html">index.html</a>.
+        </p>
+      </header>
+
+      <section class="group">
+        <h2>Primary button colour</h2>
+        <p class="note">
+          Round 2 used blood red for "Go again". Four candidates, each on the
+          same panel. Gold matches the frames and keeps fire for energy only;
+          ember competes with the orb; verdigris is the only cool colour on
+          screen.
+        </p>
+        <div class="variants">
+          <div class="variant" data-primary="gold">
+            <h3>Gold</h3>
+            <span class="rec">Recommended</span
+            ><button class="btn btn-primary">
+              Go again <small>10 energy</small></button
+            ><button class="btn">Back to map</button>
+          </div>
+          <div class="variant" data-primary="ember">
+            <h3>Ember</h3>
+            <button class="btn btn-primary">
+              Go again <small>10 energy</small></button
+            ><button class="btn">Back to map</button>
+          </div>
+          <div class="variant" data-primary="verdigris">
+            <h3>Verdigris</h3>
+            <button class="btn btn-primary">
+              Go again <small>10 energy</small></button
+            ><button class="btn">Back to map</button>
+          </div>
+          <div class="variant" data-primary="blood">
+            <h3>Blood (round 2)</h3>
+            <button class="btn btn-primary">
+              Go again <small>10 energy</small></button
+            ><button class="btn">Back to map</button>
+          </div>
+        </div>
+      </section>
+
+      <section class="group">
+        <h2>Colour tokens</h2>
+        <div class="swatches" id="swatches"></div>
+        <table class="contrast" id="contrast">
+          <thead>
+            <tr>
+              <th>Text</th>
+              <th>On</th>
+              <th>Ratio</th>
+              <th>WCAG AA</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </section>
+
+      <section class="group">
+        <h2>Type</h2>
+        <div class="type-sample">
+          <p class="d" style="font-size: 40px; line-height: 1.1">
+            The Old Forest <span class="cap">display 40, location title</span>
+          </p>
+          <p class="d" style="font-size: 30px; color: var(--bronze-hi)">
+            A satchel in the rain
+            <span class="cap">display 30, event title</span>
+          </p>
+          <p style="font-size: 21px">
+            Under a fallen spruce lies a satchel gone stiff with rain.
+            <span class="cap">body 21, story text</span>
+          </p>
+          <p style="font-size: 20px">
+            Fenborn, of no house she remembers.
+            <span class="cap">body 20, interface text</span>
+          </p>
+          <p
+            style="font-size: 16px; font-style: italic; color: var(--bone-dim)"
+          >
+            Pines older than the kingdom.
+            <span class="cap">body 16 italic, captions</span>
+          </p>
+          <p class="d" style="font-size: 24px">
+            Zażółć gęślą jaźń —
+            <span style="font-family: var(--f-body)">Zażółć gęślą jaźń</span>
+            <span class="cap">Polish characters in both faces</span>
+          </p>
+        </div>
+      </section>
+
+      <section class="group">
+        <h2>Buttons</h2>
+        <div class="row">
+          <div class="cell">
+            <button class="btn btn-primary">
+              Go again <small>10 energy</small></button
+            ><span class="cap"><b>Primary</b></span>
+          </div>
+          <div class="cell">
+            <button class="btn">Back to map</button
+            ><span class="cap"><b>Secondary</b></span>
+          </div>
+          <div class="cell">
+            <button class="btn btn-primary is-focus">Go again</button
+            ><span class="cap"
+              ><b>Focus</b> (glow; the notched shape hides an outline)</span
+            >
+          </div>
+          <div class="cell">
+            <button class="btn btn-primary" disabled>
+              Go again <small>10 energy</small></button
+            ><span class="cap"><b>Disabled</b> (not enough energy)</span>
+          </div>
+        </div>
+      </section>
+
+      <section class="group">
+        <h2>Form fields</h2>
+        <p class="note">
+          Not on the game screens yet; they serve login, register and character
+          creation.
+        </p>
+        <div class="row">
+          <div class="field" style="width: 300px">
+            <label for="f1">Email</label
+            ><input id="f1" class="input" value="maren@fens.example" />
+          </div>
+          <div class="field" style="width: 300px">
+            <label for="f2">Character name</label
+            ><input id="f2" class="input is-focus" value="Maren" />
+          </div>
+          <div class="field error" style="width: 300px">
+            <label for="f3">Password</label
+            ><input
+              id="f3"
+              class="input"
+              type="password"
+              value="short"
+              aria-invalid="true"
+              aria-describedby="f3m"
+            /><span class="msg" id="f3m"
+              >Password must be at least 8 characters.</span
+            >
+          </div>
+        </div>
+      </section>
+
+      <section class="group">
+        <h2>Panel and title plaque</h2>
+        <div class="row">
+          <div class="goth demo-panel" id="demoPanel">
+            <h3>Panel</h3>
+            <p>
+              The base surface: bronze line inside a black bevel, spiked
+              corners, inner shadow.
+            </p>
+          </div>
+          <div class="cell" style="flex: 1; min-width: 280px">
+            <div class="titlebar" style="margin: 0">
+              <small>Pines older than the kingdom.</small>
+              <h1>The Old Forest</h1>
+            </div>
+            <span class="cap"
+              ><b>Title plaque</b>: location or page title, with a caption
+              above</span
+            >
+          </div>
+        </div>
+      </section>
+
+      <section class="group">
+        <h2>Energy</h2>
+        <div class="row">
+          <div class="cell">
+            <div class="orb-wrap" style="--fill: 100%">
+              <div class="orb"><div class="liquid"></div></div>
+              <div class="orb-ring"></div>
+              <div class="orb-num">
+                <span>100<small>energy</small></span>
+              </div>
+            </div>
+            <span class="cap"><b>Full</b></span>
+          </div>
+          <div class="cell">
+            <div class="orb-wrap" style="--fill: 54%">
+              <div class="orb"><div class="liquid"></div></div>
+              <div class="orb-ring"></div>
+              <div class="orb-num">
+                <span>54<small>energy</small></span>
+              </div>
+            </div>
+            <p class="orb-regen">+1 in <b>0:37</b></p>
+          </div>
+          <div class="cell">
+            <div class="orb-wrap" style="--fill: 8%">
+              <div class="orb"><div class="liquid"></div></div>
+              <div class="orb-ring"></div>
+              <div class="orb-num">
+                <span>8<small>energy</small></span>
+              </div>
+            </div>
+            <span class="cap"><b>Low</b>: below an adventure's cost</span>
+          </div>
+          <div class="cell">
+            <div
+              style="
+                display: flex;
+                gap: 8px;
+                align-items: center;
+                color: var(--fire-hi);
+              "
+            >
+              <span class="mini-orb" style="--fill: 54%"><i></i></span>54/100
+            </div>
+            <span class="cap"><b>Mini orb</b>: mobile top bar</span>
+          </div>
+        </div>
+      </section>
+
+      <section class="group">
+        <h2>Navigation</h2>
+        <div class="row">
+          <nav class="plaques demo" aria-label="Demo">
+            <a class="plaque" href="#" aria-current="page"
+              ><span class="sock" data-icon="map"></span>Map</a
+            >
+            <a class="plaque" href="#"
+              ><span class="sock" data-icon="character"></span>Character</a
+            >
+            <a class="plaque" href="#" aria-disabled="true"
+              ><span class="sock" data-icon="lock"></span
+              ><span>Stronghold<small>unlocks later</small></span></a
+            >
+          </nav>
+          <div class="cell">
+            <div class="tab-demo">
+              <span class="t on"
+                ><span class="sock" data-icon="map"></span>Map</span
+              ><span class="t"
+                ><span class="sock" data-icon="character"></span>Character</span
+              ><span class="t"
+                ><span class="sock" data-icon="journal"></span>Journal</span
+              ><span class="t"
+                ><span class="sock" data-icon="scroll"></span>More</span
+              >
+            </div>
+            <span class="cap"><b>Mobile tab bar</b></span>
+          </div>
+        </div>
+      </section>
+
+      <section class="group">
+        <h2>Item slots</h2>
+        <p class="note">
+          Rewards, costs and inventory share one slot. Border colour is rarity;
+          the tooltip names the thing.
+        </p>
+        <ul class="slots" style="padding-top: 74px">
+          <li class="slot" tabindex="0">
+            <span data-icon="coins"></span><b>7</b
+            ><span class="tip">7 crowns</span>
+          </li>
+          <li class="slot rare show-tip" tabindex="0">
+            <span data-icon="skull"></span
+            ><span class="tip"
+              ><strong>Tarnished ring</strong
+              ><em>Keepsake. Worth nothing to anyone but its owner.</em></span
+            >
+          </li>
+          <li class="slot cost" tabindex="0">
+            <span data-icon="energy"></span><b>10</b
+            ><span class="tip">−10 energy</span>
+          </li>
+          <li class="slot empty" tabindex="0">
+            <span class="tip">Empty</span>
+          </li>
+        </ul>
+        <p class="cap" style="margin-top: 10px">
+          <b>Common</b> · <b>Rare</b> (tooltip shown) · <b>Cost</b> ·
+          <b>Empty</b>
+        </p>
+      </section>
+
+      <section class="group">
+        <h2>Location art</h2>
+        <p class="note">
+          The four location specs from <code>shared/scenes.js</code>, in the
+          scene frame. DS-07 turns this into a skill that draws new locations
+          from a description.
+        </p>
+        <div class="scenes" id="scenes"></div>
+      </section>
+
+      <section class="group">
+        <h2>Stat tiles</h2>
+        <div class="stats" style="max-width: 300px">
+          <div><b>3</b><span>Might</span></div>
+          <div><b>5</b><span>Wits</span></div>
+          <div><b>4</b><span>Resolve</span></div>
+        </div>
+      </section>
+    </main>
+
+    <script src="../shared/icons.js"></script>
+    <script src="../shared/scenes.js"></script>
+    <script>
+      // Icons (the prototype script is not loaded here).
+      const sprite = Object.entries(window.ICONS)
+        .map(
+          ([k, p]) =>
+            `<symbol id="i-${k}" viewBox="0 0 512 512">${p.map((d) => `<path fill="currentColor" d="${d}"/>`).join('')}</symbol>`,
+        )
+        .join('');
+      document.body.insertAdjacentHTML(
+        'afterbegin',
+        `<svg style="display:none" aria-hidden="true">${sprite}</svg>`,
+      );
+      document
+        .querySelectorAll('[data-icon]')
+        .forEach((el) =>
+          el.insertAdjacentHTML(
+            'afterbegin',
+            `<svg class="i" aria-hidden="true"><use href="#i-${el.dataset.icon}"/></svg>`,
+          ),
+        );
+      document
+        .getElementById('demoPanel')
+        .insertAdjacentHTML(
+          'beforeend',
+          ['tl', 'tr', 'bl', 'br']
+            .map(
+              (c) =>
+                `<svg class="spike ${c}" aria-hidden="true"><use href="#spike"/></svg>`,
+            )
+            .join(''),
+        );
+
+      // Scenes
+      const names = {
+        clearing: 'The Clearing',
+        forest: 'The Old Forest',
+        mill: 'Mill on the Weir',
+        unknown: 'Undiscovered',
+      };
+      document.getElementById('scenes').innerHTML = Object.keys(SCENE.SPECS)
+        .map(
+          (k) =>
+            `<div><figure class="scene-frame">${SCENE(k, { w: 600, h: 240 })}</figure><span class="cap"><b>${names[k]}</b> · tone ${SCENE.SPECS[k].tone}</span></div>`,
+        )
+        .join('');
+
+      // Swatches and contrast, read from the CSS custom properties.
+      const css = getComputedStyle(document.documentElement);
+      const TOKENS = [
+        ['char', 'page background'],
+        ['panel', 'panel surface'],
+        ['panel-hi', 'panel top'],
+        ['well', 'inputs, tiles'],
+        ['bronze', 'frames'],
+        ['bronze-hi', 'spikes, headings'],
+        ['bronze-dk', 'inner lines'],
+        ['blood', 'danger'],
+        ['fire', 'energy'],
+        ['fire-hi', 'active, energy text'],
+        ['bone', 'text'],
+        ['bone-dim', 'secondary text'],
+        ['common', 'common item'],
+        ['rare', 'rare item'],
+        ['cost', 'cost'],
+        ['primary', 'primary action'],
+        ['on-primary', 'text on primary'],
+      ];
+      document.getElementById('swatches').innerHTML = TOKENS.map(
+        ([k, use]) =>
+          `<div class="sw"><i style="background: var(--${k})"></i><div><b>--${k}</b>${css.getPropertyValue('--' + k).trim()}<br>${use}</div></div>`,
+      ).join('');
+      function lum(hex) {
+        const n = parseInt(hex.replace('#', ''), 16),
+          c = [(n >> 16) & 255, (n >> 8) & 255, n & 255].map((v) => {
+            v /= 255;
+            return v <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4;
+          });
+        return 0.2126 * c[0] + 0.7152 * c[1] + 0.0722 * c[2];
+      }
+      const ratio = (a, b) => {
+        const [x, y] = [lum(a), lum(b)].sort((p, q) => q - p);
+        return (x + 0.05) / (y + 0.05);
+      };
+      const v = (k) => css.getPropertyValue('--' + k).trim();
+      const PAIRS = [
+        ['bone', 'panel', 4.5],
+        ['bone-dim', 'panel', 4.5],
+        ['bronze-hi', 'panel', 3],
+        ['fire-hi', 'panel', 4.5],
+        ['bone', 'char', 4.5],
+        ['bone-dim', 'well', 4.5],
+        ['on-primary', 'primary', 4.5],
+        ['rare', 'well', 3],
+      ];
+      document.querySelector('#contrast tbody').innerHTML = PAIRS.map(
+        ([t, b, min]) => {
+          const r = ratio(v(t), v(b));
+          return `<tr><td>--${t}</td><td>--${b}</td><td>${r.toFixed(2)}:1</td><td class="${r >= min ? 'ok' : 'bad'}">${r >= min ? 'pass' : 'fail'} (needs ${min}:1${min === 3 ? ', large text' : ''})</td></tr>`;
+        },
+      ).join('');
+    </script>
+  </body>
+</html>

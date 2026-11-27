@@ -1,0 +1,464 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Round 1 sketches</title>
+    <style>
+      :root {
+        --bg: #f3f1ec;
+        --card: #fff;
+        --line: #d9d4ca;
+        --text: #1f1d1a;
+        --muted: #5f5a52;
+        --mark: #8a3b12;
+      }
+      * {
+        box-sizing: border-box;
+        margin: 0;
+      }
+      body {
+        background: var(--bg);
+        color: var(--text);
+        font:
+          17px/1.55 system-ui,
+          -apple-system,
+          'Segoe UI',
+          sans-serif;
+      }
+      main {
+        max-width: 1180px;
+        margin: 0 auto;
+        padding: 40px 20px 64px;
+      }
+      h1 {
+        font-size: 30px;
+        margin-bottom: 8px;
+      }
+      .lead {
+        color: var(--muted);
+        max-width: 72ch;
+        margin-bottom: 32px;
+      }
+      .dir {
+        background: var(--card);
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        padding: 22px;
+        margin-bottom: 22px;
+      }
+      .dir header {
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+        gap: 16px;
+        flex-wrap: wrap;
+        margin-bottom: 12px;
+      }
+      .dir h2 {
+        font-size: 22px;
+      }
+      .dir h2 a {
+        color: inherit;
+      }
+      .dir .open {
+        font-weight: 600;
+        color: var(--mark);
+      }
+      .shots {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 10px;
+        margin-bottom: 14px;
+      }
+      @media (max-width: 760px) {
+        .shots {
+          grid-template-columns: 1fr;
+        }
+      }
+      .shots a {
+        display: block;
+        border: 1px solid var(--line);
+        border-radius: 4px;
+        overflow: hidden;
+      }
+      .shots img {
+        display: block;
+        width: 100%;
+        height: auto;
+      }
+      .meta {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 6px 28px;
+        color: var(--muted);
+        font-size: 15px;
+      }
+      @media (max-width: 760px) {
+        .meta {
+          grid-template-columns: 1fr;
+        }
+      }
+      .meta b {
+        color: var(--text);
+        font-weight: 600;
+      }
+      .verdict {
+        margin-top: 12px;
+      }
+      table {
+        border-collapse: collapse;
+        width: 100%;
+        background: var(--card);
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        overflow: hidden;
+        font-size: 15px;
+        margin: 8px 0 28px;
+      }
+      th,
+      td {
+        padding: 9px 12px;
+        border-bottom: 1px solid var(--line);
+        text-align: center;
+      }
+      th:first-child,
+      td:first-child {
+        text-align: left;
+      }
+      thead th {
+        background: #ebe7df;
+      }
+      tr.best td {
+        background: #fbf3e9;
+        font-weight: 600;
+      }
+      .table-wrap {
+        overflow-x: auto;
+      }
+      h3 {
+        font-size: 20px;
+        margin: 34px 0 10px;
+      }
+      ul {
+        padding-left: 22px;
+        max-width: 76ch;
+      }
+      li {
+        margin-bottom: 8px;
+      }
+      footer {
+        color: var(--muted);
+        font-size: 14px;
+        margin-top: 40px;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <h1>Design round 1: sketches</h1>
+      <p class="lead">
+        Five directions from the brief in <code>docs/DESIGN.md</code>. Each
+        sketch is a landing page and the desktop game screen. "Log in" opens the
+        game with the outcome of an adventure in the Old Forest; "Back to map",
+        the locations and "Go again" work, and energy goes down as you play.
+        Click a screenshot to open the sketch. Mobile, the component sheet and
+        refinement come in round 2, for the one or two directions picked here.
+      </p>
+
+      <section class="dir">
+        <header>
+          <h2><a href="crypt.html">1. Crypt</a></h2>
+          <a class="open" href="crypt.html">Open sketch</a>
+        </header>
+        <div class="shots">
+          <a href="crypt.html"
+            ><img
+              src="img/crypt-landing.jpg"
+              alt="Crypt landing page"
+              loading="lazy" /></a
+          ><a href="crypt.html#game"
+            ><img
+              src="img/crypt-game.jpg"
+              alt="Crypt game screen"
+              loading="lazy" /></a
+          ><a href="crypt.html#game"
+            ><img src="img/crypt-map.jpg" alt="Crypt map" loading="lazy"
+          /></a>
+        </div>
+        <div class="meta">
+          <p><b>Reference:</b> Darkest Dungeon.</p>
+          <p><b>Type:</b> Grenze Gotisch, Alegreya.</p>
+          <p>
+            <b>Palette:</b> stone grey, inked black, bone, blood red; torchlight
+            only as lighting.
+          </p>
+          <p><b>Memorable thing:</b> heavy inked iron plates with rivets.</p>
+        </div>
+        <p class="verdict">
+          Strong mood and cheap to build (CSS only). The weak spot is
+          distinctiveness: stone, blood and a gothic face are what most
+          dark-fantasy UIs reach for, and the brick wall tiles visibly.
+        </p>
+      </section>
+
+      <section class="dir">
+        <header>
+          <h2><a href="grimoire.html">2. Grimoire</a></h2>
+          <a class="open" href="grimoire.html">Open sketch</a>
+        </header>
+        <div class="shots">
+          <a href="grimoire.html"
+            ><img
+              src="img/grimoire-landing.jpg"
+              alt="Grimoire landing page"
+              loading="lazy" /></a
+          ><a href="grimoire.html#game"
+            ><img
+              src="img/grimoire-game.jpg"
+              alt="Grimoire game screen"
+              loading="lazy" /></a
+          ><a href="grimoire.html#game"
+            ><img src="img/grimoire-map.jpg" alt="Grimoire map" loading="lazy"
+          /></a>
+        </div>
+        <div class="meta">
+          <p><b>Reference:</b> a Dungeons &amp; Dragons tome.</p>
+          <p><b>Type:</b> Texturina, Vollkorn.</p>
+          <p>
+            <b>Palette:</b> oxblood leather, vellum, iron-gall ink, oak-gall
+            green, gilt.
+          </p>
+          <p>
+            <b>Memorable thing:</b> the game inside an open book, ribbon
+            bookmarks as navigation, illuminated initials.
+          </p>
+        </div>
+        <p class="verdict">
+          The most legible for long reading (dark ink on vellum) and the
+          clearest metaphor. The book breaks on a phone: two pages and side
+          ribbons have to become something else, which costs design work in
+          round 2.
+        </p>
+      </section>
+
+      <section class="dir">
+        <header>
+          <h2><a href="broadside.html">3. Broadside</a></h2>
+          <a class="open" href="broadside.html">Open sketch</a>
+        </header>
+        <div class="shots">
+          <a href="broadside.html"
+            ><img
+              src="img/broadside-landing.jpg"
+              alt="Broadside landing page"
+              loading="lazy" /></a
+          ><a href="broadside.html#game"
+            ><img
+              src="img/broadside-game.jpg"
+              alt="Broadside game screen"
+              loading="lazy" /></a
+          ><a href="broadside.html#game"
+            ><img
+              src="img/broadside-map.jpg"
+              alt="Broadside map"
+              loading="lazy"
+          /></a>
+        </div>
+        <div class="meta">
+          <p>
+            <b>Reference:</b> the Witcher's Northern Kingdoms, woodcut
+            broadsides.
+          </p>
+          <p><b>Type:</b> New Rocker, Sorts Mill Goudy.</p>
+          <p>
+            <b>Palette:</b> ash-grey rag paper, woodblock black, cinnabar, wolf
+            silver, dark wood.
+          </p>
+          <p>
+            <b>Memorable thing:</b> every surface is a printed notice nailed to
+            wood, framed in cut-wood hatching and a folk band; ash falls on the
+            landing page.
+          </p>
+        </div>
+        <p class="verdict">
+          The most distinctive and the closest to "contracts for coin".
+          Two-colour print gives strong hierarchy with few tokens, and offset
+          shadows make buttons feel physical. It is a light theme, which few
+          dark-fantasy games dare, so it needs a deliberate dark counterpart
+          later (night, or the stronghold).
+        </p>
+      </section>
+
+      <section class="dir">
+        <header>
+          <h2><a href="forge.html">4. Forge</a></h2>
+          <a class="open" href="forge.html">Open sketch</a>
+        </header>
+        <div class="shots">
+          <a href="forge.html"
+            ><img
+              src="img/forge-landing.jpg"
+              alt="Forge landing page"
+              loading="lazy" /></a
+          ><a href="forge.html#game"
+            ><img
+              src="img/forge-game.jpg"
+              alt="Forge game screen"
+              loading="lazy" /></a
+          ><a href="forge.html#game"
+            ><img src="img/forge-map.jpg" alt="Forge map" loading="lazy"
+          /></a>
+        </div>
+        <div class="meta">
+          <p><b>Reference:</b> the owner's landing logo.</p>
+          <p><b>Type:</b> Metamorphous, EB Garamond.</p>
+          <p><b>Palette:</b> cold slate, forged iron, ash white, ember glow.</p>
+          <p>
+            <b>Memorable thing:</b> bevelled iron frames and a glowing rune ring
+            over the active panel; the logo itself with rising embers on the
+            landing page.
+          </p>
+        </div>
+        <p class="verdict">
+          The landing page is the most spectacular, because the logo does the
+          work. The game screens look like many mobile RPGs: dark plus orange
+          glow is exactly the generated-design tell the skill warns about, and
+          the iron gradients are the hardest to turn into tokens.
+        </p>
+      </section>
+
+      <section class="dir">
+        <header>
+          <h2><a href="lantern.html">5. Lantern</a></h2>
+          <a class="open" href="lantern.html">Open sketch</a>
+        </header>
+        <div class="shots">
+          <a href="lantern.html"
+            ><img
+              src="img/lantern-landing.jpg"
+              alt="Lantern landing page"
+              loading="lazy" /></a
+          ><a href="lantern.html#game"
+            ><img
+              src="img/lantern-game.jpg"
+              alt="Lantern game screen"
+              loading="lazy" /></a
+          ><a href="lantern.html#game"
+            ><img src="img/lantern-map.jpg" alt="Lantern map" loading="lazy"
+          /></a>
+        </div>
+        <div class="meta">
+          <p><b>Reference:</b> Fallen London, Sunless Sea.</p>
+          <p><b>Type:</b> Bodoni Moda, Newsreader.</p>
+          <p>
+            <b>Palette:</b> abyssal teal, verdigris, brass, bone, lamplight.
+          </p>
+          <p>
+            <b>Memorable thing:</b> storylet cards with brass filigree and oval
+            cameos; a lighthouse beam sweeps the landing page.
+          </p>
+        </div>
+        <p class="verdict">
+          Elegant and calm, with the best map (cards with cameos). It is the
+          furthest from the Witcher and Darkest Dungeon: Victorian sea-gothic
+          rather than a dirty road, so it fits the references only in part.
+        </p>
+      </section>
+
+      <h3>Scores</h3>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Direction</th>
+              <th>Mood</th>
+              <th>Legibility</th>
+              <th>Distinctive</th>
+              <th>Mobile</th>
+              <th>Cost (5 = cheap)</th>
+              <th>Total</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Crypt</td>
+              <td>4</td>
+              <td>4</td>
+              <td>3</td>
+              <td>4</td>
+              <td>4</td>
+              <td>19</td>
+            </tr>
+            <tr>
+              <td>Grimoire</td>
+              <td>4</td>
+              <td>5</td>
+              <td>4</td>
+              <td>3</td>
+              <td>3</td>
+              <td>19</td>
+            </tr>
+            <tr class="best">
+              <td>Broadside</td>
+              <td>5</td>
+              <td>5</td>
+              <td>5</td>
+              <td>4</td>
+              <td>4</td>
+              <td>23</td>
+            </tr>
+            <tr>
+              <td>Forge</td>
+              <td>4</td>
+              <td>4</td>
+              <td>2</td>
+              <td>4</td>
+              <td>3</td>
+              <td>17</td>
+            </tr>
+            <tr>
+              <td>Lantern</td>
+              <td>3</td>
+              <td>4</td>
+              <td>4</td>
+              <td>4</td>
+              <td>4</td>
+              <td>19</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>Recommendation</h3>
+      <ul>
+        <li>
+          <b>Take Broadside to round 2</b> as the main direction: it scores
+          highest on mood and distinctiveness, and its inked, two-colour look
+          also fits the outlined style of <code>logo-game.svg</code> (in a new
+          palette, without the violet).
+        </li>
+        <li>
+          <b>Take Grimoire as the second</b>, if you want a darker, richer
+          alternative to compare against in full, mobile included.
+        </li>
+        <li>
+          <b>Keep Forge's landing idea</b> whatever wins: the logo with embers
+          is the strongest first impression. Round 2 can test it on top of the
+          chosen direction.
+        </li>
+        <li>
+          Ideas worth borrowing across directions: Lantern's map cards with
+          cameos, Crypt's rivets for locked or sealed things, Grimoire's
+          illuminated initial.
+        </li>
+      </ul>
+
+      <footer>
+        Icons: <a href="https://game-icons.net">game-icons.net</a> by Lorc and
+        Delapouite, CC BY 3.0. Fonts: Google Fonts (OFL), every one with Polish
+        characters. Textures are generated in SVG.
+      </footer>
+    </main>
+  </body>
+</html>
