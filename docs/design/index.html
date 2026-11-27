@@ -1,0 +1,163 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Design rounds</title>
+    <style>
+      :root {
+        --bg: #f3f1ec;
+        --card: #fff;
+        --line: #d9d4ca;
+        --text: #1f1d1a;
+        --muted: #5f5a52;
+        --mark: #8a3b12;
+      }
+      * {
+        box-sizing: border-box;
+        margin: 0;
+      }
+      body {
+        background: var(--bg);
+        color: var(--text);
+        font:
+          17px/1.55 system-ui,
+          -apple-system,
+          'Segoe UI',
+          sans-serif;
+      }
+      main {
+        max-width: 1100px;
+        margin: 0 auto;
+        padding: 40px 20px 64px;
+      }
+      h1 {
+        font-size: 30px;
+        margin-bottom: 8px;
+      }
+      .lead {
+        color: var(--muted);
+        max-width: 72ch;
+        margin-bottom: 28px;
+      }
+      .round {
+        background: var(--card);
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        padding: 22px;
+        margin-bottom: 20px;
+      }
+      .round h2 {
+        font-size: 21px;
+        margin-bottom: 4px;
+      }
+      .round .out {
+        color: var(--mark);
+        font-weight: 600;
+        margin-bottom: 12px;
+      }
+      .round p {
+        color: var(--muted);
+        max-width: 76ch;
+      }
+      .links {
+        display: flex;
+        gap: 16px;
+        flex-wrap: wrap;
+        margin-top: 12px;
+      }
+      .links a {
+        font-weight: 600;
+        color: var(--mark);
+      }
+      .shots {
+        display: grid;
+        grid-template-columns: 2fr 2fr 1fr;
+        gap: 10px;
+        margin: 14px 0 4px;
+        align-items: start;
+      }
+      @media (max-width: 760px) {
+        .shots {
+          grid-template-columns: 1fr;
+        }
+      }
+      .shots img {
+        width: 100%;
+        height: auto;
+        display: block;
+        border: 1px solid var(--line);
+        border-radius: 4px;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <h1>Design rounds</h1>
+      <p class="lead">
+        How the visual direction of Ashen Contracts was chosen. The brief and
+        the decisions are written down in <code>docs/DESIGN.md</code>; this page
+        links the prototypes. Each one is static HTML and can be opened straight
+        from disk.
+      </p>
+
+      <section class="round">
+        <h2>Round 3: Reliquary, refined</h2>
+        <p class="out">Current direction</p>
+        <p>
+          The Forge landing page leading into the Reliquary game screen: the
+          whole loop (map, adventure, outcome, go again), location art above the
+          event text, the energy orb with a regeneration countdown, an account
+          menu, the character view, and a mobile layout with a bottom tab bar
+          and a "More" sheet. The component sheet lists every part, its states
+          and its tokens, and compares four colours for the primary button.
+        </p>
+        <div class="shots">
+          <a href="round-3/index.html#game"
+            ><img
+              src="round-3/img/game.jpg"
+              alt="Round 3 game screen"
+              loading="lazy"
+          /></a>
+          <a href="round-3/components.html"
+            ><img
+              src="round-3/img/components.jpg"
+              alt="Round 3 component sheet"
+              loading="lazy"
+          /></a>
+          <a href="round-3/index.html#game"
+            ><img
+              src="round-3/img/mobile.jpg"
+              alt="Round 3 on a phone"
+              loading="lazy"
+          /></a>
+        </div>
+        <div class="links">
+          <a href="round-3/index.html">Prototype</a
+          ><a href="round-3/components.html">Component sheet</a>
+        </div>
+      </section>
+
+      <section class="round">
+        <h2>Round 2: game views</h2>
+        <p class="out">Picked: Reliquary, with Panorama's location art</p>
+        <p>
+          Four game screens in the Forge family, each with its own composition:
+          Panorama, Map table, Fate cards, Reliquary.
+        </p>
+        <div class="links"><a href="round-2/index.html">Comparison</a></div>
+      </section>
+
+      <section class="round">
+        <h2>Round 1: sketches</h2>
+        <p class="out">Picked: the Forge landing page; no game screen</p>
+        <p>
+          Five directions (Crypt, Grimoire, Broadside, Forge, Lantern), each a
+          landing page and a game screen. The game screens were rejected for
+          sharing one skeleton under different skins.
+        </p>
+        <div class="links"><a href="round-1/index.html">Comparison</a></div>
+      </section>
+    </main>
+  </body>
+</html>

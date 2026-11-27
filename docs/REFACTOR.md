@@ -19,7 +19,7 @@ Status legend: ⬜ TODO · 🔶 IN PROGRESS · ✅ DONE · 🚫 DROPPED
 4. **API hardening:** API-01 → API-14
 5. **Frontend:** WEB-01 → WEB-14, UI-01 → UI-07
 6. Everything else
-7. **Design system:** DS-01, DS-02, DS-06 (proposal rounds), DS-03, DS-04, DS-05, then continue with the v0.1 roadmap (game layout, character creation)
+7. **Design system:** DS-01, DS-02, DS-06 (proposal rounds), DS-07 (location art), DS-03, DS-04, DS-05, then continue with the v0.1 roadmap (game layout, character creation)
 
 ---
 
@@ -1252,8 +1252,18 @@ Added on 2026-11-26. The app looks generic: `packages/ui/src/styles/theme.css` s
 
 **Status:** 🔶 IN PROGRESS
 
-**Notes:** Round 1 (2026-11-26) is in `docs/design/round-1/`: five sketches (Crypt, Grimoire, Broadside, Forge, Lantern), each a landing page and the desktop game screen sharing one prototype script (`proto.js`: landing → game, map → adventure → outcome, energy), with screenshots and a scored comparison in `index.html`. Fonts were checked for Polish characters through the Google Fonts `latin-ext` subset (IM Fell, UnifrakturMaguntia, Macondo and Germania One failed). Icons are copied from game-icons.net (CC BY 3.0, credited in `icons.js` and the index). The owner picked the Forge landing page and none of the game screens: they all read as generated, because they shared one layout skeleton. Round 2 (same day) is in `docs/design/round-2/`: four game views in the Forge family with different compositions (Panorama, Map table, Fate cards, Reliquary). Shared scripts moved to `docs/design/shared/`; `proto.js` gained per-page view templates, and `scenes.js` draws placeholder location panoramas in SVG. On 2026-11-27 the owner picked Reliquary as the game screen, with three keepers (palette and ornaments, the energy orb, icons and item slots), one change (a primary button that is not red) and one borrowing (Panorama's scene frame with the location's name above the event text); recorded in `docs/DESIGN.md`. Next: round 3, refining Reliquary.
+**Notes:** Round 1 (2026-11-26) is in `docs/design/round-1/`: five sketches (Crypt, Grimoire, Broadside, Forge, Lantern), each a landing page and the desktop game screen sharing one prototype script (`proto.js`: landing → game, map → adventure → outcome, energy), with screenshots and a scored comparison in `index.html`. Fonts were checked for Polish characters through the Google Fonts `latin-ext` subset (IM Fell, UnifrakturMaguntia, Macondo and Germania One failed). Icons are copied from game-icons.net (CC BY 3.0, credited in `icons.js` and the index). The owner picked the Forge landing page and none of the game screens: they all read as generated, because they shared one layout skeleton. Round 2 (same day) is in `docs/design/round-2/`: four game views in the Forge family with different compositions (Panorama, Map table, Fate cards, Reliquary). Shared scripts moved to `docs/design/shared/`; `proto.js` gained per-page view templates, and `scenes.js` draws placeholder location panoramas in SVG. On 2026-11-27 the owner picked Reliquary as the game screen, with three keepers (palette and ornaments, the energy orb, icons and item slots), one change (a primary button that is not red) and one borrowing (Panorama's SVG location art above the event text, inside Reliquary's own frame); recorded in `docs/DESIGN.md`. Round 3 (2026-11-27) is in `docs/design/round-3/`: one prototype from the Forge landing into Reliquary (location art above the event text, an account menu, a regeneration countdown under the orb, the character view, a mobile layout with a bottom tab bar and a "More" sheet), a component sheet with states, colour tokens and a WCAG contrast table (every pair passes AA), and four primary-button colours to compare (gold recommended). The styles live in `round-3/reliquary.css` as custom properties, ready for DS-03. `shared/scenes.js` now describes each location as data (a tone and layers from a fixed vocabulary), the base for DS-07. Verified by clicking through every prototype of all three rounds in a headless browser (no console errors) and reviewing screenshots at 1440 px and 390 px. The owner picked gold for the primary button (2026-11-27; recorded in `docs/DESIGN.md`).
 
 **Fix:** Run the rounds described in `docs/DESIGN.md` "Process" in `docs/design/round-N/`: sketches of as many directions as are worth trying, full versions of the chosen one or two (mobile, component sheet, the whole loop), and refinement of the winner. Each round gets an `index.html` and a scored comparison; the owner picks.
 
 **Done when:** the owner has chosen one direction with desktop and mobile designs, and `docs/DESIGN.md` names it.
+
+### DS-07 — Skill for location art
+
+**Status:** ⬜ TODO
+
+**Problem:** Every location needs art in one consistent style. The round-2 landscapes (`docs/design/shared/scenes.js`) look right, but each was drawn by hand in code.
+
+**Fix:** Describe a scene as data (a list of layers from a fixed vocabulary: ridge, pines, dead trees, mist, water, buildings, fire, smoke, moon, birds), render it to a static SVG file, and add a project skill that turns a location description into such a spec and file, following written style rules (layer order, depth, palette tones, composition, size budget).
+
+**Done when:** given a short description of a new location, the skill produces an SVG that sits next to the existing scenes without looking out of place, and the style rules are written down.

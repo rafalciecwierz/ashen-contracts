@@ -7,8 +7,8 @@ The visual direction of the game: first the brief everyone agreed to (DS-02), th
 **Reliquary: what stays, what changes.**
 
 - Stays: the palette (char, bronze, blood, fire) and the ornaments (gothic spiked corners, spiked plaques, diamond sockets); the energy orb of liquid fire in the left column; the game-icons.net icons; reward and item slots with rarity borders and tooltips.
-- Changes: the primary button ("Go again") is no longer blood red; round 3 tries other colours. Individual components will be reworked as they are built.
-- Borrowed from Panorama: a decorated scene frame for each location (SVG art, the location's name on a plaque) above the event text.
+- Changes: the primary button ("Go again") is no longer blood red. Round 3 compared gold, ember, verdigris and blood; the owner picked **gold** (2026-11-27): it belongs to the bronze frames, and fire stays reserved for energy. Individual components will be reworked as they are built.
+- Borrowed from Panorama: the location art itself (the layered SVG landscapes of the Clearing, the Old Forest and so on), shown above the event text inside Reliquary's own frame. Panorama's frame and caption style are not taken.
 
 **Lesson from round 1:** five skins over one skeleton (centred title, divider, drop cap, two buttons, chips, round portrait, three stat tiles) all read as generated. A direction has to change the composition and borrow the vocabulary of real games (a scene, a map with pins, cards, an orb, item slots), not only the texture. Real illustration lifts a screen more than any CSS ornament.
 
@@ -74,7 +74,8 @@ The `frontend-design` skill lists the traits that make generated design look gen
 ## Process
 
 1. **Round 1, sketches** (`docs/design/round-1/`): as many directions as are worth trying, each as a landing page and the desktop game screen, with a clickable path: "Log in" on the landing page opens the game screen. Outcome: the Forge landing page; no game screen.
-   **Round 2, game views** (`docs/design/round-2/`): four new game screens in the Forge family, each with its own composition. Outcome: Reliquary, with Panorama's scene frame.
+   **Round 2, game views** (`docs/design/round-2/`): four new game screens in the Forge family, each with its own composition. Outcome: Reliquary, with Panorama's location art.
+   **Round 3, refinement** (`docs/design/round-3/`): the Forge landing leading into Reliquary, desktop and mobile, with a component sheet (`components.html`) and the styles in one file of custom properties (`reliquary.css`). Overview of all rounds: `docs/design/index.html`.
 2. **Round 2, full versions** of the chosen one or two: mobile, a component sheet (button, input, panel, energy meter, navigation item), and the whole loop: map → the forest → outcome → "Go again" / "Back to map".
 3. **Round 3, refinement** of the winner.
 4. **Then:** tokens can be written as soon as the direction is chosen (DS-03); components are extracted into Storybook from the finished desktop and mobile design (DS-04); this file becomes the style guide (DS-05).

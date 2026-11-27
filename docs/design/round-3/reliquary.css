@@ -1,0 +1,627 @@
+/*
+  Reliquary — round 3 styles, shared by the prototype (index.html) and the component sheet (components.html).
+  Every colour, font and size is a custom property here, so DS-03 can lift them into theme.css.
+*/
+:root {
+  /* surfaces */
+  --char: #0f0707;
+  --panel: #1a0d0c;
+  --panel-hi: #2a1513;
+  --well: #0d0505;
+  /* metal */
+  --bronze: #9c6b38;
+  --bronze-hi: #d9a45f;
+  --bronze-dk: #4e3018;
+  /* accents */
+  --blood: #a3191b;
+  --blood-hi: #c92a22;
+  --fire: #ff6a1a;
+  --fire-hi: #ffd27a;
+  /* text */
+  --bone: #e9dccb;
+  --bone-dim: #bba893;
+  /* rarity */
+  --common: #8f8579;
+  --rare: #e3b347;
+  --cost: #c92a22;
+  /* primary action: switchable for the round-3 comparison (html[data-primary]) */
+  --primary-hi: #f0c46a;
+  --primary: #c48a35;
+  --primary-lo: #6e4716;
+  --on-primary: #1d0f04;
+  /* type */
+  --f-display: 'Metamorphous', serif;
+  --f-body: 'EB Garamond', Georgia, serif;
+  --t-body: 20px;
+  --t-lead: 21px;
+  --t-small: 16px;
+  --t-h1: 40px;
+  --t-h2: 30px;
+  /* shape */
+  --spike: 46px;
+  --notch: 16px;
+  --grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 .4 0'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+[data-primary='gold'] {
+  --primary-hi: #f0c46a;
+  --primary: #c48a35;
+  --primary-lo: #6e4716;
+  --on-primary: #1d0f04;
+}
+[data-primary='ember'] {
+  --primary-hi: #ffc070;
+  --primary: #e8641a;
+  --primary-lo: #7a2a08;
+  --on-primary: #1d0702;
+}
+[data-primary='verdigris'] {
+  --primary-hi: #8fc4b0;
+  --primary: #3f7a68;
+  --primary-lo: #1d3d33;
+  --on-primary: #f4eee2;
+}
+[data-primary='blood'] {
+  --primary-hi: #e0392c;
+  --primary: #a3191b;
+  --primary-lo: #5a0c0d;
+  --on-primary: #fff2e0;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+}
+body {
+  min-height: 100vh;
+  color: var(--bone);
+  font: var(--t-body) / 1.6 var(--f-body);
+  background: var(--char);
+  background-image:
+    var(--grain),
+    radial-gradient(ellipse 80% 60% at 50% 0%, #3a0f0d, var(--char) 65%);
+  background-attachment: fixed;
+}
+[hidden] {
+  display: none !important;
+}
+.i {
+  width: 1.2em;
+  height: 1.2em;
+  flex: none;
+}
+button {
+  font: inherit;
+  color: inherit;
+}
+a {
+  color: var(--bronze-hi);
+}
+:focus-visible {
+  outline: 2px solid var(--fire-hi);
+  outline-offset: 3px;
+}
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+/* ---------- Panel with spiked corners ---------- */
+.goth {
+  position: relative;
+  background: linear-gradient(180deg, var(--panel-hi), var(--panel));
+  border: 1px solid var(--bronze);
+  box-shadow:
+    inset 0 0 0 3px #000,
+    inset 0 0 0 4px var(--bronze-dk),
+    inset 0 0 40px rgba(0, 0, 0, 0.6),
+    0 16px 34px rgba(0, 0, 0, 0.7);
+}
+.spike {
+  position: absolute;
+  width: var(--spike);
+  height: var(--spike);
+  color: var(--bronze-hi);
+  pointer-events: none;
+  filter: drop-shadow(0 2px 2px #000);
+}
+.spike.tl {
+  top: -12px;
+  left: -12px;
+}
+.spike.tr {
+  top: -12px;
+  right: -12px;
+  transform: scaleX(-1);
+}
+.spike.bl {
+  bottom: -12px;
+  left: -12px;
+  transform: scaleY(-1);
+}
+.spike.br {
+  bottom: -12px;
+  right: -12px;
+  transform: scale(-1);
+}
+
+/* ---------- Buttons ---------- */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  min-height: 54px;
+  padding: 0 34px;
+  cursor: pointer;
+  text-decoration: none;
+  font: 20px var(--f-display);
+  color: var(--bone);
+  background: linear-gradient(180deg, #3a1d18, #1c0c0a);
+  border: 1px solid var(--bronze);
+  clip-path: polygon(
+    var(--notch) 0,
+    calc(100% - var(--notch)) 0,
+    100% 50%,
+    calc(100% - var(--notch)) 100%,
+    var(--notch) 100%,
+    0 50%
+  );
+  box-shadow: inset 0 0 0 2px #000;
+}
+.btn:hover {
+  background: linear-gradient(180deg, #4d2620, #26110e);
+}
+.btn:active {
+  transform: translateY(1px);
+}
+.btn-primary {
+  color: var(--on-primary);
+  background: linear-gradient(
+    180deg,
+    var(--primary-hi),
+    var(--primary) 55%,
+    var(--primary-lo)
+  );
+  border-color: var(--primary-hi);
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.18);
+}
+.btn-primary:hover {
+  background: linear-gradient(
+    180deg,
+    var(--primary-hi),
+    var(--primary-hi) 20%,
+    var(--primary) 100%
+  );
+}
+.btn small {
+  font: italic 15px var(--f-body);
+  opacity: 0.85;
+}
+.btn[disabled],
+.btn[aria-disabled='true'] {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+/* clip-path hides the outline, so focus goes on a glow */
+.btn:focus-visible {
+  outline: none;
+  filter: drop-shadow(0 0 0 var(--fire-hi)) drop-shadow(0 0 6px var(--fire-hi));
+}
+
+/* ---------- Form fields ---------- */
+.field {
+  display: grid;
+  gap: 6px;
+}
+.field label {
+  font: 17px var(--f-display);
+  color: var(--bone-dim);
+}
+.input {
+  min-height: 50px;
+  padding: 0 16px;
+  font: 19px var(--f-body);
+  color: var(--bone);
+  background: var(--well);
+  border: 1px solid var(--bronze-dk);
+  box-shadow: inset 0 2px 8px #000;
+}
+.input:hover {
+  border-color: var(--bronze);
+}
+.input:focus {
+  outline: none;
+  border-color: var(--fire-hi);
+  box-shadow:
+    inset 0 2px 8px #000,
+    0 0 0 2px rgba(255, 210, 122, 0.35);
+}
+.field.error .input {
+  border-color: var(--blood-hi);
+}
+.field .msg {
+  font-size: 16px;
+  color: #ff9a8a;
+}
+
+/* ---------- Title plaque ---------- */
+.titlebar {
+  position: relative;
+  margin: 0 auto 30px;
+  width: max-content;
+  max-width: 100%;
+  padding: 10px 70px;
+  text-align: center;
+  background: linear-gradient(180deg, #3a1a16, #1a0b09);
+  border: 1px solid var(--bronze);
+  clip-path: polygon(
+    0 50%,
+    40px 0,
+    calc(100% - 40px) 0,
+    100% 50%,
+    calc(100% - 40px) 100%,
+    40px 100%
+  );
+}
+.titlebar small {
+  display: block;
+  font: italic var(--t-small) var(--f-body);
+  color: var(--bone-dim);
+}
+.titlebar h1 {
+  font: var(--t-h1) / 1.1 var(--f-display);
+  font-weight: 400;
+}
+
+/* ---------- Energy orb ---------- */
+.orb-wrap {
+  position: relative;
+  width: 170px;
+  height: 170px;
+  margin: 0 auto;
+}
+.orb {
+  position: absolute;
+  inset: 14px;
+  border-radius: 50%;
+  overflow: hidden;
+  background: radial-gradient(circle at 50% 40%, #2a0d08, #070202);
+  box-shadow: inset 0 0 20px #000;
+}
+.orb .liquid {
+  position: absolute;
+  left: -50%;
+  right: -50%;
+  bottom: 0;
+  height: var(--fill, 50%);
+  background: radial-gradient(
+    ellipse at 50% 0%,
+    var(--fire-hi),
+    var(--fire) 30%,
+    #a62a08 70%,
+    #4a0c03
+  );
+  transition: height 0.6s ease;
+}
+.orb .liquid::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: -10px;
+  height: 20px;
+  background:
+    radial-gradient(
+      ellipse 25% 50% at 25% 100%,
+      var(--fire-hi),
+      transparent 70%
+    ),
+    radial-gradient(
+      ellipse 25% 50% at 75% 100%,
+      var(--fire-hi),
+      transparent 70%
+    );
+  animation: slosh 9s ease-in-out infinite;
+  opacity: 0.8;
+}
+@keyframes slosh {
+  50% {
+    transform: translateX(25%);
+  }
+}
+.orb::after {
+  content: '';
+  position: absolute;
+  left: 20%;
+  top: 10%;
+  width: 35%;
+  height: 22%;
+  border-radius: 50%;
+  background: radial-gradient(
+    ellipse,
+    rgba(255, 255, 255, 0.35),
+    transparent 70%
+  );
+}
+.orb-ring {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: conic-gradient(
+    from 200deg,
+    var(--bronze-hi),
+    var(--bronze-dk),
+    var(--bronze),
+    var(--bronze-hi),
+    var(--bronze-dk),
+    var(--bronze-hi)
+  );
+  -webkit-mask: radial-gradient(circle, transparent 66%, #000 67%);
+  mask: radial-gradient(circle, transparent 66%, #000 67%);
+  box-shadow: 0 6px 16px #000;
+}
+.orb-num {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  text-align: center;
+  font: 30px var(--f-display);
+  text-shadow:
+    0 2px 4px #000,
+    0 0 10px #000;
+}
+.orb-num small {
+  display: block;
+  font: italic 15px var(--f-body);
+  margin-top: -8px;
+}
+.orb-regen {
+  margin-top: 10px;
+  text-align: center;
+  font-size: 16px;
+  color: var(--bone-dim);
+}
+.orb-regen b {
+  color: var(--fire-hi);
+  font-weight: 500;
+}
+/* small orb for the mobile top bar */
+.mini-orb {
+  position: relative;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  overflow: hidden;
+  background: #070202;
+  box-shadow:
+    0 0 0 2px var(--bronze),
+    0 0 0 3px #000;
+  flex: none;
+}
+.mini-orb i {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: var(--fill, 50%);
+  background: linear-gradient(180deg, var(--fire-hi), var(--fire) 40%, #a62a08);
+  transition: height 0.6s;
+}
+
+/* ---------- Navigation plaques ---------- */
+.plaques {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.plaque {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 54px;
+  padding: 0 22px 0 8px;
+  text-decoration: none;
+  font: 19px var(--f-display);
+  color: var(--bone-dim);
+  background: linear-gradient(90deg, #241210, #160908);
+  border: 1px solid var(--bronze-dk);
+  clip-path: polygon(
+    0 0,
+    calc(100% - 14px) 0,
+    100% 50%,
+    calc(100% - 14px) 100%,
+    0 100%
+  );
+}
+.sock {
+  width: 40px;
+  height: 40px;
+  display: grid;
+  place-items: center;
+  background: radial-gradient(circle, #2a1513, #000);
+  border: 1px solid var(--bronze);
+  transform: rotate(45deg);
+  flex: none;
+}
+.sock .i {
+  transform: rotate(-45deg);
+  color: var(--bone-dim);
+  width: 24px;
+  height: 24px;
+}
+.plaque:hover {
+  color: var(--bone);
+  border-color: var(--bronze);
+}
+.plaque[aria-current] {
+  color: var(--fire-hi);
+  background: linear-gradient(90deg, #4a120f, #1c0a08);
+  border-color: var(--bronze-hi);
+}
+.plaque[aria-current] .sock {
+  border-color: var(--fire-hi);
+  box-shadow: 0 0 12px rgba(255, 106, 26, 0.6);
+}
+.plaque[aria-current] .sock .i {
+  color: var(--fire-hi);
+}
+.plaque[aria-disabled='true'] {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+.plaque small {
+  display: block;
+  font: italic 14px var(--f-body);
+}
+.plaque:focus-visible {
+  outline: none;
+  filter: drop-shadow(0 0 4px var(--fire-hi));
+}
+
+/* ---------- Item slots ---------- */
+.slots {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  list-style: none;
+  padding: 0;
+}
+.slot {
+  position: relative;
+  width: 74px;
+  height: 74px;
+  display: grid;
+  place-items: center;
+  background: radial-gradient(circle, #2a1513, #050202);
+  border: 2px solid var(--common);
+  box-shadow:
+    inset 0 0 0 1px #000,
+    inset 0 0 14px #000;
+}
+.slot .i {
+  width: 40px;
+  height: 40px;
+  color: var(--bone);
+}
+.slot b {
+  position: absolute;
+  right: 4px;
+  bottom: 0;
+  font: 16px var(--f-display);
+  font-weight: 400;
+  text-shadow:
+    0 1px 2px #000,
+    0 0 4px #000;
+}
+.slot.rare {
+  border-color: var(--rare);
+  box-shadow:
+    inset 0 0 0 1px #000,
+    inset 0 0 14px #000,
+    0 0 12px rgba(227, 179, 71, 0.45);
+}
+.slot.rare .i {
+  color: var(--rare);
+}
+.slot.cost {
+  border-color: var(--cost);
+}
+.slot.cost .i {
+  color: #ff9a8a;
+}
+.slot.empty {
+  border-style: dashed;
+  border-color: var(--bronze-dk);
+}
+.slot .tip {
+  position: absolute;
+  left: 50%;
+  bottom: calc(100% + 10px);
+  transform: translateX(-50%);
+  white-space: nowrap;
+  padding: 6px 12px;
+  background: #0a0404;
+  border: 1px solid var(--bronze);
+  font-size: 16px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.15s;
+  z-index: 5;
+}
+.slot .tip em {
+  display: block;
+  font-size: 14px;
+  color: var(--bone-dim);
+}
+.slot:hover .tip,
+.slot:focus .tip,
+.slot.show-tip .tip {
+  opacity: 1;
+}
+.slot.rare .tip strong {
+  color: var(--rare);
+  font-weight: 500;
+}
+
+/* ---------- Scene frame ---------- */
+.scene-frame {
+  position: relative;
+  height: 260px;
+  margin: -10px -14px 26px;
+  overflow: hidden;
+  border: 1px solid var(--bronze);
+  box-shadow: inset 0 0 0 3px #000;
+}
+.scene-frame .scene {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+.scene-frame::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  box-shadow:
+    inset 0 0 0 1px var(--bronze-dk),
+    inset 0 0 60px rgba(0, 0, 0, 0.85);
+  pointer-events: none;
+}
+
+/* ---------- Stat tiles ---------- */
+.stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  text-align: center;
+}
+.stats div {
+  padding: 8px 0;
+  background: var(--well);
+  border: 1px solid var(--bronze-dk);
+}
+.stats b {
+  display: block;
+  font: 26px var(--f-display);
+  font-weight: 400;
+  color: var(--bronze-hi);
+}
+.stats span {
+  font-size: 15px;
+  color: var(--bone-dim);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+}

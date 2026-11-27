@@ -3,7 +3,9 @@
 // Each sketch styles the same class names in its own CSS, and may set window.PROTO:
 //   divider: '<svg…>'                 ornament between title and text
 //   map(ctx) / outcome(ctx) → html    replace a view's markup (ctx: LOCATIONS, state, icon, loc, o, canAgain)
+//   page(ctx) → html | undefined       markup for a navigation item (ctx.name), or the placeholder
 //   after(view, ctx)                   called after a view renders
+// window.PROTO_API exposes state, renderStats, renderMap and adventure to the page.
 // A page without a [data-view="landing"] opens straight into the game.
 (function () {
   const opts = window.PROTO || {};
@@ -223,6 +225,14 @@
     if (t.dataset.act === 'map') return renderMap();
     if (t.dataset.loc) return adventure(t.dataset.loc);
     if (t.dataset.nav === 'map') return renderMap();
+    if (t.dataset.nav && opts.page) {
+      const html = hook('page', { name: t.dataset.nav });
+      if (html) {
+        setNav(t.dataset.nav);
+        center.innerHTML = html;
+        return hook('after', { view: t.dataset.nav });
+      }
+    }
     if (t.dataset.nav) {
       setNav(t.dataset.nav);
       return renderPlaceholder(t.textContent.trim());
@@ -234,6 +244,7 @@
     !document.querySelector('[data-view="landing"]')
       ? 'game'
       : 'landing';
+  window.PROTO_API = { state, renderStats, renderMap, adventure };
   renderStats();
   show(initial());
   window.addEventListener('hashchange', () => show(initial()));
