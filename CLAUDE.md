@@ -73,7 +73,7 @@ PRs are squash-merged, so the PR title becomes the commit header on `main` (GitH
 - Feature specs, one per feature, each with a `Status` (planned | in progress | done) and "Deviations from spec": `docs/features/`
 - System overview, deployment, local development: `docs/ARCHITECTURE.md`
 - Refactor/cleanup backlog with task IDs and per-task notes: `docs/REFACTOR.md`
-- Agent skills (repeatable procedures: `implement-feature`, `refactor-task`, `adr`, `tdd`, `diagnosing-bugs`, `grilling`, `frontend-design`; user-only: `/release`, and `/grill-me` as a shortcut to `grilling`): `.claude/skills/`
+- Agent skills (repeatable procedures: `implement-feature`, `refactor-task`, `adr`, `tdd`, `diagnosing-bugs`, `grilling`, `frontend-design`, `location-art`; user-only: `/release`, and `/grill-me` as a shortcut to `grilling`): `.claude/skills/`
 
 ## Current status (keep this updated)
 

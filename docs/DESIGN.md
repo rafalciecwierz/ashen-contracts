@@ -90,6 +90,10 @@ Each round has an `index.html` comparing its directions. Prototype copy is Engli
 4. mobile;
 5. cost to build in Tailwind and `packages/ui`.
 
+## Location art
+
+Every location has a landscape in one style: layered silhouettes, mist and one light source, rendered to SVG from a data spec. The rules and the procedure are the `location-art` skill (`.claude/skills/location-art/`, rules in its `STYLE.md`); every scene is shown in `docs/design/locations.html`.
+
 ## Style guide
 
 Written in DS-05, once the direction is chosen: principles, token use, ornament rules, do and don't, and a checklist for a new component.

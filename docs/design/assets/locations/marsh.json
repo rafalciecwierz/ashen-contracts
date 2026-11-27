@@ -1,0 +1,38 @@
+{
+  "tone": "fog",
+  "seed": 37,
+  "glow": { "x": 0.62, "y": 0.38, "r": 0.45 },
+  "layers": [
+    { "type": "ridge", "y": 0.56, "amp": 12, "color": 0 },
+    { "type": "mist", "y": 0.42, "h": 0.35, "a": 1 },
+    { "type": "hut", "x": 0.62, "y": 0.68, "s": 0.7, "lit": true, "color": 1 },
+    {
+      "type": "deadtrees",
+      "y": 0.72,
+      "count": 3,
+      "min": 120,
+      "max": 170,
+      "color": 1,
+      "spread": [0.1, 0.45]
+    },
+    { "type": "water", "y": 0.68, "glint": 0.65 },
+    { "type": "mist", "y": 0.58, "h": 0.25, "a": 0.8 },
+    {
+      "type": "reeds",
+      "y": 0.98,
+      "count": 70,
+      "min": 50,
+      "max": 120,
+      "edges": true
+    },
+    {
+      "type": "reeds",
+      "y": 0.8,
+      "count": 22,
+      "min": 20,
+      "max": 40,
+      "spread": [0.3, 0.8],
+      "color": 2
+    }
+  ]
+}

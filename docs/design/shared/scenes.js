@@ -1,6 +1,6 @@
 // Location art drawn in SVG: layered silhouettes, mist and light.
 // A scene is data: a tone (palette) and a list of layers from a fixed vocabulary, drawn back to front.
-//   window.SCENE.render(spec, { w, h })  → <svg class="scene"> string
+//   window.SCENE.render(spec, { w, h, id })  → <svg class="scene"> string (id: a prefix for gradient ids, unique per page)
 //   window.SCENE.SPECS                   → the specs of the known locations
 //   window.SCENE(slug, { w, h, tone })   → shorthand for a known location (round-2 pages use it)
 // Coordinates: x and y are fractions of the width and height; sizes are pixels at h = 420 and scale with h.
@@ -223,6 +223,49 @@
     },
     moon: (L, c) =>
       `<circle cx="${L.x * c.w}" cy="${L.y * c.h}" r="${(L.r ?? 26) * c.u}" fill="${c.P.glow}" opacity=".9"/><circle cx="${L.x * c.w}" cy="${L.y * c.h}" r="${(L.r ?? 26) * 4 * c.u}" fill="url(#${c.id}g)" opacity=".6"/>`,
+    cave: (L, c) => {
+      // a rock mound with a dark mouth; lit: firelight inside
+      const x = L.x * c.w,
+        y = L.y * c.h,
+        s = (L.s ?? 1) * c.u;
+      // jagged outline: a lopsided hump with rocky steps
+      let mound = `M${f(x - 240 * s)} ${f(y)}`;
+      for (let k = 0; k <= 16; k++) {
+        const t = k / 16,
+          hump = Math.sin(Math.PI * t) ** 0.7 * (1 - 0.25 * t);
+        mound += `L${f(x - 240 * s + t * 490 * s)} ${f(y - hump * 190 * s - (c.rnd() - 0.3) * 22 * s)}`;
+      }
+      mound += `L${f(x + 250 * s)} ${f(y)}Z`;
+      const mouth = `M${f(x - 50 * s)} ${f(y)}V${f(y - 60 * s)}Q${f(x - 46 * s)} ${f(y - 110 * s)} ${f(x)} ${f(y - 112 * s)}T${f(x + 50 * s)} ${f(y - 58 * s)}V${f(y)}Z`;
+      return `<path d="${mound}" fill="${c.col(L.color ?? 1)}"/><path d="${mouth}" fill="${c.col(3)}"/>${L.lit ? `<ellipse cx="${f(x)}" cy="${f(y - 30 * s)}" rx="${f(46 * s)}" ry="${f(40 * s)}" fill="url(#${c.id}g)" opacity=".9"/><ellipse cx="${f(x)}" cy="${f(y - 4 * s)}" rx="${f(120 * s)}" ry="${f(14 * s)}" fill="${c.P.glow}" opacity=".25" filter="url(#${c.id}b)"/>` : ''}`;
+    },
+    graves: (L, c) => {
+      // leaning headstones: rounded slabs, no religious symbols
+      let out = '';
+      for (let k = 0; k < L.count; k++) {
+        const x = xs(L, c.w, c.rnd),
+          y = L.y * c.h + c.rnd() * 6 * c.u,
+          s = (L.s ?? 1) * (0.7 + c.rnd() * 0.5) * c.u,
+          tilt = (c.rnd() - 0.5) * 22;
+        out += `<path d="M${f(x - 14 * s)} ${f(y)}V${f(y - 34 * s)}a${f(14 * s)} ${f(14 * s)} 0 0 1 ${f(28 * s)} 0V${f(y)}Z" transform="rotate(${f(tilt)} ${f(x)} ${f(y)})"/>`;
+      }
+      return `<g fill="${c.col(L.color ?? 2)}">${out}</g>`;
+    },
+    reeds: (L, c) => {
+      // marsh reeds and cattails at the water line
+      let d = '',
+        heads = '';
+      for (let k = 0; k < L.count; k++) {
+        const x = xs(L, c.w, c.rnd),
+          y = L.y * c.h + c.rnd() * 8 * c.u,
+          h = ((L.min ?? 30) + c.rnd() * ((L.max ?? 70) - (L.min ?? 30))) * c.u,
+          lean = (c.rnd() - 0.5) * h * 0.3;
+        d += `M${f(x)} ${f(y)}q${f(lean * 0.2)} ${f(-h * 0.5)} ${f(lean)} ${f(-h)}`;
+        if (c.rnd() < 0.35)
+          heads += `<ellipse cx="${f(x + lean)}" cy="${f(y - h + 6 * c.u)}" rx="${f(2.6 * c.u)}" ry="${f(8 * c.u)}" transform="rotate(${f((lean / h) * 40)} ${f(x + lean)} ${f(y - h)})"/>`;
+      }
+      return `<path d="${d}" fill="none" stroke="${c.col(L.color ?? 3)}" stroke-width="${f(2.4 * c.u)}" stroke-linecap="round"/><g fill="${c.col(L.color ?? 3)}">${heads}</g>`;
+    },
     birds: (L, c) => {
       let d = '';
       for (let k = 0; k < (L.count ?? 5); k++) {
@@ -235,8 +278,7 @@
     },
   };
 
-  function render(spec, { w = 1200, h = 420, tone } = {}) {
-    const id = `sc${++uid}`;
+  function render(spec, { w = 1200, h = 420, tone, id = `sc${++uid}` } = {}) {
     const P = PALETTES[tone || spec.tone] || PALETTES.dusk;
     const c = {
       id,
@@ -251,7 +293,7 @@
     const body = spec.layers
       .map((L) => (LAYERS[L.type] ? LAYERS[L.type](L, c) : ''))
       .join('');
-    return `<svg class="scene" viewBox="0 0 ${w} ${h}" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+    return `<svg xmlns="http://www.w3.org/2000/svg" class="scene" viewBox="0 0 ${w} ${h}" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
       <defs>
         <linearGradient id="${id}s" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${P.skyTop}"/><stop offset=".75" stop-color="${P.skyLow}"/></linearGradient>
         <linearGradient id="${id}m" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="rgb(${P.mist})" stop-opacity="0"/><stop offset=".5" stop-color="rgb(${P.mist})" stop-opacity=".22"/><stop offset="1" stop-color="rgb(${P.mist})" stop-opacity="0"/></linearGradient>

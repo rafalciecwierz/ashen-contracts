@@ -1,0 +1,65 @@
+{
+  "tone": "ember",
+  "seed": 81,
+  "layers": [
+    {
+      "type": "ridge",
+      "y": 0.6,
+      "amp": 14,
+      "color": 0
+    },
+    {
+      "type": "pines",
+      "y": 0.64,
+      "count": 40,
+      "min": 30,
+      "max": 60,
+      "color": 0
+    },
+    {
+      "type": "mist",
+      "y": 0.5,
+      "h": 0.25,
+      "a": 0.8
+    },
+    {
+      "type": "birds",
+      "x": 0.3,
+      "y": 0.28,
+      "count": 4
+    },
+    {
+      "type": "pines",
+      "y": 0.98,
+      "count": 9,
+      "min": 230,
+      "max": 360,
+      "color": 2,
+      "edges": true
+    },
+    {
+      "type": "ground",
+      "y": 0.84,
+      "amp": 6
+    },
+    {
+      "type": "stumps",
+      "y": 0.86,
+      "at": [
+        [0.36, 1],
+        [0.6, 0.8],
+        [0.68, 1.2]
+      ]
+    },
+    {
+      "type": "fire",
+      "x": 0.5,
+      "y": 0.87
+    },
+    {
+      "type": "smoke",
+      "x": 0.5,
+      "y": 0.85
+    }
+  ]
+}
