@@ -1,0 +1,404 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Round 2 game views</title>
+    <style>
+      :root {
+        --bg: #f3f1ec;
+        --card: #fff;
+        --line: #d9d4ca;
+        --text: #1f1d1a;
+        --muted: #5f5a52;
+        --mark: #8a3b12;
+      }
+      * {
+        box-sizing: border-box;
+        margin: 0;
+      }
+      body {
+        background: var(--bg);
+        color: var(--text);
+        font:
+          17px/1.55 system-ui,
+          -apple-system,
+          'Segoe UI',
+          sans-serif;
+      }
+      main {
+        max-width: 1180px;
+        margin: 0 auto;
+        padding: 40px 20px 64px;
+      }
+      h1 {
+        font-size: 30px;
+        margin-bottom: 8px;
+      }
+      .lead {
+        color: var(--muted);
+        max-width: 74ch;
+        margin-bottom: 14px;
+      }
+      .dir {
+        background: var(--card);
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        padding: 22px;
+        margin: 22px 0;
+      }
+      .dir header {
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+        gap: 16px;
+        flex-wrap: wrap;
+        margin-bottom: 12px;
+      }
+      .dir h2 {
+        font-size: 22px;
+      }
+      .dir h2 a {
+        color: inherit;
+      }
+      .open {
+        font-weight: 600;
+        color: var(--mark);
+      }
+      .shots {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+        margin-bottom: 14px;
+      }
+      @media (max-width: 760px) {
+        .shots {
+          grid-template-columns: 1fr;
+        }
+      }
+      .shots a {
+        display: block;
+        border: 1px solid var(--line);
+        border-radius: 4px;
+        overflow: hidden;
+      }
+      .shots img {
+        display: block;
+        width: 100%;
+        height: auto;
+      }
+      .dir ul {
+        padding-left: 20px;
+        color: var(--muted);
+      }
+      .dir li {
+        margin-bottom: 4px;
+      }
+      .dir li b {
+        color: var(--text);
+      }
+      .verdict {
+        margin-top: 10px;
+      }
+      h3 {
+        font-size: 20px;
+        margin: 34px 0 10px;
+      }
+      table {
+        border-collapse: collapse;
+        width: 100%;
+        background: var(--card);
+        border: 1px solid var(--line);
+        font-size: 15px;
+        margin: 8px 0 24px;
+      }
+      th,
+      td {
+        padding: 9px 12px;
+        border-bottom: 1px solid var(--line);
+        text-align: center;
+      }
+      th:first-child,
+      td:first-child {
+        text-align: left;
+      }
+      thead th {
+        background: #ebe7df;
+      }
+      .table-wrap {
+        overflow-x: auto;
+      }
+      .lead + ul,
+      main > ul {
+        padding-left: 22px;
+        max-width: 78ch;
+      }
+      main > ul li {
+        margin-bottom: 8px;
+      }
+      footer {
+        color: var(--muted);
+        font-size: 14px;
+        margin-top: 40px;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <h1>Design round 2: game views</h1>
+      <p class="lead">
+        The landing page is decided:
+        <a href="../round-1/forge.html">Forge</a> from round 1. Round 1's game
+        screens all read as generated, because they shared one skeleton (centred
+        title, divider, drop cap, text, two buttons, chips, round portrait,
+        three stat tiles) and only changed the skin. These four change the
+        composition instead, borrow the vocabulary of real games, and stay in
+        the Forge family (forged metal, ember, runes) with warmer bronze, copper
+        and blood instead of grey. Each opens on the game screen; "Back to map"
+        and the locations work, and energy goes down as you play.
+      </p>
+      <p class="lead">
+        The landscapes are placeholder art drawn in SVG. Real illustrations in
+        the style of the landing logo would lift every one of these more than
+        any CSS can.
+      </p>
+
+      <section class="dir">
+        <header>
+          <h2><a href="panorama.html">A. Panorama</a></h2>
+          <a class="open" href="panorama.html">Open</a>
+        </header>
+        <div class="shots">
+          <a href="panorama.html"
+            ><img
+              src="img/panorama-game.jpg"
+              alt="Panorama: outcome"
+              loading="lazy" /></a
+          ><a href="panorama.html"
+            ><img src="img/panorama-map.jpg" alt="Panorama: map" loading="lazy"
+          /></a>
+        </div>
+        <ul>
+          <li>
+            <b>Idea:</b> every location is a painted scene; the story is a
+            caption under it, as in Darkest Dungeon.
+          </li>
+          <li>
+            <b>Navigation:</b> a leather rail of bronze icon slots; the active
+            slot glows like an ember.
+          </li>
+          <li>
+            <b>Energy:</b> ten flames in the top bar. <b>Character:</b> portrait
+            in an arch over a scene, stats as pips, traits as wax seals.
+          </li>
+          <li><b>Map:</b> postcards, each with its own little landscape.</li>
+        </ul>
+        <p class="verdict">
+          The most atmospheric and the best fit for a text-led game: the scene
+          sets the mood, the text stays left-aligned and readable. It depends
+          most on art; with real illustrations it becomes the strongest.
+        </p>
+      </section>
+
+      <section class="dir">
+        <header>
+          <h2><a href="maptable.html">B. Map table</a></h2>
+          <a class="open" href="maptable.html">Open</a>
+        </header>
+        <div class="shots">
+          <a href="maptable.html"
+            ><img
+              src="img/maptable-game.jpg"
+              alt="Map table: outcome"
+              loading="lazy" /></a
+          ><a href="maptable.html"
+            ><img
+              src="img/maptable-map.jpg"
+              alt="Map table: map"
+              loading="lazy"
+          /></a>
+        </div>
+        <ul>
+          <li>
+            <b>Idea:</b> the map is the game, drawn on a table by candlelight;
+            locations are wax-sealed pins, the outcome arrives as a letter laid
+            over the map's edge.
+          </li>
+          <li>
+            <b>Navigation:</b> brass drawer plates; the lit one is the current
+            view. <b>Energy:</b> a burning candle wick.
+          </li>
+          <li>
+            <b>Character:</b> a brass medallion with a name banner and a small
+            ledger.
+          </li>
+        </ul>
+        <p class="verdict">
+          The most original and the clearest loop (map → seal → letter → map),
+          and it grows naturally as locations unlock and the fog lifts. The map
+          needs care on a phone, where it becomes a pannable image or falls back
+          to a list.
+        </p>
+      </section>
+
+      <section class="dir">
+        <header>
+          <h2><a href="fatecards.html">C. Fate cards</a></h2>
+          <a class="open" href="fatecards.html">Open</a>
+        </header>
+        <div class="shots">
+          <a href="fatecards.html"
+            ><img
+              src="img/fatecards-game.jpg"
+              alt="Fate cards: outcome"
+              loading="lazy" /></a
+          ><a href="fatecards.html"
+            ><img
+              src="img/fatecards-map.jpg"
+              alt="Fate cards: decks"
+              loading="lazy"
+          /></a>
+        </div>
+        <ul>
+          <li>
+            <b>Idea:</b> an adventure is a card drawn from the location's deck,
+            so chance is visible; the card turns over as you draw.
+          </li>
+          <li>
+            <b>Navigation:</b> small card backs; the active one is lifted out of
+            the hand. <b>Energy:</b> ten ember gems.
+          </li>
+          <li>
+            <b>Map:</b> a row of decks; locked decks are bound in chains and
+            sealed.
+          </li>
+        </ul>
+        <p class="verdict">
+          The strongest game metaphor for random outcomes, and later choices fit
+          it well (play a card from your hand). The risk is tone: cards on
+          velvet lean towards a gambling table more than a muddy road.
+        </p>
+      </section>
+
+      <section class="dir">
+        <header>
+          <h2><a href="reliquary.html">D. Reliquary</a></h2>
+          <a class="open" href="reliquary.html">Open</a>
+        </header>
+        <div class="shots">
+          <a href="reliquary.html"
+            ><img
+              src="img/reliquary-game.jpg"
+              alt="Reliquary: outcome"
+              loading="lazy" /></a
+          ><a href="reliquary.html"
+            ><img
+              src="img/reliquary-map.jpg"
+              alt="Reliquary: map"
+              loading="lazy"
+          /></a>
+        </div>
+        <ul>
+          <li>
+            <b>Idea:</b> action-RPG vocabulary: energy is an orb of liquid fire,
+            rewards are item slots with rarity borders and tooltips, the
+            character has an equipment doll.
+          </li>
+          <li>
+            <b>Navigation:</b> spiked plaques with diamond sockets. Gothic
+            spiked corners on every frame.
+          </li>
+        </ul>
+        <p class="verdict">
+          Reads most like "a real game" at first glance, and it is ready for
+          inventory and equipment (v0.2, v0.4). It is also the most familiar
+          look, closest to what players have seen in many ARPGs, and the text
+          becomes secondary to the chrome.
+        </p>
+      </section>
+
+      <h3>Scores</h3>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>View</th>
+              <th>Mood</th>
+              <th>Legibility</th>
+              <th>Distinctive</th>
+              <th>Mobile</th>
+              <th>Cost (5 = cheap)</th>
+              <th>Total</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>A. Panorama</td>
+              <td>5</td>
+              <td>5</td>
+              <td>4</td>
+              <td>4</td>
+              <td>3</td>
+              <td>21</td>
+            </tr>
+            <tr>
+              <td>B. Map table</td>
+              <td>5</td>
+              <td>4</td>
+              <td>5</td>
+              <td>3</td>
+              <td>3</td>
+              <td>20</td>
+            </tr>
+            <tr>
+              <td>C. Fate cards</td>
+              <td>4</td>
+              <td>4</td>
+              <td>4</td>
+              <td>4</td>
+              <td>3</td>
+              <td>19</td>
+            </tr>
+            <tr>
+              <td>D. Reliquary</td>
+              <td>4</td>
+              <td>4</td>
+              <td>3</td>
+              <td>4</td>
+              <td>3</td>
+              <td>18</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>Recommendation</h3>
+      <ul>
+        <li>
+          <b>Panorama as the base</b> for the game screen,
+          <b>with the Map table as the map view</b>: the scene and caption for
+          the outcome, the drawn map with seals for choosing where to go.
+          Together they cover the whole v0.2 loop and give each screen its own
+          memorable thing.
+        </li>
+        <li>
+          Worth taking from the others: Reliquary's item slots with rarity
+          borders for rewards and inventory, and its energy orb if the flames
+          feel too small.
+        </li>
+        <li>
+          For round 3: real art. If you can generate illustrations the way you
+          made the logo (the Clearing, the Old Forest, the Mill, a character
+          portrait, in the landing logo's painterly style), the scenes replace
+          the SVG silhouettes.
+        </li>
+      </ul>
+
+      <footer>
+        Icons: <a href="https://game-icons.net">game-icons.net</a> by Lorc and
+        Delapouite, CC BY 3.0. Fonts: Metamorphous and EB Garamond (OFL), with
+        Polish characters. Scenes and textures are generated in SVG.
+      </footer>
+    </main>
+  </body>
+</html>

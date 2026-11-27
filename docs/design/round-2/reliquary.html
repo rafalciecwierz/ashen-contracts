@@ -1,0 +1,854 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Reliquary — game view</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Metamorphous&family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      /*
+  Game view D: Reliquary (Forge family, action-RPG vocabulary).
+  Energy is an orb of liquid fire, rewards are item slots with rarity borders, the character has an
+  equipment doll. Gothic spiked corners on every frame.
+  Palette: char #0f0707, panel #1a0d0c, bronze #9c6b38, bronze light #d9a45f, blood #a3191b, fire #ff6a1a, bone #e9dccb.
+  Type: Metamorphous (display), EB Garamond (body).
+*/
+      :root {
+        --char: #0f0707;
+        --panel: #1a0d0c;
+        --panel-hi: #2a1513;
+        --bronze: #9c6b38;
+        --bronze-hi: #d9a45f;
+        --bronze-dk: #4e3018;
+        --blood: #a3191b;
+        --blood-hi: #c92a22;
+        --fire: #ff6a1a;
+        --fire-hi: #ffd27a;
+        --bone: #e9dccb;
+        --bone-dim: #bba893;
+        --rare: #e3b347;
+        --common: #8f8579;
+        --f-display: 'Metamorphous', serif;
+        --f-body: 'EB Garamond', Georgia, serif;
+        --grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 .4 0'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)'/%3E%3C/svg%3E");
+      }
+      * {
+        box-sizing: border-box;
+        margin: 0;
+      }
+      body {
+        min-height: 100vh;
+        color: var(--bone);
+        font: 20px/1.6 var(--f-body);
+        background: var(--char);
+        background-image:
+          var(--grain),
+          radial-gradient(ellipse 80% 60% at 50% 0%, #3a0f0d, var(--char) 65%);
+      }
+      .i {
+        width: 1.2em;
+        height: 1.2em;
+        flex: none;
+      }
+      button {
+        font: inherit;
+        color: inherit;
+      }
+      :focus-visible {
+        outline: 2px solid var(--fire-hi);
+        outline-offset: 3px;
+      }
+
+      /* Gothic frame with spiked corners */
+      .goth {
+        position: relative;
+        background: linear-gradient(180deg, var(--panel-hi), var(--panel));
+        border: 1px solid var(--bronze);
+        box-shadow:
+          inset 0 0 0 3px #000,
+          inset 0 0 0 4px var(--bronze-dk),
+          inset 0 0 40px rgba(0, 0, 0, 0.6),
+          0 16px 34px rgba(0, 0, 0, 0.7);
+      }
+      .spike {
+        position: absolute;
+        width: 46px;
+        height: 46px;
+        color: var(--bronze-hi);
+        pointer-events: none;
+        filter: drop-shadow(0 2px 2px #000);
+      }
+      .spike.tl {
+        top: -12px;
+        left: -12px;
+      }
+      .spike.tr {
+        top: -12px;
+        right: -12px;
+        transform: scaleX(-1);
+      }
+      .spike.bl {
+        bottom: -12px;
+        left: -12px;
+        transform: scaleY(-1);
+      }
+      .spike.br {
+        bottom: -12px;
+        right: -12px;
+        transform: scale(-1);
+      }
+
+      .btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        min-height: 54px;
+        padding: 0 34px;
+        cursor: pointer;
+        font: 20px var(--f-display);
+        color: var(--bone);
+        background: linear-gradient(180deg, #3a1d18, #1c0c0a);
+        border: 1px solid var(--bronze);
+        clip-path: polygon(
+          16px 0,
+          calc(100% - 16px) 0,
+          100% 50%,
+          calc(100% - 16px) 100%,
+          16px 100%,
+          0 50%
+        );
+        box-shadow: inset 0 0 0 2px #000;
+      }
+      .btn:hover {
+        background: linear-gradient(180deg, #4d2620, #26110e);
+      }
+      .btn-primary {
+        background: linear-gradient(
+          180deg,
+          var(--blood-hi),
+          var(--blood) 55%,
+          #5a0c0d
+        );
+        color: #fff2e0;
+      }
+      .btn-primary:hover {
+        background: linear-gradient(
+          180deg,
+          #e0392c,
+          var(--blood-hi) 55%,
+          #74110f
+        );
+      }
+      .btn small {
+        font: italic 15px var(--f-body);
+        opacity: 0.85;
+      }
+      .btn[disabled] {
+        opacity: 0.45;
+        cursor: not-allowed;
+      }
+
+      .topbar {
+        display: flex;
+        align-items: center;
+        gap: 22px;
+        height: 64px;
+        padding: 0 26px;
+        background: linear-gradient(180deg, #1f0d0b, #0a0404);
+        border-bottom: 1px solid var(--bronze);
+        box-shadow:
+          0 1px 0 #000,
+          0 2px 0 var(--bronze-dk);
+        flex-wrap: wrap;
+      }
+      .logo {
+        font: 26px var(--f-display);
+        color: var(--bone);
+        text-decoration: none;
+        margin-right: auto;
+        text-shadow: 0 0 14px rgba(255, 106, 26, 0.45);
+      }
+      .who {
+        font: 22px var(--f-display);
+      }
+      .tiny {
+        color: var(--fire-hi);
+        font-size: 18px;
+      }
+      .avatar-btn {
+        width: 46px;
+        height: 46px;
+        display: grid;
+        place-items: center;
+        cursor: pointer;
+        color: var(--bone);
+        background: var(--panel);
+        border: 1px solid var(--bronze);
+        transform: rotate(45deg);
+      }
+      .avatar-btn .i {
+        transform: rotate(-45deg);
+      }
+
+      .shell {
+        display: grid;
+        grid-template-columns: 220px minmax(0, 1fr) 300px;
+        gap: 36px;
+        padding: 34px 28px 56px;
+        max-width: 1480px;
+        margin: 0 auto;
+        align-items: start;
+      }
+      @media (max-width: 1100px) {
+        .shell {
+          grid-template-columns: 210px 1fr;
+        }
+        .doll {
+          grid-column: 1 / -1;
+        }
+      }
+      @media (max-width: 720px) {
+        .shell {
+          grid-template-columns: 1fr;
+          padding: 22px 14px;
+        }
+      }
+
+      /* Left: orb and plaques */
+      .orb-wrap {
+        position: relative;
+        width: 170px;
+        height: 170px;
+        margin: 0 auto 26px;
+      }
+      .orb {
+        position: absolute;
+        inset: 14px;
+        border-radius: 50%;
+        overflow: hidden;
+        background: radial-gradient(circle at 50% 40%, #2a0d08, #070202);
+        box-shadow: inset 0 0 20px #000;
+      }
+      .orb .liquid {
+        position: absolute;
+        left: -50%;
+        right: -50%;
+        bottom: 0;
+        background: radial-gradient(
+          ellipse at 50% 0%,
+          var(--fire-hi),
+          var(--fire) 30%,
+          #a62a08 70%,
+          #4a0c03
+        );
+        transition: height 0.6s ease;
+      }
+      .orb .liquid::before {
+        content: '';
+        position: absolute;
+        left: 0;
+        right: 0;
+        top: -10px;
+        height: 20px;
+        background:
+          radial-gradient(
+            ellipse 25% 50% at 25% 100%,
+            var(--fire-hi),
+            transparent 70%
+          ),
+          radial-gradient(
+            ellipse 25% 50% at 75% 100%,
+            var(--fire-hi),
+            transparent 70%
+          );
+        animation: slosh 9s ease-in-out infinite;
+        opacity: 0.8;
+      }
+      @keyframes slosh {
+        50% {
+          transform: translateX(25%);
+        }
+      }
+      .orb::after {
+        content: '';
+        position: absolute;
+        left: 20%;
+        top: 10%;
+        width: 35%;
+        height: 22%;
+        border-radius: 50%;
+        background: radial-gradient(
+          ellipse,
+          rgba(255, 255, 255, 0.35),
+          transparent 70%
+        );
+      }
+      .orb-ring {
+        position: absolute;
+        inset: 0;
+        border-radius: 50%;
+        background: conic-gradient(
+          from 200deg,
+          var(--bronze-hi),
+          var(--bronze-dk),
+          var(--bronze),
+          var(--bronze-hi),
+          var(--bronze-dk),
+          var(--bronze-hi)
+        );
+        -webkit-mask: radial-gradient(circle, transparent 66%, #000 67%);
+        mask: radial-gradient(circle, transparent 66%, #000 67%);
+        box-shadow: 0 6px 16px #000;
+      }
+      .orb-num {
+        position: absolute;
+        inset: 0;
+        display: grid;
+        place-items: center;
+        font: 30px var(--f-display);
+        text-shadow:
+          0 2px 4px #000,
+          0 0 10px #000;
+      }
+      .orb-num small {
+        display: block;
+        font: italic 15px var(--f-body);
+        text-align: center;
+        margin-top: -8px;
+      }
+      .plaques {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+      }
+      .plaques a {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        min-height: 54px;
+        padding: 0 22px 0 8px;
+        text-decoration: none;
+        font: 19px var(--f-display);
+        color: var(--bone-dim);
+        background: linear-gradient(90deg, #241210, #160908);
+        border: 1px solid var(--bronze-dk);
+        clip-path: polygon(
+          0 0,
+          calc(100% - 14px) 0,
+          100% 50%,
+          calc(100% - 14px) 100%,
+          0 100%
+        );
+      }
+      .plaques a .sock {
+        width: 40px;
+        height: 40px;
+        display: grid;
+        place-items: center;
+        background: radial-gradient(circle, #2a1513, #000);
+        border: 1px solid var(--bronze);
+        transform: rotate(45deg);
+      }
+      .plaques a .sock .i {
+        transform: rotate(-45deg);
+        color: var(--bone-dim);
+        width: 24px;
+        height: 24px;
+      }
+      .plaques a:hover {
+        color: var(--bone);
+        border-color: var(--bronze);
+      }
+      .plaques a[aria-current] {
+        color: var(--fire-hi);
+        background: linear-gradient(90deg, #4a120f, #1c0a08);
+        border-color: var(--bronze-hi);
+      }
+      .plaques a[aria-current] .sock {
+        border-color: var(--fire-hi);
+        box-shadow: 0 0 12px rgba(255, 106, 26, 0.6);
+      }
+      .plaques a[aria-current] .sock .i {
+        color: var(--fire-hi);
+      }
+      .plaques a[aria-disabled='true'] {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+
+      /* Centre */
+      .titlebar {
+        position: relative;
+        margin: 0 auto 30px;
+        width: max-content;
+        max-width: 100%;
+        padding: 10px 70px;
+        text-align: center;
+        background: linear-gradient(180deg, #3a1a16, #1a0b09);
+        border: 1px solid var(--bronze);
+        clip-path: polygon(
+          0 50%,
+          40px 0,
+          calc(100% - 40px) 0,
+          100% 50%,
+          calc(100% - 40px) 100%,
+          40px 100%
+        );
+      }
+      .titlebar small {
+        display: block;
+        font: italic 16px var(--f-body);
+        color: var(--bone-dim);
+      }
+      .titlebar h1 {
+        font: 40px/1.1 var(--f-display);
+        font-weight: 400;
+      }
+      .event {
+        padding: 40px 44px 34px;
+      }
+      @media (max-width: 720px) {
+        .event {
+          padding: 30px 22px;
+        }
+      }
+      .event h2 {
+        font: 30px var(--f-display);
+        font-weight: 400;
+        color: var(--bronze-hi);
+        margin-bottom: 12px;
+      }
+      .event p {
+        font-size: 21px;
+        line-height: 1.66;
+        max-width: 40em;
+      }
+      .slots-label {
+        margin: 26px 0 10px;
+        font: 17px var(--f-display);
+        color: var(--bone-dim);
+      }
+      .slots {
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+        list-style: none;
+        padding: 0;
+      }
+      .slots li {
+        position: relative;
+        width: 74px;
+        height: 74px;
+        display: grid;
+        place-items: center;
+        background: radial-gradient(circle, #2a1513, #050202);
+        border: 2px solid var(--common);
+        box-shadow:
+          inset 0 0 0 1px #000,
+          inset 0 0 14px #000;
+        cursor: help;
+      }
+      .slots li .i {
+        width: 40px;
+        height: 40px;
+        color: var(--bone);
+      }
+      .slots li b {
+        position: absolute;
+        right: 4px;
+        bottom: 0;
+        font: 16px var(--f-display);
+        font-weight: 400;
+        text-shadow:
+          0 1px 2px #000,
+          0 0 4px #000;
+      }
+      .slots li.rare {
+        border-color: var(--rare);
+        box-shadow:
+          inset 0 0 0 1px #000,
+          inset 0 0 14px #000,
+          0 0 12px rgba(227, 179, 71, 0.45);
+      }
+      .slots li.rare .i {
+        color: var(--rare);
+      }
+      .slots li.bad {
+        border-color: var(--blood-hi);
+      }
+      .slots li.bad .i {
+        color: #ff9a8a;
+      }
+      .slots li .tip {
+        position: absolute;
+        left: 50%;
+        bottom: calc(100% + 10px);
+        transform: translateX(-50%);
+        white-space: nowrap;
+        padding: 6px 12px;
+        background: #0a0404;
+        border: 1px solid var(--bronze);
+        font-size: 16px;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.15s;
+        z-index: 3;
+      }
+      .slots li:hover .tip,
+      .slots li:focus .tip {
+        opacity: 1;
+      }
+      .slots li.rare .tip b {
+        position: static;
+        color: var(--rare);
+      }
+      .acts {
+        display: flex;
+        gap: 16px;
+        margin-top: 30px;
+        flex-wrap: wrap;
+      }
+      .enter {
+        animation: rise 0.45s ease-out;
+      }
+      @keyframes rise {
+        from {
+          opacity: 0;
+          transform: translateY(10px);
+        }
+      }
+
+      .locs {
+        list-style: none;
+        padding: 0;
+        display: grid;
+        gap: 14px;
+      }
+      .loc {
+        width: 100%;
+        display: grid;
+        grid-template-columns: 60px 1fr auto;
+        align-items: center;
+        gap: 18px;
+        padding: 12px 24px 12px 14px;
+        text-align: left;
+        cursor: pointer;
+        background: linear-gradient(90deg, #241210, #140807);
+        border: 1px solid var(--bronze-dk);
+      }
+      .loc .sock {
+        width: 52px;
+        height: 52px;
+        display: grid;
+        place-items: center;
+        background: radial-gradient(circle, #2a1513, #000);
+        border: 2px solid var(--bronze);
+        transform: rotate(45deg);
+        margin-left: 6px;
+      }
+      .loc .sock .i {
+        transform: rotate(-45deg);
+        width: 30px;
+        height: 30px;
+      }
+      .loc b {
+        display: block;
+        font: 25px var(--f-display);
+        font-weight: 400;
+      }
+      .loc span {
+        font-style: italic;
+        color: var(--bone-dim);
+        font-size: 18px;
+      }
+      .loc em {
+        font-style: normal;
+        color: var(--fire-hi);
+        display: flex;
+        align-items: center;
+        gap: 6px;
+      }
+      button.loc:hover {
+        border-color: var(--bronze-hi);
+        box-shadow: 0 0 18px rgba(255, 106, 26, 0.2);
+      }
+      .loc.locked {
+        opacity: 0.55;
+        cursor: not-allowed;
+      }
+      .loc.locked em {
+        color: var(--bone-dim);
+        font-style: italic;
+      }
+
+      /* Right: equipment doll */
+      .doll {
+        padding: 30px 24px 26px;
+      }
+      .doll h2 {
+        text-align: center;
+        font: 32px var(--f-display);
+        font-weight: 400;
+      }
+      .doll .origin {
+        text-align: center;
+        font-style: italic;
+        color: var(--bone-dim);
+        margin-bottom: 16px;
+      }
+      .figure {
+        position: relative;
+        height: 270px;
+        margin-bottom: 18px;
+      }
+      .figure > .i {
+        position: absolute;
+        left: 50%;
+        top: 10px;
+        width: 170px;
+        height: 250px;
+        margin-left: -85px;
+        color: #2f1a16;
+      }
+      .eq {
+        position: absolute;
+        width: 56px;
+        height: 56px;
+        display: grid;
+        place-items: center;
+        background: radial-gradient(circle, #2a1513, #050202);
+        border: 2px solid var(--common);
+        box-shadow: inset 0 0 10px #000;
+      }
+      .eq .i {
+        width: 30px;
+        height: 30px;
+        color: var(--bone-dim);
+      }
+      .eq.on {
+        border-color: var(--bronze-hi);
+      }
+      .eq.on .i {
+        color: var(--bone);
+      }
+      .eq.head {
+        left: 50%;
+        margin-left: -28px;
+        top: 0;
+      }
+      .eq.weapon {
+        left: 0;
+        top: 100px;
+      }
+      .eq.ring {
+        right: 0;
+        top: 100px;
+      }
+      .eq.pack {
+        left: 50%;
+        margin-left: -28px;
+        bottom: 0;
+      }
+      .stats {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 8px;
+        text-align: center;
+      }
+      .stats div {
+        padding: 8px 0;
+        background: #0d0505;
+        border: 1px solid var(--bronze-dk);
+      }
+      .stats b {
+        display: block;
+        font: 26px var(--f-display);
+        font-weight: 400;
+        color: var(--bronze-hi);
+      }
+      .stats span {
+        font-size: 15px;
+        color: var(--bone-dim);
+      }
+      .doll .traits {
+        margin-top: 12px;
+        text-align: center;
+        font-style: italic;
+        color: var(--bone-dim);
+      }
+      .doll .purse {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 8px;
+        margin-top: 8px;
+        color: var(--fire-hi);
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        *,
+        *::before,
+        *::after {
+          animation: none !important;
+          transition: none !important;
+        }
+      }
+      .avatar-btn {
+        width: 38px;
+        height: 38px;
+        margin-right: 6px;
+      }
+    </style>
+  </head>
+  <body>
+    <svg width="0" height="0" style="position: absolute" aria-hidden="true">
+      <symbol id="spike" viewBox="0 0 46 46">
+        <path
+          d="M2 44V12L0 0l12 2h32l-8 4H14q-8 0-8 8v22z"
+          fill="currentColor"
+        />
+        <path
+          d="M12 30q0-18 18-18"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+        />
+        <circle cx="12" cy="12" r="3" fill="#0f0707" />
+      </symbol>
+    </svg>
+    <header class="topbar">
+      <a class="logo" href="../round-1/forge.html">Ashen Contracts</a>
+      <span class="who">Maren</span>
+      <span class="tiny"><span data-energy></span>/100 energy</span>
+      <button
+        class="avatar-btn"
+        aria-label="Account menu"
+        data-icon="character"
+      ></button>
+    </header>
+    <div class="shell">
+      <div>
+        <div
+          class="orb-wrap"
+          role="meter"
+          aria-label="Energy"
+          aria-valuemin="0"
+          aria-valuemax="100"
+          id="orbmeter"
+        >
+          <div class="orb"><div class="liquid" id="liquid"></div></div>
+          <div class="orb-ring"></div>
+          <div class="orb-num">
+            <span><span data-energy></span><small>energy</small></span>
+          </div>
+        </div>
+        <nav class="plaques" aria-label="Game">
+          <a href="#" data-nav="map"
+            ><span class="sock" data-icon="map"></span>Map</a
+          >
+          <a href="#" data-nav="character"
+            ><span class="sock" data-icon="character"></span>Character</a
+          >
+          <a href="#" data-nav="journal"
+            ><span class="sock" data-icon="journal"></span>Journal</a
+          >
+          <a href="#" aria-disabled="true"
+            ><span class="sock" data-icon="lock"></span>Stronghold</a
+          >
+          <a href="#" data-nav="ranking"
+            ><span class="sock" data-icon="ranking"></span>Ranking</a
+          >
+        </nav>
+      </div>
+      <main id="center"></main>
+      <aside class="doll goth" aria-label="Character">
+        <h2>Maren</h2>
+        <p class="origin">Fenborn, of no house she remembers</p>
+        <div class="figure">
+          <svg class="i" aria-hidden="true"><use href="#i-wolf" /></svg>
+          <span
+            class="eq head"
+            title="Head: empty"
+            data-icon="character"
+          ></span>
+          <span
+            class="eq weapon on"
+            title="Notched knife"
+            data-icon="swords"
+          ></span>
+          <span
+            class="eq ring"
+            title="Ring: empty"
+            id="ringslot"
+            data-icon="skull"
+          ></span>
+          <span class="eq pack on" title="Satchel" data-icon="bag"></span>
+        </div>
+        <div class="stats">
+          <div><b>3</b><span>Might</span></div>
+          <div><b>5</b><span>Wits</span></div>
+          <div><b>4</b><span>Resolve</span></div>
+        </div>
+        <p class="traits">Light Sleeper, Old Scars</p>
+        <p class="purse">
+          <span data-icon="coins"></span><span data-crowns></span> crowns
+        </p>
+      </aside>
+    </div>
+
+    <script src="../shared/icons.js"></script>
+    <script>
+      const spikes = ['tl', 'tr', 'bl', 'br']
+        .map(
+          (c) =>
+            `<svg class="spike ${c}" aria-hidden="true"><use href="#spike"/></svg>`,
+        )
+        .join('');
+      document.querySelector('.doll').insertAdjacentHTML('beforeend', spikes);
+      function slot(g, icon) {
+        const coins = g.match(/\+(\d+) crowns/);
+        if (coins)
+          return `<li tabindex="0">${icon('coins')}<b>${coins[1]}</b><span class="tip">${coins[1]} crowns</span></li>`;
+        if (g.includes('energy'))
+          return `<li class="bad" tabindex="0">${icon('energy')}<b>${g.match(/\d+/)[0]}</b><span class="tip">${g}</span></li>`;
+        return `<li class="rare" tabindex="0">${icon('skull')}<span class="tip"><b>${g}</b> · keepsake</span></li>`;
+      }
+      window.PROTO = {
+        outcome: ({ loc, o, canAgain, icon }) => `
+    <div class="enter">
+      <div class="titlebar"><small>${loc.desc}</small><h1>${loc.name}</h1></div>
+      <section class="event goth" aria-live="polite">${spikes}
+        <h2>${o ? o.title : 'Too tired to go on'}</h2>
+        <p>${o ? o.text : 'Your legs refuse the road. Rest, and try again when your strength returns.'}</p>
+        ${o ? `<p class="slots-label">Spoils and costs</p><ul class="slots">${o.gain.map((g) => slot(g, icon)).join('')}${(o.loss || []).map((g) => slot(g, icon)).join('')}${slot(`−${loc.cost} energy`, icon)}</ul>` : ''}
+        <div class="acts"><button class="btn btn-primary" data-act="again" data-loc="${loc.slug}" ${canAgain ? '' : 'disabled'}>Go again <small>${loc.cost} energy</small></button><button class="btn" data-act="map">Back to map</button></div>
+      </section>
+    </div>`,
+        map: ({ LOCATIONS, icon }) => `
+    <div class="titlebar"><small>Choose where to go</small><h1>The Northern Marches</h1></div>
+    <ul class="locs">${LOCATIONS.map((l) =>
+      l.locked
+        ? `<li><div class="loc locked" aria-disabled="true"><span class="sock">${icon('lock')}</span><div><b>${l.name}</b><span>${l.desc}</span></div><em>${l.locked}</em></div></li>`
+        : `<li><button class="loc" data-loc="${l.slug}"><span class="sock">${icon(l.icon)}</span><div><b>${l.name}</b><span>${l.desc}</span></div><em>${icon('energy')} ${l.cost}</em></button></li>`,
+    ).join('')}</ul>`,
+        after: ({ state }) => {
+          document.getElementById('liquid').style.height = `${state.energy}%`;
+          document
+            .getElementById('orbmeter')
+            .setAttribute('aria-valuenow', state.energy);
+          const ring = document.getElementById('ringslot');
+          if (state.items.includes('Tarnished ring')) {
+            ring.classList.add('on');
+            ring.title = 'Tarnished ring';
+            ring.style.borderColor = 'var(--rare)';
+          }
+        },
+      };
+    </script>
+    <script src="../shared/proto.js"></script>
+  </body>
+</html>

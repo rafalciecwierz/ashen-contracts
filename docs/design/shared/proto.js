@@ -1,6 +1,10 @@
-// Shared behaviour for the round-1 sketches: landing ↔ game, the map, adventures and energy.
+// Shared behaviour for the design sketches: landing ↔ game, the map, adventures and energy.
 // Display only: in the real game every number comes from the server.
-// Each sketch styles the same class names in its own CSS, and may set window.PROTO = { divider: '<svg…>' }.
+// Each sketch styles the same class names in its own CSS, and may set window.PROTO:
+//   divider: '<svg…>'                 ornament between title and text
+//   map(ctx) / outcome(ctx) → html    replace a view's markup (ctx: LOCATIONS, state, icon, loc, o, canAgain)
+//   after(view, ctx)                   called after a view renders
+// A page without a [data-view="landing"] opens straight into the game.
 (function () {
   const opts = window.PROTO || {};
   // Optional art slot in an outcome; hidden unless a sketch styles it.
@@ -87,7 +91,13 @@
     },
   ];
 
-  const state = { energy: 64, max: 100, crowns: 12, last: {} };
+  const state = {
+    energy: 64,
+    max: 100,
+    crowns: 12,
+    last: {},
+    items: ['Notched knife', 'Acorn'],
+  };
   const $ = (s) => document.querySelector(s);
   const center = $('#center');
 
@@ -105,7 +115,15 @@
       .forEach((el) => (el.textContent = state.crowns));
   }
 
+  const hook = (name, ctx) =>
+    opts[name] && opts[name]({ LOCATIONS, state, icon, ...ctx });
+
   function renderMap() {
+    if (opts.map) {
+      center.innerHTML = hook('map', {});
+      setNav('map');
+      return hook('after', { view: 'map' });
+    }
     center.innerHTML = `
       <section class="map">
         <p class="center-kicker">The Northern Marches</p>
@@ -132,6 +150,11 @@
     state.last[slug] = i;
     const o = loc.outcomes[i];
     state.energy -= loc.cost + (o.loss ? 5 : 0);
+    if (
+      o.gain.some((g) => !g.includes('crowns')) &&
+      !state.items.includes('Tarnished ring')
+    )
+      state.items.push('Tarnished ring');
     if (state.energy < 0) state.energy = 0;
     o.gain.forEach((g) => {
       const m = g.match(/\+(\d+) crowns/);
@@ -143,6 +166,11 @@
 
   function renderOutcome(loc, o) {
     const canAgain = state.energy >= loc.cost;
+    if (opts.outcome) {
+      center.innerHTML = hook('outcome', { loc, o, canAgain });
+      setNav('map');
+      return hook('after', { view: 'outcome', loc, o });
+    }
     center.innerHTML = `
       <section class="outcome" aria-live="polite">
         <p class="center-kicker">${loc.name}</p>
@@ -201,9 +229,12 @@
     }
   });
 
+  const initial = () =>
+    location.hash === '#game' ||
+    !document.querySelector('[data-view="landing"]')
+      ? 'game'
+      : 'landing';
   renderStats();
-  show(location.hash === '#game' ? 'game' : 'landing');
-  window.addEventListener('hashchange', () =>
-    show(location.hash === '#game' ? 'game' : 'landing'),
-  );
+  show(initial());
+  window.addEventListener('hashchange', () => show(initial()));
 })();
